@@ -320,6 +320,7 @@ public class JavaSnoopView extends FrameView {
         mnuGetProcessInfo = new javax.swing.JMenuItem();
         mnuBrowseRemoteClasses = new javax.swing.JMenuItem();
         mnuStartCanaryMode = new javax.swing.JMenuItem();
+        mnuDecompileClass = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JSeparator();
         mnuManageJavaAppletSecuritySettings = new javax.swing.JMenuItem();
         jSeparator4 = new javax.swing.JSeparator();
@@ -338,7 +339,6 @@ public class JavaSnoopView extends FrameView {
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem mnuAbout = new javax.swing.JMenuItem();
         mnuViewFAQ = new javax.swing.JMenuItem();
-        mnuTest = new javax.swing.JMenuItem();
         statusPanel = new javax.swing.JPanel();
         javax.swing.JSeparator statusPanelSeparator = new javax.swing.JSeparator();
         statusMessageLabel = new javax.swing.JLabel();
@@ -648,6 +648,7 @@ public class JavaSnoopView extends FrameView {
             }
         });
 
+        tabConsoleCode.setBackground(resourceMap.getColor("tabConsoleCode.background")); // NOI18N
         tabConsoleCode.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
         tabConsoleCode.setName("tabConsoleCode"); // NOI18N
 
@@ -696,18 +697,15 @@ public class JavaSnoopView extends FrameView {
                 .addGroup(functionHookPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, functionHookPanelLayout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(11, 11, 11)
                         .addGroup(functionHookPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(btnAddHook)
                             .addComponent(btnDeleteHook)))
                     .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGroup(functionHookPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(functionHookPanelLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(functionHookPanelLayout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addComponent(tabConsoleCode, javax.swing.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(functionHookPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tabConsoleCode, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -921,6 +919,7 @@ public class JavaSnoopView extends FrameView {
         fileMenu.setName("fileMenu"); // NOI18N
 
         jMenuItem2.setAction(actionMap.get("newSession")); // NOI18N
+        jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem2.setText(resourceMap.getString("jMenuItem2.text")); // NOI18N
         jMenuItem2.setName("jMenuItem2"); // NOI18N
         fileMenu.add(jMenuItem2);
@@ -971,19 +970,32 @@ public class JavaSnoopView extends FrameView {
         actionsMenu.setName("actionsMenu"); // NOI18N
 
         mnuGetProcessInfo.setAction(actionMap.get("getProcessInfo")); // NOI18N
+        mnuGetProcessInfo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
         mnuGetProcessInfo.setText(resourceMap.getString("mnuGetProcessInfo.text")); // NOI18N
+        mnuGetProcessInfo.setEnabled(false);
         mnuGetProcessInfo.setName("mnuGetProcessInfo"); // NOI18N
         actionsMenu.add(mnuGetProcessInfo);
 
         mnuBrowseRemoteClasses.setAction(actionMap.get("browseRemoteClasses")); // NOI18N
+        mnuBrowseRemoteClasses.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, java.awt.event.InputEvent.CTRL_MASK));
         mnuBrowseRemoteClasses.setText(resourceMap.getString("mnuBrowseRemoteClasses.text")); // NOI18N
+        mnuBrowseRemoteClasses.setEnabled(false);
         mnuBrowseRemoteClasses.setName("mnuBrowseRemoteClasses"); // NOI18N
         actionsMenu.add(mnuBrowseRemoteClasses);
 
         mnuStartCanaryMode.setAction(actionMap.get("enterCanaryMode")); // NOI18N
+        mnuStartCanaryMode.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.CTRL_MASK));
         mnuStartCanaryMode.setText(resourceMap.getString("mnuStartCanaryMode.text")); // NOI18N
+        mnuStartCanaryMode.setEnabled(false);
         mnuStartCanaryMode.setName("mnuStartCanaryMode"); // NOI18N
         actionsMenu.add(mnuStartCanaryMode);
+
+        mnuDecompileClass.setAction(actionMap.get("decompileClass")); // NOI18N
+        mnuDecompileClass.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        mnuDecompileClass.setText(resourceMap.getString("mnuDecompileClass.text")); // NOI18N
+        mnuDecompileClass.setEnabled(false);
+        mnuDecompileClass.setName("mnuDecompileClass"); // NOI18N
+        actionsMenu.add(mnuDecompileClass);
 
         jSeparator1.setEnabled(false);
         jSeparator1.setName("jSeparator1"); // NOI18N
@@ -1063,6 +1075,7 @@ public class JavaSnoopView extends FrameView {
         helpMenu.setName("helpMenu"); // NOI18N
 
         mnuAbout.setAction(actionMap.get("showAboutBox")); // NOI18N
+        mnuAbout.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F10, 0));
         mnuAbout.setName("mnuAbout"); // NOI18N
         helpMenu.add(mnuAbout);
 
@@ -1075,15 +1088,6 @@ public class JavaSnoopView extends FrameView {
             }
         });
         helpMenu.add(mnuViewFAQ);
-
-        mnuTest.setText(resourceMap.getString("mnuTest.text")); // NOI18N
-        mnuTest.setName("mnuTest"); // NOI18N
-        mnuTest.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                mnuTestActionPerformed(evt);
-            }
-        });
-        helpMenu.add(mnuTest);
 
         menuBar.add(helpMenu);
 
@@ -1499,13 +1503,6 @@ public class JavaSnoopView extends FrameView {
         sendAgentNewRules();
     }//GEN-LAST:event_chkTamperReturnValueActionPerformed
 
-    private void mnuTestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnuTestActionPerformed
-        for(JCheckBoxMenuItem item : mnuLogLevels) {
-            item.setSelected(false);
-            item.setState(false);
-        }
-    }//GEN-LAST:event_mnuTestActionPerformed
-
     private void chkPrintStackTraceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkPrintStackTraceActionPerformed
         FunctionHookInterceptor hook = getCurrentHook();
         hook.setShouldPrintStackTrace(chkPrintStackTrace.isSelected());
@@ -1753,6 +1750,7 @@ public class JavaSnoopView extends FrameView {
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem mnuBrowseRemoteClasses;
+    private javax.swing.JMenuItem mnuDecompileClass;
     private javax.swing.JMenuItem mnuGetProcessInfo;
     private javax.swing.JMenuItem mnuLoadConfiguration;
     private javax.swing.JCheckBoxMenuItem mnuLogDebug;
@@ -1769,7 +1767,6 @@ public class JavaSnoopView extends FrameView {
     private javax.swing.JMenuItem mnuSaveConfigurationAs;
     private javax.swing.JMenuItem mnuSetJadPath;
     private javax.swing.JMenuItem mnuStartCanaryMode;
-    private javax.swing.JMenuItem mnuTest;
     private javax.swing.JMenuItem mnuViewFAQ;
     private javax.swing.JScrollPane pnlCode;
     private javax.swing.JScrollPane pnlConsole;
@@ -2130,6 +2127,7 @@ public class JavaSnoopView extends FrameView {
 
         try {
             console.insertString(console.getLength(), s, attributes);
+            txtConsole.setCaretPosition( console.getLength() );
         } catch (BadLocationException ex) {
             logger.error(ex);
         }
@@ -2205,6 +2203,7 @@ public class JavaSnoopView extends FrameView {
         mnuBrowseRemoteClasses.setEnabled(false);
         mnuGetProcessInfo.setEnabled(false);
         mnuStartCanaryMode.setEnabled(false);
+        mnuDecompileClass.setEnabled(false);
 
         txtMainClass.setEnabled(true);
         txtMainClass.setBackground(Color.white);
@@ -2233,6 +2232,7 @@ public class JavaSnoopView extends FrameView {
         mnuBrowseRemoteClasses.setEnabled(false);
         mnuGetProcessInfo.setEnabled(false);
         mnuStartCanaryMode.setEnabled(false);
+        mnuDecompileClass.setEnabled(false);
 
         txtMainClass.setEnabled(false);
         txtMainClass.setBackground(Color.orange);
@@ -2260,6 +2260,7 @@ public class JavaSnoopView extends FrameView {
         mnuBrowseRemoteClasses.setEnabled(true);
         mnuGetProcessInfo.setEnabled(true);
         mnuStartCanaryMode.setEnabled(true);
+        mnuDecompileClass.setEnabled(true);
 
         txtMainClass.setBackground(Color.green);
         txtMainClass.setEnabled(false);
@@ -2518,12 +2519,11 @@ public class JavaSnoopView extends FrameView {
     private void showCodeIfNeeded(String className) {
         boolean useJad = chkShowMethodCode.isSelected();
         if (useJad) {
-            String jadPath = JavaSnoop.getProperty(JavaSnoop.JAD_PATH);
             SnoopClassLoader cl = JavaSnoop.getClassLoader();
             byte[] bytes = cl.loadClassData(className);
             try {
 
-                String javaCode = JadUtil.getDecompiledJava(jadPath,className,bytes);
+                String javaCode = JadUtil.getDecompiledJava(className,bytes);
                 fillInCode(javaCode);
 
             } catch(Exception e) {
@@ -2534,6 +2534,7 @@ public class JavaSnoopView extends FrameView {
 
     private void fillInCode(String javaCode) {
         txtCode.setText(javaCode);
+        txtCode.setCaretPosition(0);
     }
 
     private String skipLines(String st, int num) {
@@ -2604,6 +2605,38 @@ public class JavaSnoopView extends FrameView {
             JavaSnoop.setProperty(JavaSnoop.JAD_PATH,newPath);
             JavaSnoop.saveProperties();
         }
+    }
+
+    @Action
+    public void decompileClass() {
+
+        if ( JadUtil.getJadLocation() == null ) {
+            UIUtil.showErrorMessage(getFrame(), "Could not locate Jad (not on the path and not setup)");
+            return;
+        }
+
+        try {
+            
+            List<String> remoteClasses = client.getRemoteClasses();
+
+            ChooseClassView view = new ChooseClassView(getFrame(), remoteClasses);
+            view.setVisible(true);
+
+            UIUtil.waitForInput(view);
+
+            String cn = view.getClassName();
+
+            if (cn != null) {
+                try {
+                    String java = JadUtil.getDecompiledJava(cn, JavaSnoop.getClassLoader().loadClassData(cn));
+                    fillInCode(java);
+                } catch(IOException ioe) { }
+            }
+
+        } catch (AgentCommunicationException ex) {
+            UIUtil.showErrorMessage(getFrame(), "Couldn't get process info from client: " + ex.getMessage());
+        }
+
     }
 
 
