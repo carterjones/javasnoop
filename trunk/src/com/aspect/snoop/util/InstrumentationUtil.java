@@ -40,7 +40,7 @@ public class InstrumentationUtil {
 
     private static boolean doesClassContainSnoopCode() {
         // statically look through Class code to find calls to Canary.start()
-        // and Canary.end()
+        // and Canary.end().
         return false;
     }
 

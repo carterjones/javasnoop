@@ -32,7 +32,6 @@ import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
-import org.apache.log4j.Logger;
 
 public class Hook2JavaUtil {
 
@@ -65,7 +64,12 @@ public class Hook2JavaUtil {
                 javaCode.append("  com.aspect.snoop.agent.AgentToSnoopClient.currentClient().printParameters(new Exception().getStackTrace()[0].getClassName(), " + id + ", $args, \"" + paramTypes + "\");");
                 javaCode.append(nl);
             }
-            
+
+            if (hook.shouldPrintStackTrace()) {
+                javaCode.append("  com.aspect.snoop.agent.AgentToSnoopClient.currentClient().printStackTrace(new Exception().getStackTrace()[0].getClassName(), " + id + ", $args, \"" + paramTypes + "\");");
+                javaCode.append(nl);
+            }
+
             if (hook.shouldPause()) {
                 javaCode.append("  com.aspect.snoop.agent.AgentToSnoopClient.currentClient().pauseProgram(new Exception().getStackTrace()[0].getClassName(), " + id + ", $args, \"" + paramTypes + "\");");
                 javaCode.append(nl);

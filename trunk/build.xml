@@ -72,6 +72,10 @@
 
     -->
 
+    <property name="dist.name" value="JavaSnoop"/>
+    <property name="version.major" value="1"/>
+    <property name="version.minor" value="0"/>
+
     <target name="-post-jar">
         <mkdir dir="${dist.dir}/resources"/>
         <copy todir="${dist.dir}/resources">
@@ -81,6 +85,19 @@
         <move file="${dist.dir}/resources/startup.bat" todir="${dist.dir}"/>
         <move file="${dist.dir}/resources/startup.sh" todir="${dist.dir}" failonerror="false"/>
         <move file="${dist.dir}/resources/README.txt" todir="${dist.dir}"/>
+
+        <!-- create the deliverable zip -->
+        <copy todir="${dist.name}">
+            <fileset dir="${dist.dir}"/>
+        </copy>
+
+        <zip
+            basedir="."
+            includes="${dist.name}/"
+            zipfile="${dist.dir}/${dist.name}-${version.major}.${version.minor}.zip"/>
+
+        <delete dir="${dist.name}"/>
+        
     </target>
     
 </project>

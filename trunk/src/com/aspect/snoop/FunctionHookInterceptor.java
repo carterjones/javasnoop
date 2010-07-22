@@ -36,6 +36,7 @@ public class FunctionHookInterceptor extends MethodInterceptor implements Serial
     private boolean shouldTamperReturnValue;
     
     private boolean shouldPrintParameters;
+    private boolean shouldPrintStackTrace;
     private boolean isOutputToConsole;
     private boolean isOutputToFile;
     private String outputFile;
@@ -70,6 +71,10 @@ public class FunctionHookInterceptor extends MethodInterceptor implements Serial
     }
 
     public boolean shouldPrintParameters() {
+        return shouldPrintStackTrace;
+    }
+
+    public boolean shouldPrintStackTrace() {
         return shouldPrintParameters;
     }
 
@@ -94,7 +99,7 @@ public class FunctionHookInterceptor extends MethodInterceptor implements Serial
     public FunctionHookInterceptor(boolean shouldTamperParameters, boolean shouldTamperReturnValue, boolean shouldRunScript,
             String startScript, String endScript, boolean shouldPause, boolean enabled, String className,
             String methodName, String[] parameterTypes, String returnType, boolean applyToSubTypes, Mode mode,
-            boolean shouldPrintParameters,  boolean isOutputToConsole,
+            boolean shouldPrintParameters,  boolean shouldPrintStackTrace, boolean isOutputToConsole,
             boolean isOutputToFile, String outputFile, List<Condition> conditions) {
 
         super(mode, enabled, className, methodName, parameterTypes, returnType, applyToSubTypes, conditions);
@@ -109,6 +114,8 @@ public class FunctionHookInterceptor extends MethodInterceptor implements Serial
         this.outputFile = outputFile;
 
         this.shouldPrintParameters = shouldPrintParameters;
+        this.shouldPrintParameters = shouldPrintStackTrace;
+        
         this.shouldPause = shouldPause;
         this.shouldRunScript = shouldRunScript;
         this.shouldTamperParameters = shouldTamperParameters;
@@ -146,6 +153,10 @@ public class FunctionHookInterceptor extends MethodInterceptor implements Serial
 
     public void setShouldRunScript(boolean b) {
         this.shouldRunScript = b;
+    }
+
+    public void setShouldPrintStackTrace(boolean b) {
+        this.shouldPrintStackTrace = b;
     }
 
     public void setShouldPrintParameters(boolean b) {

@@ -29,6 +29,8 @@ import com.aspect.snoop.messages.client.PauseRequest;
 import com.aspect.snoop.messages.client.PauseResponse;
 import com.aspect.snoop.messages.client.PrintParametersRequest;
 import com.aspect.snoop.messages.client.PrintParametersResponse;
+import com.aspect.snoop.messages.client.PrintStackTraceRequest;
+import com.aspect.snoop.messages.client.PrintStackTraceResponse;
 import com.aspect.snoop.messages.client.RunScriptRequest;
 import com.aspect.snoop.messages.client.RunScriptResponse;
 import com.aspect.snoop.messages.client.ShowErrorRequest;
@@ -105,6 +107,27 @@ public class SnoopServerThread extends AbstractServerThread {
                         request.getParameterTypes(),
                         SerializationUtil.prepareObjectsForUsing(request.getParameters(),serializer));
                 
+
+            } catch(Exception e) {
+                populateResponse(response,e);
+            }
+
+            output.writeObject(response);
+
+        } else if ( message instanceof PrintStackTraceRequest ) {
+
+            PrintStackTraceRequest request = (PrintStackTraceRequest)message;
+            PrintStackTraceResponse response = new PrintStackTraceResponse();
+
+            try {
+
+                // print the parameters
+                JavaSnoop.getMainForm().printStackTrace(
+                        request.getClassName(),
+                        request.getHookId(),
+                        request.getStackTrace(),
+                        request.getParameterTypes(),
+                        SerializationUtil.prepareObjectsForUsing(request.getParameters(),serializer));
 
             } catch(Exception e) {
                 populateResponse(response,e);

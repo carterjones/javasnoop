@@ -26,6 +26,8 @@ import com.aspect.snoop.messages.client.PauseRequest;
 import com.aspect.snoop.messages.client.PauseResponse;
 import com.aspect.snoop.messages.client.PrintParametersRequest;
 import com.aspect.snoop.messages.client.PrintParametersResponse;
+import com.aspect.snoop.messages.client.PrintStackTraceRequest;
+import com.aspect.snoop.messages.client.PrintStackTraceResponse;
 import com.aspect.snoop.messages.client.ShowErrorRequest;
 import com.aspect.snoop.messages.client.ShowErrorResponse;
 import com.aspect.snoop.messages.client.TamperParametersRequest;
@@ -235,6 +237,43 @@ public class AgentToSnoopClient {
         }
 
         return object;
+    }
+
+        /**
+     * This method tells the Snoop program to print the stack trace of a method.
+     *
+     * @throws AgentCommunicationException if there is a communication error
+     */
+    public void printStackTrace(String clazz, int hookId, Object[] objects, String paramTypes) {
+
+        Socket socket = null;
+
+        try {
+
+            String[] types = paramTypes.split(",");
+
+            socket = getConnection();
+
+            ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+
+            PrintStackTraceRequest request = new PrintStackTraceRequest( SerializationUtil.prepareObjectsForSending(objects, types, serializer), types, convert(new Exception("Function was called: ")) );
+            request.setClassName(clazz);
+            request.setHookId(hookId);
+            
+            output.writeObject(request);
+
+            PrintStackTraceResponse response = (PrintStackTraceResponse)input.readObject();
+
+            if ( ! response.wasSuccessful() ) {
+                throw new AgentCommunicationException("Couldn't tell home base to print parameters: " + response.getMessage());
+            }
+
+        } catch (Exception e) {
+            sendErrorMessage("Encountered exception during PrintParameters communication: " + convert(e));
+        } finally {
+            closeConnection(socket);
+        }
     }
 
 

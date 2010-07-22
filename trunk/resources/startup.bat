@@ -13,14 +13,23 @@ set unsafe_policy=resources\unsafe.policy
 set safe_policy=resources\safe.policy
 set user_policy=%USERPROFILE%\AppData\LocalLow\Sun\Java\Deployment\Security\java.policy
 
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName| findstr /i "Vista">NUL
+if errorlevel 1 (
+   echo [-] Determined OS to be Windows XP
+   set user_policy=C:\Documents and Settings\%USERNAME%\.java.policy
+) else (
+   echo [-] Determined OS to be Windows Vista
+)
+
 echo %JAVA_HOME% | find /i "1.6" > NUL
 
 if not errorlevel 1 (
-   echo Found 1.6 Java in JAVA_HOME variable!
+   echo [1] Found 1.6 Java in JAVA_HOME variable!
+   copy "%JAVA_HOME%\lib\tools.jar" .\lib\tools.jar >NUL
    set JDK_EXEC=%JAVA_HOME%\bin\java.exe
 ) else (
-   echo JAVA_HOME variable wasn't set to a valid Java 1.6+ installation.
-   echo Reading from registry to find other 1.6 installations.
+   echo [1] JAVA_HOME variable wasn't set to a valid Java 1.6+ installation.
+   echo     Reading from registry to find other 1.6 installations.
    reg query "HKEY_LOCAL_MACHINE\SOFTWARE\JavaSoft\Java Development Kit\1.6" /v JavaHome > jver.tmp
 
    if errorlevel 1 (
@@ -32,19 +41,20 @@ if not errorlevel 1 (
    type jver.tmp |more /E +2 > jdk.tmp
    set /P jdk=<jdk.tmp
    set jdk=!jdk:~26!
+   copy /Y "%jdk%\lib\tools.jar" .\lib\tools.jar >NUL
    set JDK_EXEC=!jdk!\bin\java.exe
-   rem del jver.tmp 2>NUL
-   rem del jdk.tmp 2>NUL
+   del jver.tmp 2>NUL
+   del jdk.tmp 2>NUL
 )
 
-echo Turning off Java security for JavaSnoop usage.
+echo [2] Turning off Java security for JavaSnoop usage.
 del %user_policy% 2>NUL
 copy %unsafe_policy% %user_policy% >NUL
 
-echo Starting JavaSnoop
+echo [3] Starting JavaSnoop
 start /wait /MIN "JavaSnoop" "%JDK_EXEC%" -jar JavaSnoop.jar
 
-echo Turning Java security back on for safe browsing.
+echo [4] Turning Java security back on for safe browsing.
 del %user_policy% 2> NUL
 copy %safe_policy% %user_policy% > NUL
 
