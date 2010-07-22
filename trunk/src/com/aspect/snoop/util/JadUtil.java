@@ -19,6 +19,7 @@
 
 package com.aspect.snoop.util;
 
+import com.aspect.snoop.JavaSnoop;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,7 +38,57 @@ public class JadUtil {
 
     private static Map<String,String> codeCache;
 
-    public static String getDecompiledJava(String jadPath, String className, byte[] clazz) throws IOException {
+    private static File getExecutableFromPath(String executableName) {
+        String systemPath = System.getenv("PATH");
+        String[] pathDirs = systemPath.split(File.pathSeparator);
+
+        File fullyQualifiedExecutable = null;
+        for (String pathDir : pathDirs) {
+            File file = new File(pathDir, executableName);
+            if (file.isFile()) {
+                fullyQualifiedExecutable = file;
+                break;
+            }
+        }
+        return fullyQualifiedExecutable;
+    }
+
+    public static String getJadLocation() {
+
+        try {
+
+            boolean isWin = System.getProperty("os.name").contains("Windows");
+
+            File f = getExecutableFromPath("jad" + (isWin ? ".exe":"") );
+
+            if ( f != null ) {
+                return f.getAbsolutePath();
+            }
+
+            /*
+             * Check the Jad path.
+             */
+            String jadPath = JavaSnoop.getProperty(JavaSnoop.JAD_PATH);
+            if ( jadPath == null || jadPath.length() == 0 ) {
+                return null;
+            }
+
+            if ( new File(jadPath).exists() ) {
+                return jadPath;
+            }
+
+        } catch (Exception e) { }
+
+        return null;
+    }
+
+    public static String getDecompiledJava(String className, byte[] clazz) throws IOException {
+
+        String jadPath = getJadLocation();
+
+        if ( jadPath == null ) {
+            throw new IOException("Couldn't find jad");
+        }
 
         if ( codeCache == null ) {
             codeCache = new HashMap<String,String>();

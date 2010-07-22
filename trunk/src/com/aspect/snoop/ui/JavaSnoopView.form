@@ -66,7 +66,7 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="1" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" attributes="0">
+                                  <Group type="102" attributes="1">
                                       <Component id="btnAddHook" min="-2" max="-2" attributes="1"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="btnDeleteHook" min="-2" max="-2" attributes="1"/>
@@ -92,23 +92,18 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="1" attributes="0">
                               <Component id="jScrollPane1" min="-2" pref="110" max="-2" attributes="1"/>
-                              <EmptySpace max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="11" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="1" attributes="0">
                                   <Component id="btnAddHook" min="-2" max="-2" attributes="0"/>
-                                  <Component id="btnDeleteHook" min="-2" max="-2" attributes="0"/>
+                                  <Component id="btnDeleteHook" alignment="1" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <Component id="jPanel2" alignment="1" min="-2" max="-2" attributes="1"/>
                       </Group>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jPanel1" min="-2" pref="272" max="-2" attributes="1"/>
-                          </Group>
-                          <Group type="102" attributes="0">
-                              <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
-                              <Component id="tabConsoleCode" pref="263" max="32767" attributes="0"/>
-                          </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Component id="jPanel1" min="-2" pref="272" max="-2" attributes="1"/>
+                          <Component id="tabConsoleCode" min="-2" pref="267" max="-2" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -510,6 +505,7 @@
             </Component>
             <Container class="javax.swing.JTabbedPane" name="tabConsoleCode">
               <Properties>
+                <Property name="background" type="java.awt.Color" resourceKey="tabConsoleCode.background"/>
                 <Property name="tabLayoutPolicy" type="int" value="1"/>
                 <Property name="name" type="java.lang.String" value="tabConsoleCode" noResource="true"/>
               </Properties>
@@ -552,7 +548,7 @@
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-                      <JTabbedPaneConstraints tabName="Code">
+                      <JTabbedPaneConstraints tabName="Decompiled Code">
                         <Property name="tabTitle" type="java.lang.String" resourceKey="pnlCode.TabConstraints.tabTitle"/>
                       </JTabbedPaneConstraints>
                     </Constraint>
@@ -881,6 +877,9 @@
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="com.aspect.snoop.ui.AspectSpyView" id="newSession" methodName="newSession"/>
                 </Property>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+N"/>
+                </Property>
                 <Property name="text" type="java.lang.String" resourceKey="jMenuItem2.text"/>
                 <Property name="name" type="java.lang.String" value="jMenuItem2" noResource="true"/>
               </Properties>
@@ -954,7 +953,11 @@
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="com.aspect.snoop.ui.AspectSpyView" id="getProcessInfo" methodName="getProcessInfo"/>
                 </Property>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+P"/>
+                </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuGetProcessInfo.text"/>
+                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="mnuGetProcessInfo" noResource="true"/>
               </Properties>
             </MenuItem>
@@ -963,7 +966,11 @@
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="com.aspect.snoop.ui.AspectSpyView" id="browseRemoteClasses" methodName="browseRemoteClasses"/>
                 </Property>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+B"/>
+                </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuBrowseRemoteClasses.text"/>
+                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="mnuBrowseRemoteClasses" noResource="true"/>
               </Properties>
             </MenuItem>
@@ -972,8 +979,25 @@
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="com.aspect.snoop.ui.JavaSnoopView" id="enterCanaryMode" methodName="enterCanaryMode"/>
                 </Property>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+R"/>
+                </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuStartCanaryMode.text"/>
+                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="mnuStartCanaryMode" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="mnuDecompileClass">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="com.aspect.snoop.ui.JavaSnoopView" id="decompileClass" methodName="decompileClass"/>
+                </Property>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+O"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="mnuDecompileClass.text"/>
+                <Property name="enabled" type="boolean" value="false"/>
+                <Property name="name" type="java.lang.String" value="mnuDecompileClass" noResource="true"/>
               </Properties>
             </MenuItem>
             <MenuItem class="javax.swing.JSeparator" name="jSeparator1">
@@ -1115,6 +1139,9 @@
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="com.aspect.snoop.ui.JavaSpyView" id="showAboutBox" methodName="showAboutBox"/>
                 </Property>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="F10"/>
+                </Property>
                 <Property name="name" type="java.lang.String" value="mnuAbout" noResource="true"/>
               </Properties>
               <AuxValues>
@@ -1132,15 +1159,6 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mnuViewFAQActionPerformed"/>
-              </Events>
-            </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="mnuTest">
-              <Properties>
-                <Property name="text" type="java.lang.String" resourceKey="mnuTest.text"/>
-                <Property name="name" type="java.lang.String" value="mnuTest" noResource="true"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mnuTestActionPerformed"/>
               </Events>
             </MenuItem>
           </SubComponents>
