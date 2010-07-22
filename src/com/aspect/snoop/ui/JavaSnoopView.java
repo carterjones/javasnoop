@@ -44,6 +44,7 @@ import com.aspect.snoop.ui.tamper.ParameterTamperingView;
 import com.aspect.snoop.util.AttachUtil;
 import com.aspect.snoop.util.ClasspathUtil;
 import com.aspect.snoop.util.ConditionUtil;
+import com.aspect.snoop.util.JadUtil;
 import com.aspect.snoop.util.ReflectionUtil;
 import com.aspect.snoop.util.SessionPersistenceUtil;
 import com.aspect.snoop.util.SnoopClassLoader;
@@ -54,6 +55,7 @@ import com.sun.tools.attach.AttachNotSupportedException;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.FileDialog;
+import java.awt.Font;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.File;
@@ -67,11 +69,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
 import java.io.FileOutputStream;
+import java.io.StringReader;
 import java.net.URI;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
@@ -94,6 +101,8 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 
 /**
  * The application's main frame.
@@ -163,7 +172,7 @@ public class JavaSnoopView extends FrameView {
                 }
             }
         });
-        
+
         popupMenu = new JPopupMenu();
         popupMenu.add(deleteCondition);
 
@@ -252,16 +261,18 @@ public class JavaSnoopView extends FrameView {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblFunctionsHooked = new javax.swing.JTable();
         jPanel1 = new javax.swing.JPanel();
-        btnBrowseForOutputFile = new javax.swing.JButton();
-        txtOutputFile = new javax.swing.JTextField();
         chkOutputToFile = new javax.swing.JCheckBox();
-        btnEditScript = new javax.swing.JButton();
         chkOutputToConsole = new javax.swing.JCheckBox();
-        chkTamperParameters = new javax.swing.JCheckBox();
         chkPrintParameters = new javax.swing.JCheckBox();
+        chkPrintStackTrace = new javax.swing.JCheckBox();
+        jPanel3 = new javax.swing.JPanel();
+        txtOutputFile = new javax.swing.JTextField();
+        btnBrowseForOutputFile = new javax.swing.JButton();
         chkRunScript = new javax.swing.JCheckBox();
-        chkPause = new javax.swing.JCheckBox();
+        btnEditScript = new javax.swing.JButton();
+        chkTamperParameters = new javax.swing.JCheckBox();
         chkTamperReturnValue = new javax.swing.JCheckBox();
+        chkPause = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
         rdoAlwaysHook = new javax.swing.JRadioButton();
         rdoHookIf = new javax.swing.JRadioButton();
@@ -271,6 +282,11 @@ public class JavaSnoopView extends FrameView {
         btnAddNewCondition = new javax.swing.JButton();
         btnAddHook = new javax.swing.JButton();
         btnDeleteHook = new javax.swing.JButton();
+        tabConsoleCode = new javax.swing.JTabbedPane();
+        pnlConsole = new javax.swing.JScrollPane();
+        txtConsole = new JTextPane(console);
+        pnlCode = new javax.swing.JScrollPane();
+        txtCode = new RSyntaxTextArea();
         programSetupPanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
@@ -291,8 +307,6 @@ public class JavaSnoopView extends FrameView {
         lblSnoopingOrNot = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
         lblFilename = new javax.swing.JLabel();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        txtConsole = new JTextPane(console);
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
@@ -309,6 +323,10 @@ public class JavaSnoopView extends FrameView {
         jSeparator1 = new javax.swing.JSeparator();
         mnuManageJavaAppletSecuritySettings = new javax.swing.JMenuItem();
         jSeparator4 = new javax.swing.JSeparator();
+        mnuManageJad = new javax.swing.JMenu();
+        chkShowMethodCode = new javax.swing.JCheckBoxMenuItem();
+        mnuSetJadPath = new javax.swing.JMenuItem();
+        jSeparator5 = new javax.swing.JSeparator();
         mnuLogSetting = new javax.swing.JMenu();
         mnuLogTrace = new javax.swing.JCheckBoxMenuItem();
         mnuLogDebug = new javax.swing.JCheckBoxMenuItem();
@@ -361,27 +379,12 @@ public class JavaSnoopView extends FrameView {
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, resourceMap.getString("pnlOnExecution.border.title"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, resourceMap.getFont("pnlOnExecution.border.titleFont"))); // NOI18N
         jPanel1.setName("pnlOnExecution"); // NOI18N
 
-        btnBrowseForOutputFile.setText(resourceMap.getString("btnBrowseForOutputFile.text")); // NOI18N
-        btnBrowseForOutputFile.setFocusable(false);
-        btnBrowseForOutputFile.setName("btnBrowseForOutputFile"); // NOI18N
-
-        txtOutputFile.setName("txtOutputFile"); // NOI18N
-
         chkOutputToFile.setText(resourceMap.getString("chkOutputToFile.text")); // NOI18N
         chkOutputToFile.setFocusable(false);
         chkOutputToFile.setName("chkOutputToFile"); // NOI18N
         chkOutputToFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 chkOutputToFileActionPerformed(evt);
-            }
-        });
-
-        btnEditScript.setText(resourceMap.getString("btnEditScript.text")); // NOI18N
-        btnEditScript.setFocusable(false);
-        btnEditScript.setName("btnEditScript"); // NOI18N
-        btnEditScript.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnEditScriptActionPerformed(evt);
             }
         });
 
@@ -394,14 +397,6 @@ public class JavaSnoopView extends FrameView {
             }
         });
 
-        chkTamperParameters.setText(resourceMap.getString("chkTamperParameters.text")); // NOI18N
-        chkTamperParameters.setName("chkTamperParameters"); // NOI18N
-        chkTamperParameters.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                chkTamperParametersActionPerformed(evt);
-            }
-        });
-
         chkPrintParameters.setText(resourceMap.getString("chkPrintParameters.text")); // NOI18N
         chkPrintParameters.setName("chkPrintParameters"); // NOI18N
         chkPrintParameters.addActionListener(new java.awt.event.ActionListener() {
@@ -409,6 +404,25 @@ public class JavaSnoopView extends FrameView {
                 chkPrintParametersActionPerformed(evt);
             }
         });
+
+        chkPrintStackTrace.setText(resourceMap.getString("chkPrintStackTrace.text")); // NOI18N
+        chkPrintStackTrace.setName("chkPrintStackTrace"); // NOI18N
+        chkPrintStackTrace.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chkPrintStackTraceActionPerformed(evt);
+            }
+        });
+
+        jPanel3.setAlignmentX(0.0F);
+        jPanel3.setAlignmentY(0.0F);
+        jPanel3.setFocusable(false);
+        jPanel3.setName("jPanel3"); // NOI18N
+
+        txtOutputFile.setName("txtOutputFile"); // NOI18N
+
+        btnBrowseForOutputFile.setText(resourceMap.getString("btnBrowseForOutputFile.text")); // NOI18N
+        btnBrowseForOutputFile.setFocusable(false);
+        btnBrowseForOutputFile.setName("btnBrowseForOutputFile"); // NOI18N
 
         chkRunScript.setText(resourceMap.getString("chkRunScript.text")); // NOI18N
         chkRunScript.setName("chkRunScript"); // NOI18N
@@ -418,11 +432,20 @@ public class JavaSnoopView extends FrameView {
             }
         });
 
-        chkPause.setText(resourceMap.getString("chkPause.text")); // NOI18N
-        chkPause.setName("chkPause"); // NOI18N
-        chkPause.addActionListener(new java.awt.event.ActionListener() {
+        btnEditScript.setText(resourceMap.getString("btnEditScript.text")); // NOI18N
+        btnEditScript.setFocusable(false);
+        btnEditScript.setName("btnEditScript"); // NOI18N
+        btnEditScript.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                chkPauseActionPerformed(evt);
+                btnEditScriptActionPerformed(evt);
+            }
+        });
+
+        chkTamperParameters.setText(resourceMap.getString("chkTamperParameters.text")); // NOI18N
+        chkTamperParameters.setName("chkTamperParameters"); // NOI18N
+        chkTamperParameters.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chkTamperParametersActionPerformed(evt);
             }
         });
 
@@ -434,54 +457,85 @@ public class JavaSnoopView extends FrameView {
             }
         });
 
+        chkPause.setText(resourceMap.getString("chkPause.text")); // NOI18N
+        chkPause.setName("chkPause"); // NOI18N
+        chkPause.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chkPauseActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(txtOutputFile, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnBrowseForOutputFile))
+                    .addComponent(chkPause)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addComponent(btnEditScript))
+                    .addComponent(chkTamperReturnValue)
+                    .addComponent(chkTamperParameters)
+                    .addComponent(chkRunScript, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnBrowseForOutputFile)
+                    .addComponent(txtOutputFile, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(chkRunScript)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnEditScript, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(chkTamperParameters)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(chkTamperReturnValue)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(chkPause)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(chkPrintParameters)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
-                        .addComponent(chkOutputToConsole))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(txtOutputFile, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(chkOutputToFile)
-                    .addComponent(btnBrowseForOutputFile))
-                .addGap(50, 50, 50)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(btnEditScript, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(chkRunScript, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(41, 41, 41)
+                .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(chkTamperParameters)
-                        .addGap(18, 18, 18)
-                        .addComponent(chkPause))
-                    .addComponent(chkTamperReturnValue))
-                .addGap(53, 53, 53))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(chkOutputToFile)
+                                .addComponent(chkOutputToConsole))
+                            .addComponent(chkPrintParameters))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(chkPrintStackTrace))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(2, 2, 2)))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(chkOutputToConsole)
-                    .addComponent(chkOutputToFile)
                     .addComponent(chkPrintParameters)
-                    .addComponent(chkRunScript)
-                    .addComponent(chkTamperParameters)
-                    .addComponent(chkPause))
+                    .addComponent(chkPrintStackTrace))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnBrowseForOutputFile)
-                        .addComponent(txtOutputFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnEditScript, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(chkTamperReturnValue))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(chkOutputToConsole)
+                .addGap(3, 3, 3)
+                .addComponent(chkOutputToFile)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(145, 145, 145))
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(resourceMap.getString("pnlConditions.border.title"))); // NOI18N
@@ -594,15 +648,34 @@ public class JavaSnoopView extends FrameView {
             }
         });
 
+        tabConsoleCode.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
+        tabConsoleCode.setName("tabConsoleCode"); // NOI18N
+
+        pnlConsole.setName("pnlConsole"); // NOI18N
+
+        txtConsole.setName("txtConsole"); // NOI18N
+        pnlConsole.setViewportView(txtConsole);
+
+        tabConsoleCode.addTab(resourceMap.getString("pnlConsole.TabConstraints.tabTitle"), pnlConsole); // NOI18N
+
+        pnlCode.setName("pnlCode"); // NOI18N
+
+        txtCode.setColumns(20);
+        txtCode.setEditable(false);
+        txtCode.setRows(5);
+        txtCode.setName("txtCode"); // NOI18N
+        pnlCode.setViewportView(txtCode);
+
+        tabConsoleCode.addTab(resourceMap.getString("pnlCode.TabConstraints.tabTitle"), pnlCode); // NOI18N
+
         javax.swing.GroupLayout functionHookPanelLayout = new javax.swing.GroupLayout(functionHookPanel);
         functionHookPanel.setLayout(functionHookPanelLayout);
         functionHookPanelLayout.setHorizontalGroup(
             functionHookPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, functionHookPanelLayout.createSequentialGroup()
+            .addGroup(functionHookPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(functionHookPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(functionHookPanelLayout.createSequentialGroup()
+                .addGroup(functionHookPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, functionHookPanelLayout.createSequentialGroup()
                         .addGroup(functionHookPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(functionHookPanelLayout.createSequentialGroup()
                                 .addComponent(btnAddHook)
@@ -610,8 +683,12 @@ public class JavaSnoopView extends FrameView {
                                 .addComponent(btnDeleteHook))
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 434, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(8, 8, 8)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(16, 16, 16))
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(functionHookPanelLayout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tabConsoleCode, javax.swing.GroupLayout.PREFERRED_SIZE, 551, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
         functionHookPanelLayout.setVerticalGroup(
             functionHookPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -624,8 +701,13 @@ public class JavaSnoopView extends FrameView {
                             .addComponent(btnAddHook)
                             .addComponent(btnDeleteHook)))
                     .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(functionHookPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(functionHookPanelLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(functionHookPanelLayout.createSequentialGroup()
+                        .addGap(15, 15, 15)
+                        .addComponent(tabConsoleCode, javax.swing.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -788,12 +870,12 @@ public class JavaSnoopView extends FrameView {
                 .addContainerGap()
                 .addGroup(reportingPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(reportingPanelLayout.createSequentialGroup()
-                        .addComponent(lblFilename, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
+                        .addComponent(lblFilename, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
                         .addContainerGap())
                     .addComponent(lblSnoopingOrNot)
                     .addGroup(reportingPanelLayout.createSequentialGroup()
                         .addComponent(jLabel16)
-                        .addContainerGap(178, Short.MAX_VALUE))))
+                        .addContainerGap(172, Short.MAX_VALUE))))
         );
         reportingPanelLayout.setVerticalGroup(
             reportingPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -806,41 +888,31 @@ public class JavaSnoopView extends FrameView {
                 .addContainerGap(58, Short.MAX_VALUE))
         );
 
-        jScrollPane3.setName("jScrollPane3"); // NOI18N
-
-        txtConsole.setName("txtConsole"); // NOI18N
-        jScrollPane3.setViewportView(txtConsole);
-
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, mainPanelLayout.createSequentialGroup()
-                        .addGap(1, 1, 1)
-                        .addComponent(functionHookPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, mainPanelLayout.createSequentialGroup()
-                        .addGap(2, 2, 2)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addGap(11, 11, 11)
                         .addComponent(programSetupPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(reportingPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, mainPanelLayout.createSequentialGroup()
+                    .addGroup(mainPanelLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jScrollPane3)))
-                .addContainerGap(11, Short.MAX_VALUE))
+                        .addComponent(functionHookPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(reportingPanel, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(programSetupPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(reportingPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(programSetupPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(functionHookPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(12, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         menuBar.setName("menuBar"); // NOI18N
@@ -913,16 +985,36 @@ public class JavaSnoopView extends FrameView {
         mnuStartCanaryMode.setName("mnuStartCanaryMode"); // NOI18N
         actionsMenu.add(mnuStartCanaryMode);
 
+        jSeparator1.setEnabled(false);
         jSeparator1.setName("jSeparator1"); // NOI18N
         actionsMenu.add(jSeparator1);
 
         mnuManageJavaAppletSecuritySettings.setAction(actionMap.get("manageJavaSecuritySettings")); // NOI18N
         mnuManageJavaAppletSecuritySettings.setText(resourceMap.getString("mnuManageJavaAppletSecuritySettings.text")); // NOI18N
+        mnuManageJavaAppletSecuritySettings.setEnabled(false);
         mnuManageJavaAppletSecuritySettings.setName("mnuManageJavaAppletSecuritySettings"); // NOI18N
         actionsMenu.add(mnuManageJavaAppletSecuritySettings);
 
         jSeparator4.setName("jSeparator4"); // NOI18N
         actionsMenu.add(jSeparator4);
+
+        mnuManageJad.setText(resourceMap.getString("mnuManageJad.text")); // NOI18N
+        mnuManageJad.setName("mnuManageJad"); // NOI18N
+
+        chkShowMethodCode.setSelected(true);
+        chkShowMethodCode.setText(resourceMap.getString("chkShowMethodCode.text")); // NOI18N
+        chkShowMethodCode.setName("chkShowMethodCode"); // NOI18N
+        mnuManageJad.add(chkShowMethodCode);
+
+        mnuSetJadPath.setAction(actionMap.get("changeJadPath")); // NOI18N
+        mnuSetJadPath.setText(resourceMap.getString("mnuSetJadPath.text")); // NOI18N
+        mnuSetJadPath.setName("mnuSetJadPath"); // NOI18N
+        mnuManageJad.add(mnuSetJadPath);
+
+        actionsMenu.add(mnuManageJad);
+
+        jSeparator5.setName("jSeparator5"); // NOI18N
+        actionsMenu.add(jSeparator5);
 
         mnuLogSetting.setText(resourceMap.getString("mnuLogSetting.text")); // NOI18N
         mnuLogSetting.setName("mnuLogSetting"); // NOI18N
@@ -1010,11 +1102,11 @@ public class JavaSnoopView extends FrameView {
         statusPanel.setLayout(statusPanelLayout);
         statusPanelLayout.setHorizontalGroup(
             statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 876, Short.MAX_VALUE)
+            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 878, Short.MAX_VALUE)
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 706, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 708, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
@@ -1085,6 +1177,7 @@ public class JavaSnoopView extends FrameView {
                     shouldInherit,
                     MethodInterceptor.Mode.AlwaysIntercept,
                     true,
+                    false,
                     false,
                     false,
                     "",
@@ -1158,6 +1251,8 @@ public class JavaSnoopView extends FrameView {
     private void chkRunScriptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkRunScriptActionPerformed
         FunctionHookInterceptor hook = getCurrentHook();
         hook.setShouldRunScript(chkRunScript.isSelected());
+
+        sendAgentNewRules();
     }//GEN-LAST:event_chkRunScriptActionPerformed
 
     private void chkPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkPauseActionPerformed
@@ -1170,6 +1265,8 @@ public class JavaSnoopView extends FrameView {
     private void chkPrintParametersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkPrintParametersActionPerformed
         FunctionHookInterceptor hook = getCurrentHook();
         hook.setShouldPrintParameters(chkPrintParameters.isSelected());
+
+        sendAgentNewRules();
     }//GEN-LAST:event_chkPrintParametersActionPerformed
 
     private void chkOutputToFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkOutputToFileActionPerformed
@@ -1396,9 +1493,7 @@ public class JavaSnoopView extends FrameView {
 }//GEN-LAST:event_mnuLoadConfigurationActionPerformed
 
     private void chkTamperReturnValueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkTamperReturnValueActionPerformed
-        FunctionsHookedTableModel model = (FunctionsHookedTableModel) tblFunctionsHooked.getModel();
-        FunctionHookInterceptor hook = model.getHookFromRow(tblFunctionsHooked.getSelectedRow());
-
+        FunctionHookInterceptor hook = getCurrentHook();
         hook.setShouldTamperReturnValue(chkTamperReturnValue.isSelected());
 
         sendAgentNewRules();
@@ -1410,6 +1505,13 @@ public class JavaSnoopView extends FrameView {
             item.setState(false);
         }
     }//GEN-LAST:event_mnuTestActionPerformed
+
+    private void chkPrintStackTraceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkPrintStackTraceActionPerformed
+        FunctionHookInterceptor hook = getCurrentHook();
+        hook.setShouldPrintStackTrace(chkPrintStackTrace.isSelected());
+
+        sendAgentNewRules();
+    }//GEN-LAST:event_chkPrintStackTraceActionPerformed
 
     @Action
     public void enableDisableAllHooks(ActionEvent evt) {
@@ -1623,7 +1725,9 @@ public class JavaSnoopView extends FrameView {
     private javax.swing.JCheckBox chkOutputToFile;
     private javax.swing.JCheckBox chkPause;
     private javax.swing.JCheckBox chkPrintParameters;
+    private javax.swing.JCheckBox chkPrintStackTrace;
     private javax.swing.JCheckBox chkRunScript;
+    private javax.swing.JCheckBoxMenuItem chkShowMethodCode;
     private javax.swing.JCheckBox chkTamperParameters;
     private javax.swing.JCheckBox chkTamperReturnValue;
     private javax.swing.JPanel functionHookPanel;
@@ -1636,13 +1740,14 @@ public class JavaSnoopView extends FrameView {
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
+    private javax.swing.JSeparator jSeparator5;
     private javax.swing.JLabel lblFilename;
     private javax.swing.JLabel lblSnoopingOrNot;
     private javax.swing.JPanel mainPanel;
@@ -1658,12 +1763,16 @@ public class JavaSnoopView extends FrameView {
     private javax.swing.JMenu mnuLogSetting;
     private javax.swing.JCheckBoxMenuItem mnuLogTrace;
     private javax.swing.JCheckBoxMenuItem mnuLogWarn;
+    private javax.swing.JMenu mnuManageJad;
     private javax.swing.JMenuItem mnuManageJavaAppletSecuritySettings;
     private javax.swing.JMenuItem mnuSaveConfiguration;
     private javax.swing.JMenuItem mnuSaveConfigurationAs;
+    private javax.swing.JMenuItem mnuSetJadPath;
     private javax.swing.JMenuItem mnuStartCanaryMode;
     private javax.swing.JMenuItem mnuTest;
     private javax.swing.JMenuItem mnuViewFAQ;
+    private javax.swing.JScrollPane pnlCode;
+    private javax.swing.JScrollPane pnlConsole;
     private javax.swing.JPanel programSetupPanel;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JRadioButton rdoAlwaysHook;
@@ -1673,10 +1782,12 @@ public class JavaSnoopView extends FrameView {
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
+    private javax.swing.JTabbedPane tabConsoleCode;
     private javax.swing.JTable tblConditions;
     private javax.swing.JTable tblFunctionsHooked;
     private javax.swing.JTextField txtArguments;
     private javax.swing.JTextField txtClasspath;
+    private javax.swing.JTextArea txtCode;
     private javax.swing.JTextPane txtConsole;
     private javax.swing.JTextField txtJavaArgs;
     private javax.swing.JTextField txtMainClass;
@@ -1723,6 +1834,7 @@ public class JavaSnoopView extends FrameView {
             FunctionHookInterceptor hook = hooks.get(0);
 
             chkPrintParameters.setSelected(hook.shouldPrintParameters());
+            chkPrintStackTrace.setSelected(hook.shouldPrintStackTrace());
             chkOutputToConsole.setSelected(hook.isOutputToConsole());
             chkOutputToFile.setSelected(hook.isOutputToFile());
 
@@ -1822,11 +1934,37 @@ public class JavaSnoopView extends FrameView {
             return;
         }
 
-        PauseView view = new PauseView(getFrame(), true, className, hook.getMethodName());
+        /*
+         * Decide whether or not to show the code.
+         */
+        showCodeIfNeeded(className);
+        
+        PauseView view = new PauseView(getFrame(), false, className, hook.getMethodName());
         view.setVisible(true);
 
         UIUtil.waitForInput(view);
 
+    }
+
+    private String join(String[] types) {
+        StringBuffer sb = new StringBuffer(100);
+        for(int i=0;i<types.length;i++) {
+            sb.append(ReflectionUtil.getSimpleClassName(types[i]));
+            if ( i != types.length-1 ) {
+                sb.append(",");
+            }
+        }
+        return sb.toString();
+    }
+
+    public String getTimeStamp() {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Date date = new Date();
+        StringBuffer sb = new StringBuffer(100);
+        sb.append("[");
+        sb.append(dateFormat.format(date));
+        sb.append("] ");
+        return sb.toString();
     }
 
     public void printParameters(String className, int hookId, String[] types, Object[] parameters) {
@@ -1839,17 +1977,52 @@ public class JavaSnoopView extends FrameView {
 
         StringBuffer sb = new StringBuffer();
 
-        sb.append("Intercepted: " + className + "." + hook.getMethodName() + nl);
+        sb.append(getTimeStamp());
+        sb.append("Print parameter request from: " + className + "." + hook.getMethodName() + "(" + join(types) + "): " + nl);
 
         for (int i = 0; i < parameters.length; i++) {
             Object o = parameters[i];
             sb.append("Parameter " + (i + 1) + " (type: " + ReflectionUtil.getSimpleClassName(types[i]) + "): " + String.valueOf(o) + nl);
         }
 
+        sb.append(nl);
+
         if ( hook.isOutputToConsole()) {
-
             showSnoopMessage(sb.toString());
+        }
 
+        if (hook.isOutputToFile()) {
+            File f = new File(hook.getOutputFile());
+            if (f.exists() && f.canWrite()) {
+                try {
+                    FileOutputStream fos = new FileOutputStream(f, true);
+                    fos.write(sb.toString().getBytes());
+                    fos.close();
+                } catch (FileNotFoundException fnfe) {
+                    showConsoleErrorMessage("Failed to append data to file. Could not find or write to file: " + f.getAbsolutePath());
+                } catch (IOException ioe) {
+                    showConsoleErrorMessage("Failed to append data to file. Problem writing to file " + f.getAbsolutePath() + ": " + ioe.getMessage());
+                }
+            }
+        }
+
+    }
+
+    public void printStackTrace(String className, int hookId, String st, String[] types, Object[] parameters) {
+
+        FunctionHookInterceptor hook = getHookById(hookId);
+
+        if (!hook.isEnabled() || ! hook.shouldPrintParameters() || !areConditionsMet(hook.getMode(), hook.getConditions(), parameters)) {
+            return;
+        }
+
+        StringBuffer sb = new StringBuffer();
+        sb.append(getTimeStamp());
+        sb.append("Stack trace print request from: " + className + "." + hook.getMethodName() + "(" + join(types) + "):" + nl);
+        sb.append( skipLines(st,2) + nl);
+
+        if ( hook.isOutputToConsole()) {
+            showSnoopMessage(sb.toString());
         }
 
         if (hook.isOutputToFile()) {
@@ -1879,13 +2052,30 @@ public class JavaSnoopView extends FrameView {
             return parameters;
         }
 
+        /*
+         * Decide whether or not to show the code.
+         */
+        showCodeIfNeeded(className);
+
+        String action = "Parameter";
+        if ( isReturn ) {
+            action = "Return value";
+        }
+
+        StringBuffer sb = new StringBuffer();
+        sb.append(getTimeStamp());
+        sb.append(action);
+        sb.append(" tampering request from: " + className + "." + hook.getMethodName() + "(" + join(types) + ")" + nl);
+        
+        showSnoopMessage(sb.toString());
+
         for (int i = 0; i < parameters.length; i++) {
             params.add(new Parameter(i, parameters[i], types[i]));
         }
 
         ParameterTamperingView view = new ParameterTamperingView(
                 getFrame(),
-                true,
+                false,
                 className,
                 hook.getMethodName(),
                 params,
@@ -2127,6 +2317,9 @@ public class JavaSnoopView extends FrameView {
             firstTimeLoading = false;
         }
         
+        ((RSyntaxTextArea)txtCode).setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+        ((RSyntaxTextArea)txtCode).setFont(new Font("Courier",Font.PLAIN,12));
+        
         tblFunctionsHooked.setModel(new FunctionsHookedTableModel(null));
 
         FunctionHookTableSelectionListener listener =
@@ -2143,6 +2336,7 @@ public class JavaSnoopView extends FrameView {
                 btnEditScript,
                 chkPause,
                 chkPrintParameters,
+                chkPrintStackTrace,
                 chkOutputToFile,
                 chkOutputToConsole,
                 txtOutputFile,
@@ -2321,6 +2515,47 @@ public class JavaSnoopView extends FrameView {
         updateSessionUI();
     }
 
+    private void showCodeIfNeeded(String className) {
+        boolean useJad = chkShowMethodCode.isSelected();
+        if (useJad) {
+            String jadPath = JavaSnoop.getProperty(JavaSnoop.JAD_PATH);
+            SnoopClassLoader cl = JavaSnoop.getClassLoader();
+            byte[] bytes = cl.loadClassData(className);
+            try {
+
+                String javaCode = JadUtil.getDecompiledJava(jadPath,className,bytes);
+                fillInCode(javaCode);
+
+            } catch(Exception e) {
+                txtCode.setText(e.getMessage());
+            }
+        }
+    }
+
+    private void fillInCode(String javaCode) {
+        txtCode.setText(javaCode);
+    }
+
+    private String skipLines(String st, int num) {
+        StringReader sr = new StringReader(st);
+        BufferedReader br = new BufferedReader(sr);
+        StringBuffer sb = new StringBuffer();
+        
+        try {
+            while(num>0) {
+                br.readLine();
+                num--;
+            }
+            String buff;
+            while((buff=br.readLine())!=null) {
+                sb.append(buff);
+                sb.append(nl);
+            }
+        } catch(IOException ioe){}
+
+        return sb.toString();
+    }
+
     class PopupListener extends MouseAdapter {
         @Override
         public void mousePressed(MouseEvent e) {
@@ -2352,6 +2587,23 @@ public class JavaSnoopView extends FrameView {
         }
 
         Logger.getRootLogger().setLevel(Level.toLevel(action));
+    }
+
+    @Action
+    public void changeJadPath() {
+        
+        String oldPath = JavaSnoop.getProperty(JavaSnoop.JAD_PATH);
+
+        if ( oldPath == null ) {
+            oldPath = "";
+        }
+
+        String newPath = JOptionPane.showInputDialog(getFrame(),"Enter the path to the jad executable (leave blank if it's on the PATH)",oldPath);
+
+        if ( newPath != null ) {
+            JavaSnoop.setProperty(JavaSnoop.JAD_PATH,newPath);
+            JavaSnoop.saveProperties();
+        }
     }
 
 

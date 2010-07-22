@@ -39,17 +39,23 @@ public class JavaSnoop extends SingleFrameApplication {
 
     public static final String VERSION = "version";
     public static final String SEPARATE_VM = "exec_separate_vm";
-    public static final String LOAD_WAIT="load_wait";
+    public static final String JAD_PATH = "jad_path";
+    public static final String LOAD_WAIT = "load_wait";
 
     private static Properties props;
     private static JavaSnoopView mainForm;
     private static SnoopClassLoader loader;
+    private static String propFile;
 
     public static SnoopClassLoader getClassLoader() {
         if ( loader == null ) {
             loader = new SnoopClassLoader();
         }
         return loader;
+    }
+
+    public static void setProperty(String key, String val) {
+        props.put(key, val);
     }
 
     /**
@@ -80,7 +86,7 @@ public class JavaSnoop extends SingleFrameApplication {
 
         props = new Properties();
 
-        String propFile = System.getProperty("user.home") + File.separator + "JavaSnoop.properties";
+        propFile = System.getProperty("user.home") + File.separator + "JavaSnoop.properties";
 
         try {
 
@@ -144,6 +150,14 @@ public class JavaSnoop extends SingleFrameApplication {
      */
     public static void main(String[] args) {
         launch(JavaSnoop.class, args);
+    }
+
+    public static void saveProperties() {
+        try {
+            props.store(new FileWriter(new File(propFile)), null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void initializePropertiesFile(String propFile) throws IOException {

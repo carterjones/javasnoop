@@ -91,6 +91,8 @@ public class SessionPersistenceUtil {
             hookRoot.addAttribute ( new Attribute("shouldPause", Boolean.toString(hook.shouldPause())) );
 
             hookRoot.addAttribute( new Attribute("shouldPrintParameters", Boolean.toString(hook.shouldPrintParameters())) );
+            hookRoot.addAttribute( new Attribute("shouldPrintStackTrace", Boolean.toString(hook.shouldPrintStackTrace())) );
+            
             hookRoot.addAttribute( new Attribute("outputToConsole", Boolean.toString(hook.isOutputToConsole())) );
             hookRoot.addAttribute( new Attribute("outputToFile", Boolean.toString(hook.isOutputToFile())) );
             hookRoot.addAttribute( new Attribute("outputFile", hook.getOutputFile()));
@@ -98,7 +100,6 @@ public class SessionPersistenceUtil {
             hookRoot.addAttribute( new Attribute("interceptCondition", hook.getMode().name() ) );
             
             // Add a <conditions> node
-
             Element conditionsRoot = new Element("conditions");
 
             for(Condition c : hook.getConditions() ) {
@@ -215,8 +216,9 @@ public class SessionPersistenceUtil {
             String startScript = hookRoot.getAttributeValue("startScript");
             String endScript = hookRoot.getAttributeValue("endScript");
 
-
             boolean printParameters = "true".equals(hookRoot.getAttributeValue("shouldPrintParameters"));
+            boolean printStackTrace = "true".equals(hookRoot.getAttributeValue("shouldPrintStackTrace"));
+
             boolean isOutputToFile = "true".equals(hookRoot.getAttributeValue("outputToFile"));
             boolean isOutputToConsole = "true".equals(hookRoot.getAttributeValue("outputToConsole"));
             String outputFile = hookRoot.getAttributeValue("outputFile");
@@ -256,6 +258,7 @@ public class SessionPersistenceUtil {
                     applyToSubTypes,
                     mode,
                     printParameters,
+                    printStackTrace,
                     isOutputToConsole,
                     isOutputToFile,
                     outputFile,

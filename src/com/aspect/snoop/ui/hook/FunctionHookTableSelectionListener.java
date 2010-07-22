@@ -53,6 +53,7 @@ public class FunctionHookTableSelectionListener implements ListSelectionListener
     JButton btnBrowseForScript;
     JCheckBox chkPause;
     JCheckBox chkPrintParameters;
+    JCheckBox chkPrintStackTrace;
     JCheckBox chkOutputToFile;
     JCheckBox chkOutputToConsole;
     JTextField txtOutputFile;
@@ -80,6 +81,7 @@ public class FunctionHookTableSelectionListener implements ListSelectionListener
             JButton btnBrowseForScript,
             JCheckBox chkPause,
             JCheckBox chkPrintParameters,
+            JCheckBox chkPrintStackTrace,
             JCheckBox chkOutputToFile,
             JCheckBox chkOutputToConsole,
             JTextField txtOutputFile,
@@ -100,6 +102,7 @@ public class FunctionHookTableSelectionListener implements ListSelectionListener
         this.btnBrowseForScript = btnBrowseForScript;
         this.chkPause = chkPause;
         this.chkPrintParameters = chkPrintParameters;
+        this.chkPrintStackTrace = chkPrintStackTrace;
         this.chkOutputToConsole = chkOutputToConsole;
         this.chkOutputToFile = chkOutputToFile;
         this.txtOutputFile = txtOutputFile;
@@ -117,6 +120,7 @@ public class FunctionHookTableSelectionListener implements ListSelectionListener
         stuffToEnable.add(btnBrowseForScript);
         stuffToEnable.add(chkPause);
         stuffToEnable.add(chkPrintParameters);
+        stuffToEnable.add(chkPrintStackTrace);
         stuffToEnable.add(chkOutputToFile);
         stuffToEnable.add(chkOutputToConsole);
         stuffToEnable.add(txtOutputFile);
@@ -169,6 +173,7 @@ public class FunctionHookTableSelectionListener implements ListSelectionListener
                 chkRunScript.setSelected(hook.shouldRunScript());
                 chkPause.setSelected(hook.shouldPause());
                 chkPrintParameters.setSelected(hook.shouldPrintParameters());
+                chkPrintStackTrace.setSelected(hook.shouldPrintStackTrace());
                 chkOutputToConsole.setSelected(hook.isOutputToConsole());
                 chkOutputToFile.setSelected(hook.isOutputToFile());
                 txtOutputFile.setText(hook.getOutputFile());

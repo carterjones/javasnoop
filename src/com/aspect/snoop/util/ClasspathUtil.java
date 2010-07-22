@@ -34,7 +34,6 @@ import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import org.apache.log4j.Logger;
 
 public class ClasspathUtil {
 
@@ -431,6 +430,7 @@ public class ClasspathUtil {
     public static boolean isJavaSnoopClass(String cls) {
         String[] pkgs = new String[] {
             "com.aspect.snoop",
+            "org.fife",
             "org.apache.log4j",
             "org.codehaus",
             "org.xmlpull",

@@ -62,7 +62,7 @@ public class SnoopClassLoader extends ClassLoader {
         return defineClass(name, b, 0, b.length);
      }
 
-     private byte[] loadClassData(String name) {
+     public byte[] loadClassData(String name) {
 
          byte[] bytes = classes.get(name);
 
