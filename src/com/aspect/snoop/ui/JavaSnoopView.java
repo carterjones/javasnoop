@@ -1248,7 +1248,9 @@ public class JavaSnoopView extends FrameView {
         FunctionHookInterceptor hook = model.getHookFromRow(tblFunctionsHooked.getSelectedRow());
         hook.setShouldTamperParameters(chkTamperParameters.isSelected());
 
-        sendAgentNewRules();
+        if ( hook.isEnabled() ) {
+            sendAgentNewRules();
+        }
 
     }//GEN-LAST:event_chkTamperParametersActionPerformed
 
@@ -1256,21 +1258,27 @@ public class JavaSnoopView extends FrameView {
         FunctionHookInterceptor hook = getCurrentHook();
         hook.setShouldRunScript(chkRunScript.isSelected());
 
-        sendAgentNewRules();
+        if ( hook.isEnabled() ) {
+            sendAgentNewRules();
+        }
     }//GEN-LAST:event_chkRunScriptActionPerformed
 
     private void chkPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkPauseActionPerformed
         FunctionHookInterceptor hook = getCurrentHook();
         hook.setShouldPause(chkPause.isSelected());
 
-        sendAgentNewRules();
+        if ( hook.isEnabled() ) {
+            sendAgentNewRules();
+        }
     }//GEN-LAST:event_chkPauseActionPerformed
 
     private void chkPrintParametersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkPrintParametersActionPerformed
         FunctionHookInterceptor hook = getCurrentHook();
         hook.setShouldPrintParameters(chkPrintParameters.isSelected());
 
-        sendAgentNewRules();
+        if ( hook.isEnabled() ) {
+            sendAgentNewRules();
+        }
     }//GEN-LAST:event_chkPrintParametersActionPerformed
 
     private void chkOutputToFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkOutputToFileActionPerformed
@@ -1296,7 +1304,6 @@ public class JavaSnoopView extends FrameView {
     private void rdoDontHookIfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rdoDontHookIfActionPerformed
         FunctionHookInterceptor hook = getCurrentHook();
         hook.setMode(Mode.DontInterceptIf);
-
     }//GEN-LAST:event_rdoDontHookIfActionPerformed
 
     private void btnStopSpyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStopSpyActionPerformed
@@ -1500,14 +1507,18 @@ public class JavaSnoopView extends FrameView {
         FunctionHookInterceptor hook = getCurrentHook();
         hook.setShouldTamperReturnValue(chkTamperReturnValue.isSelected());
 
-        sendAgentNewRules();
+        if ( hook.isEnabled() ) {
+            sendAgentNewRules();
+        }
     }//GEN-LAST:event_chkTamperReturnValueActionPerformed
 
     private void chkPrintStackTraceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkPrintStackTraceActionPerformed
         FunctionHookInterceptor hook = getCurrentHook();
         hook.setShouldPrintStackTrace(chkPrintStackTrace.isSelected());
 
-        sendAgentNewRules();
+        if ( hook.isEnabled() ) {
+            sendAgentNewRules();
+        }
     }//GEN-LAST:event_chkPrintStackTraceActionPerformed
 
     @Action

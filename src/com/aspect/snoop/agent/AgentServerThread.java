@@ -109,14 +109,10 @@ public class AgentServerThread extends AbstractServerThread {
     }
 
     /**
-     * Too complicated.  Why not just send a serialized object for every message?
-     *
-     * A.D. - Because it limits us to Java!
-     *
-     * @param command
-     * @param reader
-     * @param writer
-     * @throws IOException
+     * Main Java agent command logic. Takes its orders from the GUI, and figures
+     * out how to implement them.
+     * 
+     * @throws IOException During communication error with the JavaSnoop program.
      */
     protected void processCommand(AgentMessage message, ObjectInputStream input, ObjectOutputStream output) throws IOException {
 
@@ -363,6 +359,10 @@ public class AgentServerThread extends AbstractServerThread {
         HashMap<Class, ClassChanges> classChanges = new HashMap<Class,ClassChanges>();
 
         for(FunctionHookInterceptor hook : snoopSession.getFunctionHooks() ) {
+
+            if ( ! hook.isEnabled() ) {
+                continue;
+            }
 
             try {
 

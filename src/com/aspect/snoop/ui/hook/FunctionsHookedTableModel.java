@@ -152,6 +152,8 @@ public class FunctionsHookedTableModel extends AbstractTableModel {
         
         if ( columnIndex == 0 ) {
             hook.setEnabled(((Boolean)aValue).booleanValue());
+            JavaSnoop.getMainForm().sendAgentNewRules();
+
         } else if ( columnIndex == 2 ) {
             hook.setApplyToSubtypes(((Boolean)aValue).booleanValue());
         }
@@ -162,6 +164,7 @@ public class FunctionsHookedTableModel extends AbstractTableModel {
             FunctionHookInterceptor hook = hooks.get(i);
             hook.setEnabled(false);
         }
+        JavaSnoop.getMainForm().sendAgentNewRules();
     }
 
     public void enableAll() {
@@ -169,6 +172,7 @@ public class FunctionsHookedTableModel extends AbstractTableModel {
             FunctionHookInterceptor hook = hooks.get(i);
             hook.setEnabled(true);
         }
+        JavaSnoop.getMainForm().sendAgentNewRules();
     }
 
     public void removeHook(FunctionHookInterceptor hook) {
