@@ -25,10 +25,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -82,6 +81,11 @@ public class JadUtil {
         return null;
     }
 
+    /**
+     * This is the main public method for consumption. Takes a class name
+     * and bytes, and returns a String containing the decompiled Java code.
+     */
+
     public static String getDecompiledJava(String className, byte[] clazz) throws IOException {
 
         String jadPath = getJadLocation();
@@ -120,12 +124,17 @@ public class JadUtil {
 
         Process p = Runtime.getRuntime().exec(cmd);
 
-        try {
-            p.waitFor();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(JadUtil.class.getName()).log(Level.SEVERE, "Failure with Jad", ex);
-        }
+        /*
+         * Have to use this clever but kludgy hack to get around bug
+         * in NT processes hanging indefinitely on p.waitFor() calls.
+         * 
+         * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4254231
+         */
+        int rc = doWaitFor(p);
 
+        /*
+         * Now the decompiled file is waiting for us to grab and read in.
+         */
         String simpleClassName = getSimpleClassName(className);
         String javaFile = tmpDir + File.separatorChar + simpleClassName + ".java";
         BufferedReader reader = new BufferedReader(new FileReader(javaFile));
@@ -146,6 +155,13 @@ public class JadUtil {
 
         codeCache.put(className, finalCode);
 
+        /*
+         * Delete the temporary file.
+         */
+        File decompiledFile = new File(javaFile);
+        decompiledFile.delete();
+        classFile.delete();
+
         return finalCode;
     }
 
@@ -158,5 +174,66 @@ public class JadUtil {
         }
         return className;
     }
+
+    /**
+    * Method to perform a "wait" for a process and return its exit value.
+    * This is a workaround for <CODE>process.waitFor()</CODE> never returning.
+    */
+   private static int doWaitFor(Process p) {
+
+      int exitValue = -1;  // returned to caller when p is finished
+
+      try {
+
+         InputStream in  = p.getInputStream();
+         InputStream err = p.getErrorStream();
+
+         boolean finished = false; // Set to true when p is finished
+
+         while( !finished) {
+            try {
+
+               while( in.available() > 0) {
+
+                  // Print the output of our system call
+                  Character c = new Character( (char) in.read());
+                  System.out.print( c);
+               }
+
+               while( err.available() > 0) {
+
+                  // Print the output of our system call
+                  Character c = new Character( (char) err.read());
+                  System.out.print( c);
+               }
+
+               // Ask the process for its exitValue. If the process
+               // is not finished, an IllegalThreadStateException
+               // is thrown. If it is finished, we fall through and
+               // the variable finished is set to true.
+
+               exitValue = p.exitValue();
+               finished  = true;
+
+            }
+               catch (IllegalThreadStateException e) {
+
+                  // Process is not finished yet;
+                  // Sleep a little to save on CPU cycles
+                  Thread.currentThread().sleep(100);
+               }
+         }
+
+
+      }
+         catch (Exception e) {
+
+            // unexpected exception!  print it out for debugging...
+            System.err.println( "doWaitFor(): unexpected exception - " + e.getMessage());
+         }
+
+      // return completion status to caller
+      return exitValue;
+   }
 
 }
