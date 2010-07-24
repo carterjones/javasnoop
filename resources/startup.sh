@@ -1,55 +1,69 @@
 #!/bin/bash
 
 # Figure out if Linux/Mac OSX.
-OS="`uname -a`"
-ISMAC=0
+
 CURJDK=
+JAVA_POLICY=~/.java.policy
+TOOLSJAR="/lib/tools.jar"
+JAVABIN="bin/java"
 
-if [[ $OS == *Darwin* ]]
-   then
-   ISMAC=1
-   echo [0] Detected Mac OSX
-   cd /System/Library/Frameworks/JavaVM.framework/Versions
-   MACJDK="`readlink CurrentJDK`"
-   # test to see if CURJDK is 1.6+ if not, fall through
-   if [[ $MACJDK == *1.6* ]]
-      then
-      CURJDK=$MACJDK
-      echo [-] Error: CurrentJDK is not 1.6. Will check for other versions.
-   fi
-fi
+# Who are we?
+OSTYPE=`uname`
+case ${OSTYPE} in
 
-#   if [ "$ISMAC" = "0" ]
-#      then
-      echo [0] Detected other Linux/Unix
-#   fi
+Darwin)
+	echo [0] Detected Mac OSX
+	JAVA_HOME=`/usr/libexec/java_home`
+	if [[ $JAVA_HOME == *1.6* ]]
+		then
+		CURJDK="${JAVA_HOME}"
+		# We love Mac
+		TOOLSJAR="../Classes/classes.jar"
+		[ -f lib/tools.jar ] && rm lib/tools.jar
+	else
+		echo [-] Error: CurrentJDK is not 1.6. Bailing
+		exit 1
+	fi
+        echo [1] Found Java 1.6 at $JAVA_HOME.
+	;;
+Linux)
+	if [ ! -z "$JDK_HOME" ]
+	then
+		echo [1] Found JDK_HOME environment variable. Using JDK at $JDK_HOME.
+		CURJDK=$JDK_HOME
+	elif [ ! -z "$JAVA_HOME" ]
+	then
+		echo [1] Found JAVA_HOME environment variable. Using JDK in $JAVA_HOME
+		CURJDK=$JAVA_HOME
+	else
+		echo [1] Error: Neither JAVA_HOME or JDK_HOME environment variables were set to
+		echo "    location of a JDK."
+		exit 1
+	fi
+	;;
+*)
+	;;
+esac
 
-   if [ ! -z "$JDK_HOME" ]
-      then
-      echo [1] Found JDK_HOME environment variable. Using JDK at $JDK_HOME.
-      CURJDK=$JDK_HOME
-   elif [ ! -z "$JAVA_HOME" ]
-      then
-      echo [1] Found JAVA_HOME environment variable. Using JDK in $JAVA_HOME
-      CURJDK=$JAVA_HOME
-   else
-      echo [1] Error: Neither JAVA_HOME or JDK_HOME environment variables were set to
-      echo "    location of a JDK."
-      exit -1
-   fi
+# Copy the tools.jar / classes.jar from the JDK to ./lib.
+cp ${CURJDK}/${TOOLSJAR} ./lib/
 
-# Copy the tools.jar from the JDK to ./lib.
-
-# copy $CURJDK\lib\tools.jar .\lib
-
+echo [2] Turning off Java security for JavaSnoop usage
 # Turn off Java security.
-rm -rf ~/.java.policy
-copy resources/unsafe.policy ~/.java.policy
+if [ -f "${JAVA_POLICY}" ]
+then
+	cp ${JAVA_POLICY} ${JAVA_POLICY}.orig
+	rm ${JAVA_POLICY}
+else
+	# Copy safe policy as orig
+	cp resources/safe.policy ${JAVA_POLICY}.orig
+fi
+cp resources/unsafe.policy ${JAVA_POLICY}
 
+echo [3] Starting JavaSnoop...
 # Start JavaSnoop.
+"${CURJDK}/${JAVABIN}" -jar JavaSnoop.jar -Xmx128m
 
-$CURJDK/bin/java -jar JavaSnoop.jar -Xmx128m
-
-# Turn on Java security.
-
-copy resources/safe.policy ~/.java.policy
+echo [4] Turning Java security back on for safe browsing
+# Undo what we did
+cp ${JAVA_POLICY}.orig ${JAVA_POLICY}

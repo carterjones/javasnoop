@@ -13,12 +13,12 @@ set unsafe_policy=resources\unsafe.policy
 set safe_policy=resources\safe.policy
 set user_policy=%USERPROFILE%\AppData\LocalLow\Sun\Java\Deployment\Security\java.policy
 
-reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName| findstr /i "XP">NUL
-if not errorlevel 1 (
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName| findstr /i "Vista">NUL
+if errorlevel 1 (
    echo [-] Determined OS to be Windows XP
    set user_policy=C:\Documents and Settings\%USERNAME%\.java.policy
 ) else (
-   echo [-] Determined OS to be Windows Vista/7
+   echo [-] Determined OS to be Windows Vista
 )
 
 echo %JAVA_HOME% | find /i "1.6" > NUL
