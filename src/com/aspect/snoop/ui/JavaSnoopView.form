@@ -1132,6 +1132,15 @@
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="0"/>
               </AuxValues>
             </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="mnuGotoHomePage">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="com.aspect.snoop.ui.JavaSnoopView" id="browseToHomePage" methodName="browseToHomePage"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="mnuGotoHomePage.text"/>
+                <Property name="name" type="java.lang.String" value="mnuGotoHomePage" noResource="true"/>
+              </Properties>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="mnuViewFAQ">
               <Properties>
                 <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
