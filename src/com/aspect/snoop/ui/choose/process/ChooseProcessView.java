@@ -535,7 +535,7 @@ public class ChooseProcessView extends javax.swing.JDialog {
         JVMDescriptor jvm = (JVMDescriptor)lstJavaProcesses.getSelectedValue();
 
         parent.setSession(toSession(jvm));
-        parent.updateSessionUI();
+        parent.updateSessionUI(false);
         
         finalizeSelection();
         
@@ -552,7 +552,7 @@ public class ChooseProcessView extends javax.swing.JDialog {
         JVMDescriptor jvm = (JVMDescriptor)lstJavaProcesses.getSelectedValue();
 
         parent.setSession(toSession(jvm));
-        parent.updateSessionUI();
+        parent.updateSessionUI(false);
         dispose();
     }
 

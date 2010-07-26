@@ -216,7 +216,6 @@
           <action class="com.aspect.snoop.ui.choose.process.ChooseProcessView" id="useAndDispose" methodName="useAndDispose"/>
         </Property>
         <Property name="text" type="java.lang.String" resourceKey="btnUseAndDispose.text"/>
-        <Property name="enabled" type="boolean" value="false"/>
         <Property name="name" type="java.lang.String" value="btnUseAndDispose" noResource="true"/>
       </Properties>
     </Component>
@@ -226,7 +225,6 @@
           <action class="com.aspect.snoop.ui.choose.process.ChooseProcessView" id="useAndAttach" methodName="useAndAttach"/>
         </Property>
         <Property name="text" type="java.lang.String" resourceKey="btnUseAndAttach.text"/>
-        <Property name="enabled" type="boolean" value="false"/>
         <Property name="name" type="java.lang.String" value="btnUseAndAttach" noResource="true"/>
       </Properties>
     </Component>
@@ -236,7 +234,6 @@
           <action class="com.aspect.snoop.ui.choose.process.ChooseProcessView" id="copyToClipboard" methodName="copyToClipboard"/>
         </Property>
         <Property name="text" type="java.lang.String" resourceKey="btnCopyToClipboard.text"/>
-        <Property name="enabled" type="boolean" value="false"/>
         <Property name="name" type="java.lang.String" value="btnCopyToClipboard" noResource="true"/>
       </Properties>
     </Component>
