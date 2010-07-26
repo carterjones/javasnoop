@@ -13,15 +13,6 @@ set unsafe_policy=resources\unsafe.policy
 set safe_policy=resources\safe.policy
 set user_policy=%USERPROFILE%\.java.policy
 
-reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName
-
-if errorlevel 1 (
-   echo [-] Determined OS to be Windows XP
-   set user_policy=C:\Documents and Settings\%USERNAME%\.java.policy
-) else (
-   echo [-] Determined OS to be Windows Vista/7
-)
-
 echo %JAVA_HOME% | find /i "1.6" > NUL
 
 if not errorlevel 1 (
@@ -30,12 +21,13 @@ if not errorlevel 1 (
    set JDK_EXEC=%JAVA_HOME%\bin\java.exe
 ) else (
    echo [1] JAVA_HOME variable wasn't set to a valid Java 1.6+ installation.
-   echo     Reading from registry to find other 1.6 installations.
+   echo     Reading from registry to find other 1.6 installations...
    reg query "HKEY_LOCAL_MACHINE\SOFTWARE\JavaSoft\Java Development Kit\1.6" /v JavaHome > jver.tmp
 
    if errorlevel 1 (
       del jver.tmp 2>NUL
-      echo Can't find Java installation through JAVA_HOME environment or through registry. Exiting.
+      echo [2] Can't find Java installation through JAVA_HOME environment or
+      echo     through registry. Exiting.
       goto :EOF
    )
 

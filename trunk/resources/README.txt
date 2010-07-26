@@ -163,6 +163,23 @@ permission file to grant codebases from your target domain AllPermission, and
 leave the rest of the Internet in its usual sandbox. Buyer beware!
 
 ========================
+I get an error when I try to attach - something about 64-bit and 32-bit, what gives?
+========================
+
+On 64-bit operating systems you may run into a situation where JavaSnoop is
+trying to attach to a process that isn't running in the same CPU mode. For
+instance, trying to attach to a 32-bit Java process while JavaSnoop was started
+with in 64-bit Java won't work. The reverse is also true.
+
+To make sure you can attach properly, make sure JavaSnoop is running on the same
+Java architecture as the target application. If they line up, attaching should
+work perfectly.
+
+It will usually be easier to change how JavaSnoop is started than changing
+how applets start, but the settings for how Java starts for applets or Java Web
+Start programs can be found in the Java Control Panel.
+
+========================
 How come the class I'm looking for isn't in the list of classes to hook?
 ========================
 
