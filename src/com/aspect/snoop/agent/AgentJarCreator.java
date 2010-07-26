@@ -237,8 +237,18 @@ public class AgentJarCreator {
 
         if ( ! testing ) {
             try {
-                InputStream is = AgentJarCreator.class.getResourceAsStream("/META-INF/MANIFEST.MF");
-                Manifest m = new Manifest(is);
+
+                Class clazz = AgentJarCreator.class;
+
+                String className = clazz.getSimpleName();
+                String classFileName = className + ".class";
+                String pathToThisClass = clazz.getResource(classFileName).toString();
+
+                int mark = pathToThisClass.indexOf("!") ;
+                String pathToManifest = pathToThisClass.toString().substring(0,mark+1) ;
+                pathToManifest += "/META-INF/MANIFEST.MF" ;
+                Manifest m = new Manifest(new URL(pathToManifest).openStream());
+
                 Attributes attrs = m.getMainAttributes();
                 String cp = attrs.getValue("Class-Path");
                 cp = cp.replaceAll("lib/","../lib/");

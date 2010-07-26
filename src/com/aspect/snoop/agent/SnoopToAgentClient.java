@@ -210,6 +210,11 @@ public class SnoopToAgentClient {
             for ( String s : allRemoteClasses ) {
                 try {
                     Class.forName(s, true, JavaSnoop.getClassLoader());
+
+                /*
+                 * Catching all of these in case we need to handle
+                 * them differently someday.
+                 */
                 } catch (ClassNotFoundException cnfe) {
                     unknownClasses.add(s);
                 } catch (NoClassDefFoundError ncdfe) {
@@ -217,6 +222,8 @@ public class SnoopToAgentClient {
                 } catch (ExceptionInInitializerError e) {
                     unknownClasses.add(s);
                 } catch (Exception e) {
+                    unknownClasses.add(s);
+                } catch (Throwable t) {
                     unknownClasses.add(s);
                 }
             }

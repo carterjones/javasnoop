@@ -110,7 +110,7 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
  */
 public class JavaSnoopView extends FrameView {
 
-    private static String faqUrl = "http://www.aspectsecurity.com/tools/JavaSnoop";
+    private static String faqUrl = "http://www.aspectsecurity.com/tools/javasnoop";
     private static final String nl = System.getProperty("line.separator");
 
     private static File lastConfigurationDirectory;
@@ -1704,6 +1704,7 @@ public class JavaSnoopView extends FrameView {
                     disableSnoopUI();
                     UIUtil.showErrorMessage(getFrame(), "Encountered execution exception when starting agent: " + ex.getMessage());
                     logger.error(ex);
+                    ex.printStackTrace();
                 } catch (AgentCommunicationException ex) {
                     statusMessageLabel.setText("Error attaching agent");
                     disableSnoopUI();
@@ -2676,6 +2677,5 @@ public class JavaSnoopView extends FrameView {
             txtOutputFile.setText(of.getAbsolutePath());
         }
     }
-
 
 }
