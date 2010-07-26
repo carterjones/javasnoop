@@ -24,6 +24,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class represents the base class for a function hook.
+ *
+ * @author adabirsiaghi
+ */
 public class FunctionHookInterceptor extends MethodInterceptor implements Serializable, Cloneable {
 
     private boolean shouldPause;
@@ -71,11 +76,11 @@ public class FunctionHookInterceptor extends MethodInterceptor implements Serial
     }
 
     public boolean shouldPrintParameters() {
-        return shouldPrintStackTrace;
+        return shouldPrintParameters;
     }
 
     public boolean shouldPrintStackTrace() {
-        return shouldPrintParameters;
+        return shouldPrintStackTrace;
     }
 
     public boolean isOutputToConsole() {
@@ -114,7 +119,7 @@ public class FunctionHookInterceptor extends MethodInterceptor implements Serial
         this.outputFile = outputFile;
 
         this.shouldPrintParameters = shouldPrintParameters;
-        this.shouldPrintParameters = shouldPrintStackTrace;
+        this.shouldPrintStackTrace = shouldPrintStackTrace;
         
         this.shouldPause = shouldPause;
         this.shouldRunScript = shouldRunScript;
@@ -137,6 +142,10 @@ public class FunctionHookInterceptor extends MethodInterceptor implements Serial
     
     public void setOutputToFile(boolean b) {
         this.isOutputToFile = b;
+    }
+
+    public void setOutputFile(String s) {
+        this.outputFile = s;
     }
 
     public void setShouldTamperParameters(boolean b) {

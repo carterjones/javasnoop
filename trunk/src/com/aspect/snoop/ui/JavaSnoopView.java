@@ -92,6 +92,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
@@ -419,7 +420,14 @@ public class JavaSnoopView extends FrameView {
         jPanel3.setName("jPanel3"); // NOI18N
 
         txtOutputFile.setName("txtOutputFile"); // NOI18N
+        txtOutputFile.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtOutputFileKeyReleased(evt);
+            }
+        });
 
+        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getActionMap(JavaSnoopView.class, this);
+        btnBrowseForOutputFile.setAction(actionMap.get("browseToOutputFile")); // NOI18N
         btnBrowseForOutputFile.setText(resourceMap.getString("btnBrowseForOutputFile.text")); // NOI18N
         btnBrowseForOutputFile.setFocusable(false);
         btnBrowseForOutputFile.setName("btnBrowseForOutputFile"); // NOI18N
@@ -636,7 +644,6 @@ public class JavaSnoopView extends FrameView {
             }
         });
 
-        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getActionMap(JavaSnoopView.class, this);
         btnDeleteHook.setAction(actionMap.get("deleteHook")); // NOI18N
         btnDeleteHook.setText(resourceMap.getString("btnDeleteHook.text")); // NOI18N
         btnDeleteHook.setActionCommand(resourceMap.getString("btnDeleteHook.actionCommand")); // NOI18N
@@ -919,7 +926,6 @@ public class JavaSnoopView extends FrameView {
         fileMenu.setName("fileMenu"); // NOI18N
 
         jMenuItem2.setAction(actionMap.get("newSession")); // NOI18N
-        jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem2.setText(resourceMap.getString("jMenuItem2.text")); // NOI18N
         jMenuItem2.setName("jMenuItem2"); // NOI18N
         fileMenu.add(jMenuItem2);
@@ -970,30 +976,22 @@ public class JavaSnoopView extends FrameView {
         actionsMenu.setName("actionsMenu"); // NOI18N
 
         mnuGetProcessInfo.setAction(actionMap.get("getProcessInfo")); // NOI18N
-        mnuGetProcessInfo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
         mnuGetProcessInfo.setText(resourceMap.getString("mnuGetProcessInfo.text")); // NOI18N
-        mnuGetProcessInfo.setEnabled(false);
         mnuGetProcessInfo.setName("mnuGetProcessInfo"); // NOI18N
         actionsMenu.add(mnuGetProcessInfo);
 
         mnuBrowseRemoteClasses.setAction(actionMap.get("browseRemoteClasses")); // NOI18N
-        mnuBrowseRemoteClasses.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, java.awt.event.InputEvent.CTRL_MASK));
         mnuBrowseRemoteClasses.setText(resourceMap.getString("mnuBrowseRemoteClasses.text")); // NOI18N
-        mnuBrowseRemoteClasses.setEnabled(false);
         mnuBrowseRemoteClasses.setName("mnuBrowseRemoteClasses"); // NOI18N
         actionsMenu.add(mnuBrowseRemoteClasses);
 
         mnuStartCanaryMode.setAction(actionMap.get("enterCanaryMode")); // NOI18N
-        mnuStartCanaryMode.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.CTRL_MASK));
         mnuStartCanaryMode.setText(resourceMap.getString("mnuStartCanaryMode.text")); // NOI18N
-        mnuStartCanaryMode.setEnabled(false);
         mnuStartCanaryMode.setName("mnuStartCanaryMode"); // NOI18N
         actionsMenu.add(mnuStartCanaryMode);
 
         mnuDecompileClass.setAction(actionMap.get("decompileClass")); // NOI18N
-        mnuDecompileClass.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
         mnuDecompileClass.setText(resourceMap.getString("mnuDecompileClass.text")); // NOI18N
-        mnuDecompileClass.setEnabled(false);
         mnuDecompileClass.setName("mnuDecompileClass"); // NOI18N
         actionsMenu.add(mnuDecompileClass);
 
@@ -1003,7 +1001,6 @@ public class JavaSnoopView extends FrameView {
 
         mnuManageJavaAppletSecuritySettings.setAction(actionMap.get("manageJavaSecuritySettings")); // NOI18N
         mnuManageJavaAppletSecuritySettings.setText(resourceMap.getString("mnuManageJavaAppletSecuritySettings.text")); // NOI18N
-        mnuManageJavaAppletSecuritySettings.setEnabled(false);
         mnuManageJavaAppletSecuritySettings.setName("mnuManageJavaAppletSecuritySettings"); // NOI18N
         actionsMenu.add(mnuManageJavaAppletSecuritySettings);
 
@@ -1075,7 +1072,6 @@ public class JavaSnoopView extends FrameView {
         helpMenu.setName("helpMenu"); // NOI18N
 
         mnuAbout.setAction(actionMap.get("showAboutBox")); // NOI18N
-        mnuAbout.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F10, 0));
         mnuAbout.setName("mnuAbout"); // NOI18N
         helpMenu.add(mnuAbout);
 
@@ -1199,7 +1195,7 @@ public class JavaSnoopView extends FrameView {
             updateCurrentSession();
 
             // update the UI
-            updateSessionUI();
+            updateSessionUI(false);
 
             sendAgentNewRules();
 
@@ -1493,7 +1489,7 @@ public class JavaSnoopView extends FrameView {
 
                 currentSession = SessionPersistenceUtil.loadSession(file.getAbsolutePath());
                 currentSession.markAsSaved();
-                updateSessionUI();
+                updateSessionUI(true);
             }
 
         } catch (FileNotFoundException ex) {
@@ -1521,6 +1517,11 @@ public class JavaSnoopView extends FrameView {
         }
     }//GEN-LAST:event_chkPrintStackTraceActionPerformed
 
+    private void txtOutputFileKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtOutputFileKeyReleased
+        FunctionHookInterceptor hook = getCurrentHook();
+        hook.setOutputFile(txtOutputFile.getText());
+    }//GEN-LAST:event_txtOutputFileKeyReleased
+
     @Action
     public void enableDisableAllHooks(ActionEvent evt) {
 
@@ -1532,7 +1533,7 @@ public class JavaSnoopView extends FrameView {
             model.disableAll();
         }
 
-        updateSessionUI();
+        updateSessionUI(false);
     }
 
     @Action
@@ -1809,7 +1810,12 @@ public class JavaSnoopView extends FrameView {
     private int busyIconIndex = 0;
     private JDialog aboutBox;
 
-    public void updateSessionUI() {
+    /*
+     * Updates the form fields for the screen to match what's in the
+     * currentSession object. This is used to keep them in sync when
+     * they diverge.
+     */
+    public void updateSessionUI(boolean shouldOverwriteConsole) {
 
         txtMainClass.setText(currentSession.getMainClass());
         txtJavaArgs.setText(currentSession.getJavaArguments());
@@ -1825,7 +1831,10 @@ public class JavaSnoopView extends FrameView {
             lblFilename.setText("(not saved yet)");
         }
 
-        txtConsole.setText(currentSession.getOutput());
+        if ( shouldOverwriteConsole ) {
+            txtConsole.setText("");
+            showSnoopMessage(currentSession.getOutput());
+        }
 
         tblFunctionsHooked.setModel(new FunctionsHookedTableModel(currentSession.getFunctionHooks()));
 
@@ -2001,16 +2010,14 @@ public class JavaSnoopView extends FrameView {
 
         if (hook.isOutputToFile()) {
             File f = new File(hook.getOutputFile());
-            if (f.exists() && f.canWrite()) {
-                try {
-                    FileOutputStream fos = new FileOutputStream(f, true);
-                    fos.write(sb.toString().getBytes());
-                    fos.close();
-                } catch (FileNotFoundException fnfe) {
-                    showConsoleErrorMessage("Failed to append data to file. Could not find or write to file: " + f.getAbsolutePath());
-                } catch (IOException ioe) {
-                    showConsoleErrorMessage("Failed to append data to file. Problem writing to file " + f.getAbsolutePath() + ": " + ioe.getMessage());
-                }
+            try {
+                FileOutputStream fos = new FileOutputStream(f, true);
+                fos.write(sb.toString().getBytes());
+                fos.close();
+            } catch (FileNotFoundException fnfe) {
+                showConsoleErrorMessage("Failed to append data to file. Could not find or write to file: " + f.getAbsolutePath());
+            } catch (IOException ioe) {
+                showConsoleErrorMessage("Failed to append data to file. Problem writing to file " + f.getAbsolutePath() + ": " + ioe.getMessage());
             }
         }
 
@@ -2101,7 +2108,7 @@ public class JavaSnoopView extends FrameView {
 
         if ( view.shouldDisable() ) {
             hook.setEnabled(false);
-            updateSessionUI();
+            updateSessionUI(false);
         }
 
         List<Parameter> results = view.getParameters();
@@ -2289,11 +2296,9 @@ public class JavaSnoopView extends FrameView {
         int hour = Calendar.getInstance().get(Calendar.HOUR);
         int minute = Calendar.getInstance().get(Calendar.MINUTE);
         int second = Calendar.getInstance().get(Calendar.SECOND);
-        boolean AM = hour < 12;
+        int am = Calendar.getInstance().get(Calendar.AM_PM);
 
-        if (hour == 0) {
-            hour = 12;
-        }
+        boolean AM = am == Calendar.AM;
 
         return hour + ":" + pad(minute) + ":" + pad(second) + " " + (AM ? "AM" : "PM");
     }
@@ -2366,7 +2371,7 @@ public class JavaSnoopView extends FrameView {
 
         setTableDimensions();
 
-        updateSessionUI();
+        updateSessionUI(false);
 
     }
 
@@ -2524,7 +2529,7 @@ public class JavaSnoopView extends FrameView {
 
     public void addHook(FunctionHookInterceptor hook) {
         currentSession.getFunctionHooks().add(hook);
-        updateSessionUI();
+        updateSessionUI(false);
     }
 
     private void showCodeIfNeeded(String className) {
@@ -2648,6 +2653,28 @@ public class JavaSnoopView extends FrameView {
             UIUtil.showErrorMessage(getFrame(), "Couldn't get process info from client: " + ex.getMessage());
         }
 
+    }
+
+    @Action
+    public void browseToOutputFile() {
+
+        String currentOutputFile = txtOutputFile.getText();
+        JFileChooser fc = null;
+
+        if ( currentOutputFile.length() > 0 ) {
+            File f = new File(currentOutputFile);
+            if ( f.exists() ) {
+                fc = new JFileChooser(f.getParentFile());
+            } else {
+                fc = new JFileChooser();
+            }
+        }
+        int rc = fc.showOpenDialog(getFrame());
+
+        if (rc == JFileChooser.APPROVE_OPTION) {
+            File of = fc.getSelectedFile();
+            txtOutputFile.setText(of.getAbsolutePath());
+        }
     }
 
 

@@ -21,6 +21,12 @@ package com.aspect.snoop;
 
 import java.io.Serializable;
 
+/**
+ * This class represents a logical condition that decides whether or not a
+ * particular hook should be executed.
+ *
+ * @author adabirsiaghi
+ */
 public class Condition implements Cloneable, Serializable {
 
     public enum Operator {

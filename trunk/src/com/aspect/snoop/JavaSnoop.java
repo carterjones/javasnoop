@@ -33,7 +33,8 @@ import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.Application.ExitListener;
 
 /**
- * The main class of the application.
+ * The main class of the application. This class reads the properties
+ * file, kicks off the main view, and handles major lifecycle events.
  */
 public class JavaSnoop extends SingleFrameApplication {
 

@@ -294,9 +294,15 @@
                       <Properties>
                         <Property name="name" type="java.lang.String" value="txtOutputFile" noResource="true"/>
                       </Properties>
+                      <Events>
+                        <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txtOutputFileKeyReleased"/>
+                      </Events>
                     </Component>
                     <Component class="javax.swing.JButton" name="btnBrowseForOutputFile">
                       <Properties>
+                        <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                          <action class="com.aspect.snoop.ui.JavaSnoopView" id="browseToOutputFile" methodName="browseToOutputFile"/>
+                        </Property>
                         <Property name="text" type="java.lang.String" resourceKey="btnBrowseForOutputFile.text"/>
                         <Property name="focusable" type="boolean" value="false"/>
                         <Property name="name" type="java.lang.String" value="btnBrowseForOutputFile" noResource="true"/>
@@ -877,9 +883,6 @@
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="com.aspect.snoop.ui.AspectSpyView" id="newSession" methodName="newSession"/>
                 </Property>
-                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
-                  <KeyStroke key="Ctrl+N"/>
-                </Property>
                 <Property name="text" type="java.lang.String" resourceKey="jMenuItem2.text"/>
                 <Property name="name" type="java.lang.String" value="jMenuItem2" noResource="true"/>
               </Properties>
@@ -953,11 +956,7 @@
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="com.aspect.snoop.ui.AspectSpyView" id="getProcessInfo" methodName="getProcessInfo"/>
                 </Property>
-                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
-                  <KeyStroke key="Ctrl+P"/>
-                </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuGetProcessInfo.text"/>
-                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="mnuGetProcessInfo" noResource="true"/>
               </Properties>
             </MenuItem>
@@ -966,11 +965,7 @@
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="com.aspect.snoop.ui.AspectSpyView" id="browseRemoteClasses" methodName="browseRemoteClasses"/>
                 </Property>
-                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
-                  <KeyStroke key="Ctrl+B"/>
-                </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuBrowseRemoteClasses.text"/>
-                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="mnuBrowseRemoteClasses" noResource="true"/>
               </Properties>
             </MenuItem>
@@ -979,11 +974,7 @@
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="com.aspect.snoop.ui.JavaSnoopView" id="enterCanaryMode" methodName="enterCanaryMode"/>
                 </Property>
-                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
-                  <KeyStroke key="Ctrl+R"/>
-                </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuStartCanaryMode.text"/>
-                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="mnuStartCanaryMode" noResource="true"/>
               </Properties>
             </MenuItem>
@@ -992,11 +983,7 @@
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="com.aspect.snoop.ui.JavaSnoopView" id="decompileClass" methodName="decompileClass"/>
                 </Property>
-                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
-                  <KeyStroke key="Ctrl+O"/>
-                </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuDecompileClass.text"/>
-                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="mnuDecompileClass" noResource="true"/>
               </Properties>
             </MenuItem>
@@ -1012,7 +999,6 @@
                   <action class="com.aspect.snoop.ui.AspectSpyView" id="manageJavaSecuritySettings" methodName="manageJavaSecuritySettings"/>
                 </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuManageJavaAppletSecuritySettings.text"/>
-                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="mnuManageJavaAppletSecuritySettings" noResource="true"/>
               </Properties>
             </MenuItem>
@@ -1138,9 +1124,6 @@
               <Properties>
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="com.aspect.snoop.ui.JavaSpyView" id="showAboutBox" methodName="showAboutBox"/>
-                </Property>
-                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
-                  <KeyStroke key="F10"/>
                 </Property>
                 <Property name="name" type="java.lang.String" value="mnuAbout" noResource="true"/>
               </Properties>
