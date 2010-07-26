@@ -92,7 +92,6 @@ import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
@@ -110,7 +109,8 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
  */
 public class JavaSnoopView extends FrameView {
 
-    private static String faqUrl = "http://www.aspectsecurity.com/tools/javasnoop";
+    private static String faqUrl = "http://www.aspectsecurity.com/tools/javasnoop/javasnoop_faq.html";
+    private static String homeUrl = "http://www.aspectsecurity.com/tools/javasnoop/";
     private static final String nl = System.getProperty("line.separator");
 
     private static File lastConfigurationDirectory;
@@ -339,6 +339,7 @@ public class JavaSnoopView extends FrameView {
         mnuLogOff = new javax.swing.JCheckBoxMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem mnuAbout = new javax.swing.JMenuItem();
+        mnuGotoHomePage = new javax.swing.JMenuItem();
         mnuViewFAQ = new javax.swing.JMenuItem();
         statusPanel = new javax.swing.JPanel();
         javax.swing.JSeparator statusPanelSeparator = new javax.swing.JSeparator();
@@ -1075,6 +1076,11 @@ public class JavaSnoopView extends FrameView {
         mnuAbout.setName("mnuAbout"); // NOI18N
         helpMenu.add(mnuAbout);
 
+        mnuGotoHomePage.setAction(actionMap.get("browseToHomePage")); // NOI18N
+        mnuGotoHomePage.setText(resourceMap.getString("mnuGotoHomePage.text")); // NOI18N
+        mnuGotoHomePage.setName("mnuGotoHomePage"); // NOI18N
+        helpMenu.add(mnuGotoHomePage);
+
         mnuViewFAQ.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F11, 0));
         mnuViewFAQ.setText(resourceMap.getString("mnuViewFAQ.text")); // NOI18N
         mnuViewFAQ.setName("mnuViewFAQ"); // NOI18N
@@ -1765,6 +1771,7 @@ public class JavaSnoopView extends FrameView {
     private javax.swing.JMenuItem mnuBrowseRemoteClasses;
     private javax.swing.JMenuItem mnuDecompileClass;
     private javax.swing.JMenuItem mnuGetProcessInfo;
+    private javax.swing.JMenuItem mnuGotoHomePage;
     private javax.swing.JMenuItem mnuLoadConfiguration;
     private javax.swing.JCheckBoxMenuItem mnuLogDebug;
     private javax.swing.JCheckBoxMenuItem mnuLogError;
@@ -2675,6 +2682,15 @@ public class JavaSnoopView extends FrameView {
         if (rc == JFileChooser.APPROVE_OPTION) {
             File of = fc.getSelectedFile();
             txtOutputFile.setText(of.getAbsolutePath());
+        }
+    }
+
+    @Action
+    public void browseToHomePage() {
+        try {
+            Desktop.getDesktop().browse(URI.create(homeUrl));
+        } catch (IOException ex) {
+            showConsoleErrorMessage("Couldn't browse to FAQ page: " + ex.getMessage());
         }
     }
 
