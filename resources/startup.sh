@@ -27,6 +27,7 @@ Darwin)
         echo [1] Found Java 1.6 at $JAVA_HOME.
 	;;
 Linux)
+        echo [0] Detected Linux
 	if [ ! -z "$JDK_HOME" ]
 	then
 		echo [1] Found JDK_HOME environment variable. Using JDK at $JDK_HOME.
