@@ -151,6 +151,9 @@ public class ChooseClassView extends javax.swing.JDialog {
             }
         });
         txtClass.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtClassKeyReleased(evt);
+            }
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 txtClassKeyTyped(evt);
             }
@@ -244,7 +247,8 @@ public class ChooseClassView extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtClassKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtClassKeyTyped
-        
+
+        /*
         String substring  = txtClass.getText();
         
         if (    evt.getKeyChar() != java.awt.event.KeyEvent.VK_ENTER &&
@@ -266,6 +270,7 @@ public class ChooseClassView extends javax.swing.JDialog {
         } else {
             listSomeClasses(substring);
         }
+         */
 
     }//GEN-LAST:event_txtClassKeyTyped
 
@@ -291,6 +296,17 @@ public class ChooseClassView extends javax.swing.JDialog {
         filterClasses();
         
     }//GEN-LAST:event_chkHideJavaSnoopClassesActionPerformed
+
+    private void txtClassKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtClassKeyReleased
+        String substring  = txtClass.getText();
+        if ( substring.length() == 0 ) {
+            filterClasses();
+        } else {
+            System.out.println("Only gonna show classes with " + substring);
+            filterClasses();
+            listSomeClasses(substring);
+        }
+    }//GEN-LAST:event_txtClassKeyReleased
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox chkHideJavaClasses;
@@ -363,6 +379,7 @@ public class ChooseClassView extends javax.swing.JDialog {
             }
 
             if ( shouldShow ) {
+                filteredClasses.add(cls);
                 list.addElement(cls);
             }
 

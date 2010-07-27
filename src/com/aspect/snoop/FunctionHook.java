@@ -29,7 +29,7 @@ import java.util.List;
  *
  * @author adabirsiaghi
  */
-public class FunctionHookInterceptor extends MethodInterceptor implements Serializable, Cloneable {
+public class FunctionHook extends MethodInterceptor implements Serializable, Cloneable {
 
     private boolean shouldPause;
 
@@ -49,7 +49,7 @@ public class FunctionHookInterceptor extends MethodInterceptor implements Serial
 
     private int id;
 
-    public FunctionHookInterceptor(UniqueMethod m) {
+    public FunctionHook(UniqueMethod m) {
         super(Mode.AlwaysIntercept,false,m.getParentClassName(),m.getName(), m.getParameterTypes(), m.getReturnTypeName(), true, new ArrayList<Condition>());
         setOutputToConsole(false);
         setOutputToFile(false);
@@ -96,12 +96,12 @@ public class FunctionHookInterceptor extends MethodInterceptor implements Serial
     }
 
     //needed for serialization
-    public FunctionHookInterceptor() { 
+    public FunctionHook() {
         super();
         this.id = hashCode();
     }
 
-    public FunctionHookInterceptor(boolean shouldTamperParameters, boolean shouldTamperReturnValue, boolean shouldRunScript,
+    public FunctionHook(boolean shouldTamperParameters, boolean shouldTamperReturnValue, boolean shouldRunScript,
             String startScript, String endScript, boolean shouldPause, boolean enabled, String className,
             String methodName, String[] parameterTypes, String returnType, boolean applyToSubTypes, Mode mode,
             boolean shouldPrintParameters,  boolean shouldPrintStackTrace, boolean isOutputToConsole,

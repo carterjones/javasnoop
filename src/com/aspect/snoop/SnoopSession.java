@@ -42,7 +42,7 @@ public class SnoopSession implements Serializable {
     String javaArguments;
     String mainClass;
 
-    List<FunctionHookInterceptor> functionHooks;
+    List<FunctionHook> functionHooks;
 
     String output;
 
@@ -59,7 +59,7 @@ public class SnoopSession implements Serializable {
         mainClass = "";
         output = "";
         
-        functionHooks = new ArrayList<FunctionHookInterceptor>();
+        functionHooks = new ArrayList<FunctionHook>();
        
     }
 
@@ -124,14 +124,14 @@ public class SnoopSession implements Serializable {
     /**
      * @return the functionHooks
      */
-    public List<FunctionHookInterceptor> getFunctionHooks() {
+    public List<FunctionHook> getFunctionHooks() {
         return functionHooks;
     }
 
     /**
      * @param functionHooks the functionHooks to set
      */
-    public void setFunctionHooks(List<FunctionHookInterceptor> functionHooks) {
+    public void setFunctionHooks(List<FunctionHook> functionHooks) {
         this.functionHooks = functionHooks;
     }
 

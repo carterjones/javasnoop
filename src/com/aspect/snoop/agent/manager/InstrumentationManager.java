@@ -304,6 +304,22 @@ public class InstrumentationManager {
             }
         }
 
+        try {
+            /*
+             * If the target process was started through "Start & Snoop" rather
+             * than through "Attach & Snoop" then the class might not have
+             * been in the initial list (in fact, it probably wasn't).
+             *
+             * This means we have to get some other handle to the class. For
+             * now, we only try a simple Class.forName(). In the future, we
+             * should try to get a fresh copy of all the loaded classloaders
+             * (how? I don't know) and try to load the class with each until
+             * we find one that is responsible for it.
+             */
+            Class cls = Class.forName(className);
+            return cls;
+        } catch (Throwable t){ }
+
         throw new ClassNotFoundException(className);
     }
 

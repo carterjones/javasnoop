@@ -30,7 +30,7 @@ import com.aspect.snoop.ui.hook.FunctionsHookedTableModel;
 import com.aspect.snoop.ui.hook.FunctionHookTableSelectionListener;
 import com.aspect.snoop.ui.hook.AddFunctionHookView;
 import com.aspect.snoop.Condition;
-import com.aspect.snoop.FunctionHookInterceptor;
+import com.aspect.snoop.FunctionHook;
 import com.aspect.snoop.MethodInterceptor;
 import com.aspect.snoop.MethodInterceptor.Mode;
 import com.aspect.snoop.SnoopSession;
@@ -136,6 +136,8 @@ public class JavaSnoopView extends FrameView {
         
         initializeSession();
 
+        chkShowMethodCode.setSelected( JavaSnoop.getBooleanProperty(JavaSnoop.USE_JAD,false) );
+
         getFrame().setResizable(false);
 
         String icon = "/META-INF/about.png";
@@ -160,7 +162,7 @@ public class JavaSnoopView extends FrameView {
         JMenuItem deleteCondition = new JMenuItem("Delete condition");
         deleteCondition.addActionListener( new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                FunctionHookInterceptor hook = getCurrentHook();
+                FunctionHook hook = getCurrentHook();
                 if ( hook == null ) {
                     return;
                 }
@@ -978,25 +980,21 @@ public class JavaSnoopView extends FrameView {
 
         mnuGetProcessInfo.setAction(actionMap.get("getProcessInfo")); // NOI18N
         mnuGetProcessInfo.setText(resourceMap.getString("mnuGetProcessInfo.text")); // NOI18N
-        mnuGetProcessInfo.setEnabled(false);
         mnuGetProcessInfo.setName("mnuGetProcessInfo"); // NOI18N
         actionsMenu.add(mnuGetProcessInfo);
 
         mnuBrowseRemoteClasses.setAction(actionMap.get("browseRemoteClasses")); // NOI18N
         mnuBrowseRemoteClasses.setText(resourceMap.getString("mnuBrowseRemoteClasses.text")); // NOI18N
-        mnuBrowseRemoteClasses.setEnabled(false);
         mnuBrowseRemoteClasses.setName("mnuBrowseRemoteClasses"); // NOI18N
         actionsMenu.add(mnuBrowseRemoteClasses);
 
         mnuStartCanaryMode.setAction(actionMap.get("enterCanaryMode")); // NOI18N
         mnuStartCanaryMode.setText(resourceMap.getString("mnuStartCanaryMode.text")); // NOI18N
-        mnuStartCanaryMode.setEnabled(false);
         mnuStartCanaryMode.setName("mnuStartCanaryMode"); // NOI18N
         actionsMenu.add(mnuStartCanaryMode);
 
         mnuDecompileClass.setAction(actionMap.get("decompileClass")); // NOI18N
         mnuDecompileClass.setText(resourceMap.getString("mnuDecompileClass.text")); // NOI18N
-        mnuDecompileClass.setEnabled(false);
         mnuDecompileClass.setName("mnuDecompileClass"); // NOI18N
         actionsMenu.add(mnuDecompileClass);
 
@@ -1006,7 +1004,6 @@ public class JavaSnoopView extends FrameView {
 
         mnuManageJavaAppletSecuritySettings.setAction(actionMap.get("manageJavaSecuritySettings")); // NOI18N
         mnuManageJavaAppletSecuritySettings.setText(resourceMap.getString("mnuManageJavaAppletSecuritySettings.text")); // NOI18N
-        mnuManageJavaAppletSecuritySettings.setEnabled(false);
         mnuManageJavaAppletSecuritySettings.setName("mnuManageJavaAppletSecuritySettings"); // NOI18N
         actionsMenu.add(mnuManageJavaAppletSecuritySettings);
 
@@ -1019,6 +1016,11 @@ public class JavaSnoopView extends FrameView {
         chkShowMethodCode.setSelected(true);
         chkShowMethodCode.setText(resourceMap.getString("chkShowMethodCode.text")); // NOI18N
         chkShowMethodCode.setName("chkShowMethodCode"); // NOI18N
+        chkShowMethodCode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chkShowMethodCodeActionPerformed(evt);
+            }
+        });
         mnuManageJad.add(chkShowMethodCode);
 
         mnuSetJadPath.setAction(actionMap.get("changeJadPath")); // NOI18N
@@ -1160,7 +1162,7 @@ public class JavaSnoopView extends FrameView {
              * already been added.
              */
             for(int i=0;i<currentSession.getFunctionHooks().size();i++) {
-                FunctionHookInterceptor oldHook = currentSession.getFunctionHooks().get(i);
+                FunctionHook oldHook = currentSession.getFunctionHooks().get(i);
                 if ( oldHook.getClassName().equals(selectedClass) ) {
                     if ( oldHook.getMethodName().equals(selectedMethod) ) {
                         if ( Arrays.equals(oldHook.getParameterTypes(),parameterTypes)) {
@@ -1173,7 +1175,7 @@ public class JavaSnoopView extends FrameView {
 
             boolean shouldInherit = view.getShouldInherit();
 
-            FunctionHookInterceptor hook = new FunctionHookInterceptor(
+            FunctionHook hook = new FunctionHook(
                     false,
                     false,
                     false,
@@ -1219,7 +1221,7 @@ public class JavaSnoopView extends FrameView {
 
     private void btnAddNewConditionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNewConditionActionPerformed
 
-        FunctionHookInterceptor hook = getCurrentHook();
+        FunctionHook hook = getCurrentHook();
 
         // if no hook is selected, fail. we need to know which hook to add
         // the condition to
@@ -1252,7 +1254,7 @@ public class JavaSnoopView extends FrameView {
     private void chkTamperParametersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkTamperParametersActionPerformed
 
         FunctionsHookedTableModel model = (FunctionsHookedTableModel) tblFunctionsHooked.getModel();
-        FunctionHookInterceptor hook = model.getHookFromRow(tblFunctionsHooked.getSelectedRow());
+        FunctionHook hook = model.getHookFromRow(tblFunctionsHooked.getSelectedRow());
         hook.setShouldTamperParameters(chkTamperParameters.isSelected());
 
         if ( hook.isEnabled() ) {
@@ -1262,7 +1264,7 @@ public class JavaSnoopView extends FrameView {
     }//GEN-LAST:event_chkTamperParametersActionPerformed
 
     private void chkRunScriptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkRunScriptActionPerformed
-        FunctionHookInterceptor hook = getCurrentHook();
+        FunctionHook hook = getCurrentHook();
         hook.setShouldRunScript(chkRunScript.isSelected());
 
         if ( hook.isEnabled() ) {
@@ -1271,7 +1273,7 @@ public class JavaSnoopView extends FrameView {
     }//GEN-LAST:event_chkRunScriptActionPerformed
 
     private void chkPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkPauseActionPerformed
-        FunctionHookInterceptor hook = getCurrentHook();
+        FunctionHook hook = getCurrentHook();
         hook.setShouldPause(chkPause.isSelected());
 
         if ( hook.isEnabled() ) {
@@ -1280,7 +1282,7 @@ public class JavaSnoopView extends FrameView {
     }//GEN-LAST:event_chkPauseActionPerformed
 
     private void chkPrintParametersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkPrintParametersActionPerformed
-        FunctionHookInterceptor hook = getCurrentHook();
+        FunctionHook hook = getCurrentHook();
         hook.setShouldPrintParameters(chkPrintParameters.isSelected());
 
         if ( hook.isEnabled() ) {
@@ -1289,27 +1291,27 @@ public class JavaSnoopView extends FrameView {
     }//GEN-LAST:event_chkPrintParametersActionPerformed
 
     private void chkOutputToFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkOutputToFileActionPerformed
-        FunctionHookInterceptor hook = getCurrentHook();
+        FunctionHook hook = getCurrentHook();
         hook.setOutputToFile(chkOutputToFile.isSelected());
     }//GEN-LAST:event_chkOutputToFileActionPerformed
 
     private void chkOutputToConsoleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkOutputToConsoleActionPerformed
-        FunctionHookInterceptor hook = getCurrentHook();
+        FunctionHook hook = getCurrentHook();
         hook.setOutputToConsole(chkOutputToConsole.isSelected());
     }//GEN-LAST:event_chkOutputToConsoleActionPerformed
 
     private void rdoAlwaysHookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rdoAlwaysHookActionPerformed
-        FunctionHookInterceptor hook = getCurrentHook();
+        FunctionHook hook = getCurrentHook();
         hook.setMode(Mode.AlwaysIntercept);
     }//GEN-LAST:event_rdoAlwaysHookActionPerformed
 
     private void rdoHookIfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rdoHookIfActionPerformed
-        FunctionHookInterceptor hook = getCurrentHook();
+        FunctionHook hook = getCurrentHook();
         hook.setMode(Mode.InterceptIf);
     }//GEN-LAST:event_rdoHookIfActionPerformed
 
     private void rdoDontHookIfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rdoDontHookIfActionPerformed
-        FunctionHookInterceptor hook = getCurrentHook();
+        FunctionHook hook = getCurrentHook();
         hook.setMode(Mode.DontInterceptIf);
     }//GEN-LAST:event_rdoDontHookIfActionPerformed
 
@@ -1350,7 +1352,7 @@ public class JavaSnoopView extends FrameView {
 
     private void btnEditScriptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditScriptActionPerformed
 
-        FunctionHookInterceptor hook = getCurrentHook();
+        FunctionHook hook = getCurrentHook();
 
         EditScriptView view = new EditScriptView(getFrame(), true, hook.getStartScript(), hook.getEndScript());
         view.setVisible(true);
@@ -1376,7 +1378,7 @@ public class JavaSnoopView extends FrameView {
 
     private void btnDeleteHookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteHookActionPerformed
         
-        FunctionHookInterceptor hook = getCurrentHook();
+        FunctionHook hook = getCurrentHook();
         
         if (hook != null) {
             int rc = JOptionPane.showConfirmDialog(getFrame(), "Are you sure you want to delete this hook?");
@@ -1384,8 +1386,7 @@ public class JavaSnoopView extends FrameView {
                 FunctionsHookedTableModel model = (FunctionsHookedTableModel) tblFunctionsHooked.getModel();
 
                 model.removeHook(hook);
-                tblFunctionsHooked.repaint();
-                tblFunctionsHooked.updateUI();
+                updateSessionUI(false);
             }
 
             sendAgentNewRules();
@@ -1511,7 +1512,7 @@ public class JavaSnoopView extends FrameView {
 }//GEN-LAST:event_mnuLoadConfigurationActionPerformed
 
     private void chkTamperReturnValueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkTamperReturnValueActionPerformed
-        FunctionHookInterceptor hook = getCurrentHook();
+        FunctionHook hook = getCurrentHook();
         hook.setShouldTamperReturnValue(chkTamperReturnValue.isSelected());
 
         if ( hook.isEnabled() ) {
@@ -1520,7 +1521,7 @@ public class JavaSnoopView extends FrameView {
     }//GEN-LAST:event_chkTamperReturnValueActionPerformed
 
     private void chkPrintStackTraceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkPrintStackTraceActionPerformed
-        FunctionHookInterceptor hook = getCurrentHook();
+        FunctionHook hook = getCurrentHook();
         hook.setShouldPrintStackTrace(chkPrintStackTrace.isSelected());
 
         if ( hook.isEnabled() ) {
@@ -1529,9 +1530,15 @@ public class JavaSnoopView extends FrameView {
     }//GEN-LAST:event_chkPrintStackTraceActionPerformed
 
     private void txtOutputFileKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtOutputFileKeyReleased
-        FunctionHookInterceptor hook = getCurrentHook();
+        FunctionHook hook = getCurrentHook();
         hook.setOutputFile(txtOutputFile.getText());
     }//GEN-LAST:event_txtOutputFileKeyReleased
+
+    private void chkShowMethodCodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkShowMethodCodeActionPerformed
+        boolean useJad = chkShowMethodCode.isSelected();
+        JavaSnoop.setProperty(JavaSnoop.USE_JAD, Boolean.toString(useJad));
+        JavaSnoop.saveProperties();
+    }//GEN-LAST:event_chkShowMethodCodeActionPerformed
 
     @Action
     public void enableDisableAllHooks(ActionEvent evt) {
@@ -1637,7 +1644,7 @@ public class JavaSnoopView extends FrameView {
 
                     } else {
                         // the user hit the "Start and Spy" button
-                        if (JavaSnoop.getBooleanProperty(JavaSnoop.SEPARATE_VM)) {
+                        if (JavaSnoop.getBooleanProperty(JavaSnoop.SEPARATE_VM,true)) {
                             statusMessageLabel.setText("Spawning new process to attach...");
                             return AttachUtil.launchInNewVM(currentSession);
                         } else {
@@ -1852,7 +1859,7 @@ public class JavaSnoopView extends FrameView {
         tblFunctionsHooked.setModel(new FunctionsHookedTableModel(currentSession.getFunctionHooks()));
 
         // if there are any functions hooked, select the first one
-        List<FunctionHookInterceptor> hooks = currentSession.getFunctionHooks();
+        List<FunctionHook> hooks = currentSession.getFunctionHooks();
 
         tblFunctionsHooked.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tblFunctionsHooked.setColumnSelectionAllowed(false);
@@ -1861,7 +1868,7 @@ public class JavaSnoopView extends FrameView {
         if (hooks.size() > 0) {
 
             //tblFunctionsHooked.changeSelection(0, 0, false, false);
-            FunctionHookInterceptor hook = hooks.get(0);
+            FunctionHook hook = hooks.get(0);
 
             chkPrintParameters.setSelected(hook.shouldPrintParameters());
             chkPrintStackTrace.setSelected(hook.shouldPrintStackTrace());
@@ -1894,6 +1901,7 @@ public class JavaSnoopView extends FrameView {
 
         setTableDimensions();
 
+        tblFunctionsHooked.repaint();
         tblFunctionsHooked.updateUI();
 
         tblConditions.updateUI();
@@ -1958,7 +1966,7 @@ public class JavaSnoopView extends FrameView {
 
     public void pause(String className, int hookId, Object[] parameters) {
 
-        FunctionHookInterceptor hook = getHookById(hookId);
+        FunctionHook hook = getHookById(hookId);
 
         if (!hook.isEnabled() || !areConditionsMet(hook.getMode(), hook.getConditions(), parameters)) {
             return;
@@ -1999,7 +2007,7 @@ public class JavaSnoopView extends FrameView {
 
     public void printParameters(String className, int hookId, String[] types, Object[] parameters) {
 
-        FunctionHookInterceptor hook = getHookById(hookId);
+        FunctionHook hook = getHookById(hookId);
 
         if (!hook.isEnabled() || ! hook.shouldPrintParameters() || !areConditionsMet(hook.getMode(), hook.getConditions(), parameters)) {
             return;
@@ -2038,7 +2046,7 @@ public class JavaSnoopView extends FrameView {
 
     public void printStackTrace(String className, int hookId, String st, String[] types, Object[] parameters) {
 
-        FunctionHookInterceptor hook = getHookById(hookId);
+        FunctionHook hook = getHookById(hookId);
 
         if (!hook.isEnabled() || ! hook.shouldPrintParameters() || !areConditionsMet(hook.getMode(), hook.getConditions(), parameters)) {
             return;
@@ -2074,7 +2082,7 @@ public class JavaSnoopView extends FrameView {
 
         List params = new ArrayList<Parameter>();
 
-        FunctionHookInterceptor hook = getHookById(hookId);
+        FunctionHook hook = getHookById(hookId);
 
         if (!hook.isEnabled() || !areConditionsMet(hook.getMode(), hook.getConditions(), parameters)) {
             return parameters;
@@ -2135,12 +2143,12 @@ public class JavaSnoopView extends FrameView {
 
     }
 
-    public FunctionHookInterceptor getHookById(int hookId) {
+    public FunctionHook getHookById(int hookId) {
 
         FunctionsHookedTableModel model = (FunctionsHookedTableModel) tblFunctionsHooked.getModel();
 
         for (int i = 0; i < model.getRowCount(); i++) {
-            FunctionHookInterceptor hook = model.getHookFromRow(i);
+            FunctionHook hook = model.getHookFromRow(i);
             if (hook.hashCode() == hookId) {
                 return hook;
             }
@@ -2211,7 +2219,7 @@ public class JavaSnoopView extends FrameView {
         return true;
     }
 
-    public FunctionHookInterceptor getCurrentHook() {
+    public FunctionHook getCurrentHook() {
 
         if (tblFunctionsHooked.getSelectedRow() != -1) {
             FunctionsHookedTableModel model = (FunctionsHookedTableModel) tblFunctionsHooked.getModel();
@@ -2323,11 +2331,10 @@ public class JavaSnoopView extends FrameView {
     @Action
     public void deleteHook() {
 
-        FunctionHookInterceptor hook = getCurrentHook();
+        FunctionHook hook = getCurrentHook();
         if (hook != null) {
             // user does have a hook selected, so we delete it!
             FunctionsHookedTableModel model = (FunctionsHookedTableModel) tblFunctionsHooked.getModel();
-
             model.removeHook(hook);
         }
 
@@ -2540,7 +2547,7 @@ public class JavaSnoopView extends FrameView {
         currentSession = session;
     }
 
-    public void addHook(FunctionHookInterceptor hook) {
+    public void addHook(FunctionHook hook) {
         currentSession.getFunctionHooks().add(hook);
         updateSessionUI(false);
     }

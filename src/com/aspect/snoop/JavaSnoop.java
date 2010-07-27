@@ -40,6 +40,7 @@ public class JavaSnoop extends SingleFrameApplication {
 
     public static final String VERSION = "version";
     public static final String SEPARATE_VM = "exec_separate_vm";
+    public static final String USE_JAD = "use_jad";
     public static final String JAD_PATH = "jad_path";
     public static final String LOAD_WAIT = "load_wait";
 
@@ -142,8 +143,9 @@ public class JavaSnoop extends SingleFrameApplication {
         }
     }
 
-    public static boolean getBooleanProperty(String key) {
-        return props.getProperty(key).equalsIgnoreCase("true");
+    public static boolean getBooleanProperty(String key, boolean def) {
+        String val = props.getProperty(key);
+        return val != null ? val.equalsIgnoreCase("true") : def;
     }
 
     /**
@@ -170,6 +172,7 @@ public class JavaSnoop extends SingleFrameApplication {
         p.setProperty(VERSION, "1.0");
         p.setProperty(SEPARATE_VM, "true");
         p.setProperty(LOAD_WAIT, "3000");
+        p.setProperty(USE_JAD,"false");
         return p;
     }
 }

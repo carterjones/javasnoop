@@ -80,15 +80,15 @@ public class MethodChanges {
         this.newEndSrc = newEndSrc;
     }
 
-    void appendStartSrc(String newStartSrc) {
+    public void appendStartSrc(String newStartSrc) {
         this.newStartSrc += newStartSrc;
     }
 
-    void appendEndSrc(String newEndSrc) {
+    public void appendEndSrc(String newEndSrc) {
         this.newEndSrc += newEndSrc;
     }
 
-    void addLocalVariables(LocalVariable[] newLocalVariables) {
+    public void addLocalVariables(LocalVariable[] newLocalVariables) {
         LocalVariable[] lvs = new LocalVariable[this.newLocalVariables.length + newLocalVariables.length];
         for(int i=0;i<this.newLocalVariables.length;i++) {
             lvs[i] = this.newLocalVariables[i];

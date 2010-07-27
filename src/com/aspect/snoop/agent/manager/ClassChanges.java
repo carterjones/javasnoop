@@ -19,7 +19,7 @@
 
 package com.aspect.snoop.agent.manager;
 
-import com.aspect.snoop.FunctionHookInterceptor;
+import com.aspect.snoop.FunctionHook;
 import com.aspect.snoop.util.Hook2JavaUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +54,7 @@ public class ClassChanges {
         return methodChanges.get(method);
     }
 
-    public void registerHook(FunctionHookInterceptor hook, InstrumentationManager manager) {
+    public void registerHook(FunctionHook hook, InstrumentationManager manager) {
         
         UniqueMethod method =
                 new UniqueMethod(

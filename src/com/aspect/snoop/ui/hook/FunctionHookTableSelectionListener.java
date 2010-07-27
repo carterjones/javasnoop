@@ -20,7 +20,7 @@
 package com.aspect.snoop.ui.hook;
 
 import com.aspect.snoop.Condition;
-import com.aspect.snoop.FunctionHookInterceptor;
+import com.aspect.snoop.FunctionHook;
 import com.aspect.snoop.MethodInterceptor.Mode;
 import java.awt.Component;
 import java.util.ArrayList;
@@ -147,7 +147,7 @@ public class FunctionHookTableSelectionListener implements ListSelectionListener
 
                 btnAddNewCondition.setEnabled(true);
                 
-                FunctionHookInterceptor hook = model.getHookFromRow(selectedRow);
+                FunctionHook hook = model.getHookFromRow(selectedRow);
 
                 // step #2: get the conditions from said FunctionHook
                 List<Condition> conditions = hook.getConditions();
