@@ -19,7 +19,7 @@
 
 package com.aspect.snoop.util;
 
-import com.aspect.snoop.FunctionHookInterceptor;
+import com.aspect.snoop.FunctionHook;
 import com.aspect.snoop.agent.manager.InstrumentationManager;
 import com.aspect.snoop.agent.manager.LocalVariable;
 import com.aspect.snoop.agent.manager.MethodChanges;
@@ -37,7 +37,7 @@ public class Hook2JavaUtil {
 
     //private static Logger logger = Logger.getLogger(Hook2JavaUtil.class);
 
-    public static MethodChanges hook2Java(FunctionHookInterceptor hook, InstrumentationManager manager) {
+    public static MethodChanges hook2Java(FunctionHook hook, InstrumentationManager manager) {
 
         try {
         

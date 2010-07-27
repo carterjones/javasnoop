@@ -20,7 +20,7 @@
 package com.aspect.snoop.ui.hook;
 
 import com.aspect.snoop.JavaSnoop;
-import com.aspect.snoop.FunctionHookInterceptor;
+import com.aspect.snoop.FunctionHook;
 import com.aspect.snoop.util.ReflectionUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,9 +43,9 @@ public class FunctionsHookedTableModel extends AbstractTableModel {
         Boolean.class
     };
 
-    List<FunctionHookInterceptor> hooks = new ArrayList<FunctionHookInterceptor>();
+    List<FunctionHook> hooks = new ArrayList<FunctionHook>();
 
-    public FunctionsHookedTableModel(List<FunctionHookInterceptor> hooks) {
+    public FunctionsHookedTableModel(List<FunctionHook> hooks) {
         
         if ( hooks != null ) {
             this.hooks = hooks;
@@ -80,7 +80,7 @@ public class FunctionsHookedTableModel extends AbstractTableModel {
         if ( columnIndex == 0 ) {
             return true;
         } else if ( columnIndex == 2 ) {
-            FunctionHookInterceptor hook = getHookFromRow(rowIndex);
+            FunctionHook hook = getHookFromRow(rowIndex);
             Class c;
             try {
                 c = Class.forName(hook.getClassName(), true, JavaSnoop.getClassLoader());
@@ -97,7 +97,7 @@ public class FunctionsHookedTableModel extends AbstractTableModel {
         return false;
     }
 
-    public FunctionHookInterceptor getHookFromRow(int rowIndex) {
+    public FunctionHook getHookFromRow(int rowIndex) {
 
         if ( rowIndex > hooks.size() || rowIndex < 0 ) {
             return null;
@@ -109,7 +109,7 @@ public class FunctionsHookedTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
 
-        FunctionHookInterceptor hook = hooks.get(rowIndex);
+        FunctionHook hook = hooks.get(rowIndex);
 
         switch (columnIndex) {
             case 0:
@@ -142,13 +142,13 @@ public class FunctionsHookedTableModel extends AbstractTableModel {
         return null;
     }
     
-    public void setHooks(List<FunctionHookInterceptor> functionHooks) {
+    public void setHooks(List<FunctionHook> functionHooks) {
         hooks = functionHooks;
     }
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        FunctionHookInterceptor hook = hooks.get(rowIndex);
+        FunctionHook hook = hooks.get(rowIndex);
         
         if ( columnIndex == 0 ) {
             hook.setEnabled(((Boolean)aValue).booleanValue());
@@ -161,7 +161,7 @@ public class FunctionsHookedTableModel extends AbstractTableModel {
 
     public void disableAll() {
         for(int i=0;i<hooks.size();i++) {
-            FunctionHookInterceptor hook = hooks.get(i);
+            FunctionHook hook = hooks.get(i);
             hook.setEnabled(false);
         }
         JavaSnoop.getMainForm().sendAgentNewRules();
@@ -169,13 +169,13 @@ public class FunctionsHookedTableModel extends AbstractTableModel {
 
     public void enableAll() {
         for(int i=0;i<hooks.size();i++) {
-            FunctionHookInterceptor hook = hooks.get(i);
+            FunctionHook hook = hooks.get(i);
             hook.setEnabled(true);
         }
         JavaSnoop.getMainForm().sendAgentNewRules();
     }
 
-    public void removeHook(FunctionHookInterceptor hook) {
+    public void removeHook(FunctionHook hook) {
         hooks.remove(hook);
     }
 }

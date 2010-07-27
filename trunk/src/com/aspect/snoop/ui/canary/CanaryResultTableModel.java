@@ -18,7 +18,7 @@
  */
 package com.aspect.snoop.ui.canary;
 
-import com.aspect.snoop.FunctionHookInterceptor;
+import com.aspect.snoop.FunctionHook;
 import com.aspect.snoop.JavaSnoop;
 import com.aspect.snoop.agent.manager.UniqueMethod;
 import java.awt.event.ActionEvent;
@@ -71,7 +71,7 @@ public class CanaryResultTableModel extends DefaultTableModel {
 
         JButton btnAddHook = new JButton("Add hook");
         btnAddHook.setSize(40, 25);
-        final FunctionHookInterceptor hook = new FunctionHookInterceptor(chirp);
+        final FunctionHook hook = new FunctionHook(chirp);
 
         btnAddHook.addActionListener( new ActionListener() {
             public void actionPerformed(ActionEvent e) {

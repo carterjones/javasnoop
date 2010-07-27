@@ -150,22 +150,11 @@ public class AttachUtil {
             sb.append(s + " ");
         }
         
-        System.out.println("Running cmd: " + sb.toString());
-
         String workingDir = new File(".").getPath();
-        System.out.println("dir is " + workingDir);
+
         if ( session.getWorkingDir().trim().length() > 0 ) {
             workingDir = session.getWorkingDir().trim();
         }
-
-        String[] test = {
-
-            "C:/Program Files/Java/jdk1.6.0_16/jre/bin/java.exe",
-            "-javaagent:C:/Users/ADABIR~1/AppData/Local/Temp/JavaSnoopJUYKOX.jar=63853,63854,C:/Users/ADABIR~1/AppData/Local/Temp/JavaSnoopJUYKOX.jar",
-            "-cp",
-            "C:/Tools/webscarab.jar",
-            "org.owasp.webscarab.WebScarab"
-        };
 
         Runtime.getRuntime().exec(commandArgs, null, new File(workingDir));
         

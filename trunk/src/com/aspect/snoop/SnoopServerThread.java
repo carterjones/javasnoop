@@ -77,7 +77,7 @@ public class SnoopServerThread extends AbstractServerThread {
      */
     private void applySessionRules() {
 
-        for(FunctionHookInterceptor hook : snoopSession.getFunctionHooks() ) {
+        for(FunctionHook hook : snoopSession.getFunctionHooks() ) {
 
             // detect if hook is already in place instrumented
 

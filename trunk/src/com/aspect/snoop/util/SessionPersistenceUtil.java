@@ -20,7 +20,7 @@
 package com.aspect.snoop.util;
 
 import com.aspect.snoop.Condition;
-import com.aspect.snoop.FunctionHookInterceptor;
+import com.aspect.snoop.FunctionHook;
 import com.aspect.snoop.MethodInterceptor;
 import com.aspect.snoop.SnoopSession;
 import java.io.File;
@@ -66,7 +66,7 @@ public class SessionPersistenceUtil {
 
         // Add all the children <hook> elements
 
-        for(FunctionHookInterceptor hook : session.getFunctionHooks() ) {
+        for(FunctionHook hook : session.getFunctionHooks() ) {
 
             Element hookRoot = new Element("hook");
 
@@ -188,7 +188,7 @@ public class SessionPersistenceUtil {
         session.setClasspathString(root.getAttributeValue("classpath"));
         session.setWorkingDir(root.getAttributeValue("workingDir"));
 
-        List<FunctionHookInterceptor> hooks = new ArrayList<FunctionHookInterceptor>();
+        List<FunctionHook> hooks = new ArrayList<FunctionHook>();
 
         Element hooksRoot = root.getFirstChildElement("hooks");
 
@@ -243,7 +243,7 @@ public class SessionPersistenceUtil {
                 conditions.add(c);
             }
 
-            FunctionHookInterceptor hook = new FunctionHookInterceptor(
+            FunctionHook hook = new FunctionHook(
                     shouldTamperParameters,
                     shouldTamperReturnValue,
                     shouldRunScript,

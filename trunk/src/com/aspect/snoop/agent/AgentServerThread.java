@@ -19,7 +19,7 @@
 
 package com.aspect.snoop.agent;
 
-import com.aspect.snoop.FunctionHookInterceptor;
+import com.aspect.snoop.FunctionHook;
 import com.aspect.snoop.SnoopSession;
 import com.aspect.snoop.agent.manager.ClassChanges;
 import com.aspect.snoop.agent.manager.InstrumentationException;
@@ -65,8 +65,6 @@ import java.util.List;
 
 public class AgentServerThread extends AbstractServerThread {
 
-    //private static Logger logger = Logger.getLogger(AgentServerThread.class);
-
     public final static String SUCCESS = "SUCCESS";
     public final static String FAIL = "FAIL";
 
@@ -85,14 +83,6 @@ public class AgentServerThread extends AbstractServerThread {
         this.agentArgs = agentArgs;
 
         try {
-
-            /*
-            try {
-               inst.appendToSystemClassLoaderSearch(new JarFile("C:/p42/dev/JavaSnoop/main/lib/javassist.jar"));
-            } catch (IOException ex) {
-                Logger.getLogger(AgentServerThread.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            */
             
             String s[] = this.agentArgs.split(",");
             ourPort = Integer.parseInt(s[0]);
@@ -320,7 +310,7 @@ public class AgentServerThread extends AbstractServerThread {
             return;
         }
 
-        for (FunctionHookInterceptor hook : snoopSession.getFunctionHooks()) {
+        for (FunctionHook hook : snoopSession.getFunctionHooks()) {
             
             try {
 
@@ -358,7 +348,7 @@ public class AgentServerThread extends AbstractServerThread {
     
         HashMap<Class, ClassChanges> classChanges = new HashMap<Class,ClassChanges>();
 
-        for(FunctionHookInterceptor hook : snoopSession.getFunctionHooks() ) {
+        for(FunctionHook hook : snoopSession.getFunctionHooks() ) {
 
             if ( ! hook.isEnabled() ) {
                 continue;
