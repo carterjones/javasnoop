@@ -138,7 +138,7 @@ public class JavaSnoopView extends FrameView {
 
         getFrame().setResizable(false);
 
-        String icon = "/META-INF/snoopy.gif";
+        String icon = "/META-INF/about.png";
         
         try {
            getFrame().setIconImage(ImageIO.read(this.getClass().getResourceAsStream(icon)));
@@ -978,21 +978,25 @@ public class JavaSnoopView extends FrameView {
 
         mnuGetProcessInfo.setAction(actionMap.get("getProcessInfo")); // NOI18N
         mnuGetProcessInfo.setText(resourceMap.getString("mnuGetProcessInfo.text")); // NOI18N
+        mnuGetProcessInfo.setEnabled(false);
         mnuGetProcessInfo.setName("mnuGetProcessInfo"); // NOI18N
         actionsMenu.add(mnuGetProcessInfo);
 
         mnuBrowseRemoteClasses.setAction(actionMap.get("browseRemoteClasses")); // NOI18N
         mnuBrowseRemoteClasses.setText(resourceMap.getString("mnuBrowseRemoteClasses.text")); // NOI18N
+        mnuBrowseRemoteClasses.setEnabled(false);
         mnuBrowseRemoteClasses.setName("mnuBrowseRemoteClasses"); // NOI18N
         actionsMenu.add(mnuBrowseRemoteClasses);
 
         mnuStartCanaryMode.setAction(actionMap.get("enterCanaryMode")); // NOI18N
         mnuStartCanaryMode.setText(resourceMap.getString("mnuStartCanaryMode.text")); // NOI18N
+        mnuStartCanaryMode.setEnabled(false);
         mnuStartCanaryMode.setName("mnuStartCanaryMode"); // NOI18N
         actionsMenu.add(mnuStartCanaryMode);
 
         mnuDecompileClass.setAction(actionMap.get("decompileClass")); // NOI18N
         mnuDecompileClass.setText(resourceMap.getString("mnuDecompileClass.text")); // NOI18N
+        mnuDecompileClass.setEnabled(false);
         mnuDecompileClass.setName("mnuDecompileClass"); // NOI18N
         actionsMenu.add(mnuDecompileClass);
 
@@ -1002,6 +1006,7 @@ public class JavaSnoopView extends FrameView {
 
         mnuManageJavaAppletSecuritySettings.setAction(actionMap.get("manageJavaSecuritySettings")); // NOI18N
         mnuManageJavaAppletSecuritySettings.setText(resourceMap.getString("mnuManageJavaAppletSecuritySettings.text")); // NOI18N
+        mnuManageJavaAppletSecuritySettings.setEnabled(false);
         mnuManageJavaAppletSecuritySettings.setName("mnuManageJavaAppletSecuritySettings"); // NOI18N
         actionsMenu.add(mnuManageJavaAppletSecuritySettings);
 
@@ -2636,6 +2641,9 @@ public class JavaSnoopView extends FrameView {
 
         if ( JadUtil.getJadLocation() == null ) {
             UIUtil.showErrorMessage(getFrame(), "Could not locate Jad (not on the path and not setup)");
+            return;
+        } else if ( client == null ) {
+            UIUtil.showErrorMessage(getFrame(), "Please snoop a process before decompiling a class");
             return;
         }
 

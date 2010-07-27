@@ -957,6 +957,7 @@
                   <action class="com.aspect.snoop.ui.AspectSpyView" id="getProcessInfo" methodName="getProcessInfo"/>
                 </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuGetProcessInfo.text"/>
+                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="mnuGetProcessInfo" noResource="true"/>
               </Properties>
             </MenuItem>
@@ -966,6 +967,7 @@
                   <action class="com.aspect.snoop.ui.AspectSpyView" id="browseRemoteClasses" methodName="browseRemoteClasses"/>
                 </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuBrowseRemoteClasses.text"/>
+                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="mnuBrowseRemoteClasses" noResource="true"/>
               </Properties>
             </MenuItem>
@@ -975,6 +977,7 @@
                   <action class="com.aspect.snoop.ui.JavaSnoopView" id="enterCanaryMode" methodName="enterCanaryMode"/>
                 </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuStartCanaryMode.text"/>
+                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="mnuStartCanaryMode" noResource="true"/>
               </Properties>
             </MenuItem>
@@ -984,6 +987,7 @@
                   <action class="com.aspect.snoop.ui.JavaSnoopView" id="decompileClass" methodName="decompileClass"/>
                 </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuDecompileClass.text"/>
+                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="mnuDecompileClass" noResource="true"/>
               </Properties>
             </MenuItem>
@@ -999,6 +1003,7 @@
                   <action class="com.aspect.snoop.ui.AspectSpyView" id="manageJavaSecuritySettings" methodName="manageJavaSecuritySettings"/>
                 </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuManageJavaAppletSecuritySettings.text"/>
+                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="mnuManageJavaAppletSecuritySettings" noResource="true"/>
               </Properties>
             </MenuItem>
