@@ -2013,6 +2013,10 @@ public class JavaSnoopView extends FrameView {
 
         FunctionHook hook = getHookById(hookId);
 
+        if ( hook == null ) {
+            showConsoleErrorMessage("Didn't recognize hook " + hookId + " for class " + className);
+        }
+
         if (!hook.isEnabled() || ! hook.shouldPrintParameters() || !areConditionsMet(hook.getMode(), hook.getConditions(), parameters)) {
             return;
         }
@@ -2151,12 +2155,17 @@ public class JavaSnoopView extends FrameView {
 
         FunctionsHookedTableModel model = (FunctionsHookedTableModel) tblFunctionsHooked.getModel();
 
+        System.out.println("Looking for hook: " + hookId);
+
         for (int i = 0; i < model.getRowCount(); i++) {
             FunctionHook hook = model.getHookFromRow(i);
+            System.out.println("Comparing to stored hook: " + hook.hashCode());
             if (hook.hashCode() == hookId) {
                 return hook;
             }
         }
+
+        System.out.println("Compared " + model.getRowCount() + " hooks");
 
         return null;
     }

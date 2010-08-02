@@ -302,7 +302,6 @@ public class ChooseClassView extends javax.swing.JDialog {
         if ( substring.length() == 0 ) {
             filterClasses();
         } else {
-            System.out.println("Only gonna show classes with " + substring);
             filterClasses();
             listSomeClasses(substring);
         }

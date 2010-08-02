@@ -51,12 +51,16 @@ public class FunctionHook extends MethodInterceptor implements Serializable, Clo
 
     public FunctionHook(UniqueMethod m) {
         super(Mode.AlwaysIntercept,false,m.getParentClassName(),m.getName(), m.getParameterTypes(), m.getReturnTypeName(), true, new ArrayList<Condition>());
+        setShouldPrintParameters(true);
+        setShouldPrintStackTrace(false);
         setOutputToConsole(false);
         setOutputToFile(false);
         setShouldTamperParameters(false);
         setShouldTamperReturnValue(false);
         setStartScript("");
         setEndScript("");
+
+        this.id = hashCode();
     }
 
     public boolean shouldPause() {
