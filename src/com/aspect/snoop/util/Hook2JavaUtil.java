@@ -167,7 +167,7 @@ public class Hook2JavaUtil {
         return null;
     }
 
-    private static String getCastString(String argType) {
+    public static String getCastString(String argType) {
         
         String toReturn = argType;
 
@@ -180,7 +180,7 @@ public class Hook2JavaUtil {
         return toReturn;
     }
     
-    private static HashMap<String,Unwrapper> unwrappers = new HashMap<String,Unwrapper>();
+    public static HashMap<String,Unwrapper> unwrappers = new HashMap<String,Unwrapper>();
     
     static {
         unwrappers.put( "boolean", new Unwrapper("((Boolean)",").booleanValue()") );

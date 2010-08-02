@@ -33,20 +33,24 @@ import java.util.List;
 public class CanaryUtil {
 
     //private static Logger logger = Logger.getLogger(CanaryUtil.class);
-    public static String getChirp(String canaryType, String className, String methodName) {
+    public static String getChirp(String canaryType, String className, String methodName, String returnType) {
 
         StringBuffer sb = new StringBuffer();
 
         String nl = System.getProperty("line.separator");
 
         //sb.append("  javassist.runtime.Desc.useContextClassLoader = true;" + nl);
+
         sb.append("  com.aspect.snoop.agent.AgentToSnoopClient.currentClient().canaryChirp(");
         sb.append(canaryType);
         sb.append(".class, \"");
         sb.append(className);
         sb.append("\", \"");
         sb.append(methodName);
-        sb.append("\", $sig, $args);" + nl);
+        sb.append("\", $sig, $args, \"");
+        sb.append(returnType);
+        sb.append("\");");
+        sb.append(nl);
         //sb.append("  javassist.runtime.Desc.useContextClassLoader = false;" + nl);
 
         return sb.toString();
@@ -163,7 +167,7 @@ public class CanaryUtil {
 
                             MethodChanges change = new MethodChanges(method);
 
-                            change.setNewStartSrc(getChirp(canaryType, clsName, m.getName()));
+                            change.setNewStartSrc(getChirp(canaryType, clsName, m.getName(),method.getReturnTypeName()));
 
                             //System.out.println("Applying canary to " + method.toString());
                             classChanges.add(change);
