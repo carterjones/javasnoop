@@ -980,16 +980,19 @@ public class JavaSnoopView extends FrameView {
 
         mnuGetProcessInfo.setAction(actionMap.get("getProcessInfo")); // NOI18N
         mnuGetProcessInfo.setText(resourceMap.getString("mnuGetProcessInfo.text")); // NOI18N
+        mnuGetProcessInfo.setEnabled(false);
         mnuGetProcessInfo.setName("mnuGetProcessInfo"); // NOI18N
         actionsMenu.add(mnuGetProcessInfo);
 
         mnuBrowseRemoteClasses.setAction(actionMap.get("browseRemoteClasses")); // NOI18N
         mnuBrowseRemoteClasses.setText(resourceMap.getString("mnuBrowseRemoteClasses.text")); // NOI18N
+        mnuBrowseRemoteClasses.setEnabled(false);
         mnuBrowseRemoteClasses.setName("mnuBrowseRemoteClasses"); // NOI18N
         actionsMenu.add(mnuBrowseRemoteClasses);
 
         mnuStartCanaryMode.setAction(actionMap.get("enterCanaryMode")); // NOI18N
         mnuStartCanaryMode.setText(resourceMap.getString("mnuStartCanaryMode.text")); // NOI18N
+        mnuStartCanaryMode.setEnabled(false);
         mnuStartCanaryMode.setName("mnuStartCanaryMode"); // NOI18N
         actionsMenu.add(mnuStartCanaryMode);
 
@@ -1004,6 +1007,7 @@ public class JavaSnoopView extends FrameView {
 
         mnuManageJavaAppletSecuritySettings.setAction(actionMap.get("manageJavaSecuritySettings")); // NOI18N
         mnuManageJavaAppletSecuritySettings.setText(resourceMap.getString("mnuManageJavaAppletSecuritySettings.text")); // NOI18N
+        mnuManageJavaAppletSecuritySettings.setEnabled(false);
         mnuManageJavaAppletSecuritySettings.setName("mnuManageJavaAppletSecuritySettings"); // NOI18N
         actionsMenu.add(mnuManageJavaAppletSecuritySettings);
 
