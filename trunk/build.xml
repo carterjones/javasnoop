@@ -83,7 +83,8 @@
         </copy>
 
         <move file="${dist.dir}/resources/startup.bat" todir="${dist.dir}"/>
-        <move file="${dist.dir}/resources/startup.sh" todir="${dist.dir}" failonerror="false"/>
+        <move file="${dist.dir}/resources/startup.sh" todir="${dist.dir}"/>
+        <move file="${dist.dir}/resources/startup.ps1" todir="${dist.dir}"/>
         <move file="${dist.dir}/resources/README.txt" todir="${dist.dir}"/>
 
         <!-- create the deliverable zip -->
