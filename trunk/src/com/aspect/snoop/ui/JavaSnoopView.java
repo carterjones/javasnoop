@@ -2155,17 +2155,17 @@ public class JavaSnoopView extends FrameView {
 
         FunctionsHookedTableModel model = (FunctionsHookedTableModel) tblFunctionsHooked.getModel();
 
-        System.out.println("Looking for hook: " + hookId);
+        //System.out.println("Looking for hook: " + hookId);
 
         for (int i = 0; i < model.getRowCount(); i++) {
             FunctionHook hook = model.getHookFromRow(i);
-            System.out.println("Comparing to stored hook: " + hook.hashCode());
+            //System.out.println("Comparing to stored hook: " + hook.hashCode());
             if (hook.hashCode() == hookId) {
                 return hook;
             }
         }
 
-        System.out.println("Compared " + model.getRowCount() + " hooks");
+        //System.out.println("Compared " + model.getRowCount() + " hooks");
 
         return null;
     }
