@@ -44,11 +44,16 @@ import com.aspect.snoop.messages.agent.GetClassesRequest;
 import com.aspect.snoop.messages.agent.GetClassesResponse;
 import com.aspect.snoop.messages.agent.GetProcessInfoRequest;
 import com.aspect.snoop.messages.agent.GetProcessInfoResponse;
+import com.aspect.snoop.messages.agent.LoadClassesRequest;
+import com.aspect.snoop.messages.agent.LoadClassesResponse;
 import com.aspect.snoop.messages.agent.StartCanaryRequest;
 import com.aspect.snoop.messages.agent.StartCanaryResponse;
 import com.aspect.snoop.messages.agent.StopCanaryRequest;
 import com.aspect.snoop.messages.agent.StopCanaryResponse;
+import com.aspect.snoop.messages.agent.ToggleDebugRequest;
+import com.aspect.snoop.messages.agent.ToggleDebugResponse;
 import com.aspect.snoop.util.CanaryUtil;
+import com.aspect.snoop.util.ClasspathUtil;
 import com.aspect.snoop.util.ReflectionUtil;
 import com.aspect.snoop.util.SessionPersistenceUtil;
 import java.io.IOException;
@@ -89,7 +94,10 @@ public class AgentServerThread extends AbstractServerThread {
             homePort = Integer.parseInt(s[1]);
             agentJar = s[2];
 
-            System.out.println("Our port: "+ourPort +", home port: "+homePort);
+            /* default debugging to true */
+            AgentLogger.debugging = true;
+
+            AgentLogger.debug("Our port: "+ourPort +", home port: "+homePort);
 
         } catch (NumberFormatException nfe) {
             nfe.printStackTrace();
@@ -195,10 +203,16 @@ public class AgentServerThread extends AbstractServerThread {
             output.writeObject(response);
 
         } else if ( message instanceof GetClassesRequest ){
-            
+
+            AgentLogger.debug("Updating classpool");
+            manager.updateClassPool();
+            AgentLogger.debug("Done with classpool");
+
             GetClassesResponse response = new GetClassesResponse();
 
             List<String> classes = manager.getLoadedClassesAsStrings();
+
+            AgentLogger.debug("Sending back " + classes.size() + " classes");
 
             Collections.sort(classes);
 
@@ -217,13 +231,15 @@ public class AgentServerThread extends AbstractServerThread {
 
             int i=0;
             for( String clazz : classes ) {
-                i++;
-                byte[] bytes = manager.getClassBytes(clazz);
+                if ( ! clazz.startsWith("sun.reflect.Generated") ) {
+                    i++;
+                    AgentLogger.debug("Looking up class bytes for " + clazz);
+                    byte[] bytes = manager.getClassBytes(clazz);
 
-                if ( bytes != null ) {
-                    list.add( new ClassBytes ( clazz, bytes ) );
+                    if ( bytes != null ) {
+                        list.add( new ClassBytes ( clazz, bytes ) );
+                    }
                 }
-                
             }
 
             response.setClasses(list);
@@ -281,11 +297,76 @@ public class AgentServerThread extends AbstractServerThread {
 
             output.close();
 
+        } else if ( message instanceof LoadClassesRequest ) {
+
+            LoadClassesResponse response = new LoadClassesResponse();
+
+            LoadClassesRequest request = (LoadClassesRequest)message;
+            List<String> classesToLoad = request.getClassesToLoad();
+
+            List<String> failedClasses = new ArrayList<String>();
+
+            List<ClassLoader> classloaders = manager.getClassLoaders();
+            
+            for(String cls : classesToLoad) {
+
+                boolean loaded = false;
+                
+                try {
+                    
+                    /*
+                     * First, try to load the class using current class loader.
+                     */
+                    AgentLogger.debug("Trying to load " + cls + " with " + this.getClass().getClassLoader());
+                    Class.forName(cls);
+                    loaded = true;
+                } catch (Throwable t) {
+                    for (int i=0;i<classloaders.size() && !loaded;i++) {
+                        ClassLoader cl = classloaders.get(i);
+                        try {
+                            AgentLogger.debug("Trying to load " + cls + " with " + cl);
+                            Class.forName(cls,true,cl);
+                            loaded = true;
+                            /*
+                             * To speed up future loads, use the successful
+                             * classloader first next time.
+                             */
+                            Collections.swap(classloaders, 0, i);
+                        } catch (Throwable t2) { }
+                    }
+                }
+
+                if ( ! loaded ) {
+                    failedClasses.add(cls);
+                } else {
+                    AgentLogger.debug("Successfully loaded " + cls);
+                }
+
+            }
+
+            response.setFailedClasses(failedClasses);
+            output.writeObject(response);
+            output.flush();
+
+            output.close();
+
+        } else if ( message instanceof ToggleDebugRequest ) {
+
+            ToggleDebugRequest request = (ToggleDebugRequest)message;
+
+            AgentLogger.debugging = request.shouldDebug();
+            System.out.println("Turning agent logging " + (AgentLogger.debugging ? "ON" : "OFF"));
+
+            ToggleDebugResponse response = new ToggleDebugResponse();
+
+            output.writeObject(response);
+            output.flush();
+
+            output.close();
 
         } else {
 
             UnrecognizedMessage response = new UnrecognizedMessage();
-
             output.writeObject(response);
 
         }

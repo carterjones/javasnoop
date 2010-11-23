@@ -56,12 +56,9 @@ public class SerializationUtil {
                         serializer.toXML(null));
 
             } else {
-
-                serializer.setClassLoader(Thread.currentThread().getContextClassLoader());
                 finalObjects[i] = new TamperParameter(
-                        objects[i].getClass().getName(),
-                        serializer.toXML(objects[i]));
-
+                    objects[i].getClass().getName(),
+                    serializer.toXML(objects[i]));
             }
         }
 
@@ -76,8 +73,13 @@ public class SerializationUtil {
                 try {
                     objects[i] = serializer.fromXML(param.getXML());
                 } catch (CannotResolveClassException e) {
+                    e.printStackTrace();
+                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
                     serializer.setClassLoader(JavaSnoop.getClassLoader());
+                    Thread.currentThread().setContextClassLoader(JavaSnoop.getClassLoader());
                     objects[i] = serializer.fromXML(param.getXML());
+                    serializer.setClassLoader(cl);
+                    Thread.currentThread().setContextClassLoader(cl);
                 }
 
             }

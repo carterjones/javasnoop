@@ -32,8 +32,11 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.table.AbstractTableModel;
+import org.apache.log4j.Logger;
 
 class ArrayTableModel extends AbstractTableModel {
+
+    private static Logger logger = Logger.getLogger(ArrayTableModel.class);
 
     private Object[] items;
 
@@ -121,6 +124,9 @@ class ArrayTableModel extends AbstractTableModel {
                                 EditObjectView view = new EditObjectView(JavaSnoop.getApplication().getMainFrame(), true, copy);
                                 view.setVisible(true);
                                 UIUtil.waitForInput(view);
+                                if ( view.shouldReplaceObject() ) {
+                                    items[row] = view.getObjectReplacement();
+                                }
                             }
 
                         }

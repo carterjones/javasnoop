@@ -30,6 +30,8 @@ import com.aspect.snoop.messages.agent.GetClassesRequest;
 import com.aspect.snoop.messages.agent.GetClassesResponse;
 import com.aspect.snoop.messages.agent.GetProcessInfoRequest;
 import com.aspect.snoop.messages.agent.GetProcessInfoResponse;
+import com.aspect.snoop.messages.agent.LoadClassesRequest;
+import com.aspect.snoop.messages.agent.LoadClassesResponse;
 import com.aspect.snoop.messages.agent.QueryPidRequest;
 import com.aspect.snoop.messages.agent.QueryPidResponse;
 import com.aspect.snoop.messages.agent.StartCanaryRequest;
@@ -40,6 +42,8 @@ import com.aspect.snoop.messages.agent.StopCanaryRequest;
 import com.aspect.snoop.messages.agent.StopCanaryResponse;
 import com.aspect.snoop.messages.agent.StopSnoopingRequest;
 import com.aspect.snoop.messages.agent.StopSnoopingResponse;
+import com.aspect.snoop.messages.agent.ToggleDebugRequest;
+import com.aspect.snoop.messages.agent.ToggleDebugResponse;
 import com.aspect.snoop.messages.agent.TransportSessionRequest;
 import com.aspect.snoop.messages.agent.TransportSessionRequest.SessionRetrievalType;
 import com.aspect.snoop.messages.agent.TransportSessionResponse;
@@ -183,6 +187,10 @@ public class SnoopToAgentClient {
 
     }
 
+     /**
+     * This method lets the agent get updated class information.
+     * @throws AgentCommunicationException if an error occurs communicating with the agent
+     */
     public void importRemoteClasses() throws AgentCommunicationException {
 
         Socket socket = null;
@@ -500,6 +508,68 @@ public class SnoopToAgentClient {
             if ( ! response.wasSuccessful() ) {
                 throw new AgentCommunicationException("Couldn't stop Canary Mode: " + response.getMessage());
             }
+
+        } catch (ClassNotFoundException ex) {
+            throw new AgentCommunicationException(ex);
+        } catch (UnknownHostException ex) {
+            throw new AgentCommunicationException(ex);
+        } catch (IOException ex) {
+            throw new AgentCommunicationException(ex);
+        } finally {
+            closeConnection(socket);
+        }
+    }
+
+    public List<String> forceLoadClasses(List<String> classesToLoad) throws AgentCommunicationException {
+        
+        Socket socket = null;
+
+        try {
+
+            socket = getConnection();
+
+            ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+
+            // Send our command
+
+            LoadClassesRequest request = new LoadClassesRequest();
+            request.setClassesToLoad(classesToLoad);
+            output.writeObject(request);
+
+            LoadClassesResponse response = (LoadClassesResponse)input.readObject();
+
+            return response.getFailedClasses();
+
+        } catch (ClassNotFoundException ex) {
+            throw new AgentCommunicationException(ex);
+        } catch (UnknownHostException ex) {
+            throw new AgentCommunicationException(ex);
+        } catch (IOException ex) {
+            throw new AgentCommunicationException(ex);
+        } finally {
+            closeConnection(socket);
+        }
+    }
+
+    public void toggleDebug(boolean debug) throws AgentCommunicationException {
+
+        Socket socket = null;
+
+        try {
+
+            socket = getConnection();
+
+            ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+
+            // Send our command
+
+            ToggleDebugRequest request = new ToggleDebugRequest();
+            request.setDebug(debug);
+            output.writeObject(request);
+
+            ToggleDebugResponse response = (ToggleDebugResponse)input.readObject();
 
         } catch (ClassNotFoundException ex) {
             throw new AgentCommunicationException(ex);

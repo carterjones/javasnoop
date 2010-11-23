@@ -32,7 +32,10 @@ import java.awt.event.MouseListener;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -137,7 +140,7 @@ public class AddFunctionHookView extends javax.swing.JDialog {
 
         jLabel1 = new javax.swing.JLabel();
         txtClass = new javax.swing.JTextField();
-        btnBrowseForMainClass = new javax.swing.JButton();
+        btnBrowseForClass = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         lstMethods = new javax.swing.JList();
@@ -169,13 +172,13 @@ public class AddFunctionHookView extends javax.swing.JDialog {
         });
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getActionMap(AddFunctionHookView.class, this);
-        btnBrowseForMainClass.setAction(actionMap.get("showChooseClassForm")); // NOI18N
-        btnBrowseForMainClass.setText(resourceMap.getString("btnBrowseForMainClass.text")); // NOI18N
-        btnBrowseForMainClass.setFocusable(false);
-        btnBrowseForMainClass.setName("btnBrowseForMainClass"); // NOI18N
-        btnBrowseForMainClass.addActionListener(new java.awt.event.ActionListener() {
+        btnBrowseForClass.setAction(actionMap.get("showChooseClassForm")); // NOI18N
+        btnBrowseForClass.setText(resourceMap.getString("btnBrowseForClass.text")); // NOI18N
+        btnBrowseForClass.setFocusable(false);
+        btnBrowseForClass.setName("btnBrowseForClass"); // NOI18N
+        btnBrowseForClass.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnBrowseForMainClassActionPerformed(evt);
+                btnBrowseForClassActionPerformed(evt);
             }
         });
 
@@ -228,7 +231,7 @@ public class AddFunctionHookView extends javax.swing.JDialog {
                         .addGap(15, 15, 15)
                         .addComponent(txtClass)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnBrowseForMainClass))
+                        .addComponent(btnBrowseForClass))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -249,7 +252,7 @@ public class AddFunctionHookView extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(txtClass, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnBrowseForMainClass))
+                    .addComponent(btnBrowseForClass))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
@@ -276,9 +279,12 @@ public class AddFunctionHookView extends javax.swing.JDialog {
 
     }//GEN-LAST:event_btnAddWatchActionPerformed
 
-    private void btnBrowseForMainClassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBrowseForMainClassActionPerformed
+    private void btnBrowseForClassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBrowseForClassActionPerformed
 
-        ChooseClassView view = new ChooseClassView(this, ClasspathUtil.getClasses(classpath));
+
+        String[] classNames = JavaSnoop.getClassLoader().getClassNames().toArray(new String[]{});
+
+        ChooseClassView view = new ChooseClassView(this, Arrays.asList(classNames));
         view.setVisible(true);
 
         while (view.isShowing()) {
@@ -291,7 +297,7 @@ public class AddFunctionHookView extends javax.swing.JDialog {
             loadClassMethods(view.getClassName(), true);
         }
         
-    }//GEN-LAST:event_btnBrowseForMainClassActionPerformed
+    }//GEN-LAST:event_btnBrowseForClassActionPerformed
 
     private void txtClassKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtClassKeyTyped
         
@@ -351,7 +357,7 @@ public class AddFunctionHookView extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddWatch;
-    private javax.swing.JButton btnBrowseForMainClass;
+    private javax.swing.JButton btnBrowseForClass;
     private javax.swing.JButton btnSearchForFunction;
     private javax.swing.JCheckBox chkShouldInherit;
     private javax.swing.JLabel jLabel1;

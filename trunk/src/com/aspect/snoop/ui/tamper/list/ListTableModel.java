@@ -121,6 +121,9 @@ class ListTableModel extends AbstractTableModel {
                                 EditObjectView view = new EditObjectView(JavaSnoop.getApplication().getMainFrame(), true, copy);
                                 view.setVisible(true);
                                 UIUtil.waitForInput(view);
+                                if ( view.shouldReplaceObject() ) {
+                                    items.set(row, view.getObjectReplacement());
+                                }
                             }
 
                         }

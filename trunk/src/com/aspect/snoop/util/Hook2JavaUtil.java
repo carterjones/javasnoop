@@ -61,17 +61,17 @@ public class Hook2JavaUtil {
             javaCode.append(nl);
             
             if (hook.shouldPrintParameters()) {
-                javaCode.append("  com.aspect.snoop.agent.AgentToSnoopClient.currentClient().printParameters(new Exception().getStackTrace()[0].getClassName(), " + id + ", $args, \"" + paramTypes + "\");");
+                javaCode.append("  com.aspect.snoop.agent.AgentToSnoopClient.currentClient().printParameters(" + id + ", $args, \"" + paramTypes + "\");");
                 javaCode.append(nl);
             }
 
             if (hook.shouldPrintStackTrace()) {
-                javaCode.append("  com.aspect.snoop.agent.AgentToSnoopClient.currentClient().printStackTrace(new Exception().getStackTrace()[0].getClassName(), " + id + ", $args, \"" + paramTypes + "\");");
+                javaCode.append("  com.aspect.snoop.agent.AgentToSnoopClient.currentClient().printStackTrace(" + id + ", $args, \"" + paramTypes + "\");");
                 javaCode.append(nl);
             }
 
             if (hook.shouldPause()) {
-                javaCode.append("  com.aspect.snoop.agent.AgentToSnoopClient.currentClient().pauseProgram(new Exception().getStackTrace()[0].getClassName(), " + id + ", $args, \"" + paramTypes + "\");");
+                javaCode.append("  com.aspect.snoop.agent.AgentToSnoopClient.currentClient().pauseProgram(" + id + ", $args, \"" + paramTypes + "\");");
                 javaCode.append(nl);
             }
 
@@ -90,7 +90,7 @@ public class Hook2JavaUtil {
                     
                     vars.add(new LocalVariable("mods", type));
 
-                    javaCode.append("  mods = com.aspect.snoop.agent.AgentToSnoopClient.currentClient().tamperParameters(new Exception().getStackTrace()[0].getClassName(), " + id + ", $args, \"" + paramTypes + "\");");
+                    javaCode.append("  mods = com.aspect.snoop.agent.AgentToSnoopClient.currentClient().tamperParameters(" + id + ", $args, \"" + paramTypes + "\");");
                     javaCode.append(nl);
 
                     int argLength = hook.getParameterTypes().length;
@@ -147,9 +147,9 @@ public class Hook2JavaUtil {
                 String line = null;
 
                 if ( w == null ) {
-                   line = "  $_ = (" + returnType + ")com.aspect.snoop.agent.AgentToSnoopClient.currentClient().tamperReturn(new Exception().getStackTrace()[0].getClassName(), " + id + ", $_, \"" + returnType + "\");";
+                   line = "  $_ = (" + returnType + ")com.aspect.snoop.agent.AgentToSnoopClient.currentClient().tamperReturn(" + id + ", $_, \"" + returnType + "\");";
                 } else {
-                   line = "  $_ = " + w.prefix + "com.aspect.snoop.agent.AgentToSnoopClient.currentClient().tamperReturn(new Exception().getStackTrace()[0].getClassName(), " + id + ", com.aspect.snoop.util.ReflectionUtil.getObjectFrom($_), \"" + returnType + "\")" + w.suffix + ";";
+                   line = "  $_ = " + w.prefix + "com.aspect.snoop.agent.AgentToSnoopClient.currentClient().tamperReturn(" + id + ", com.aspect.snoop.util.ReflectionUtil.getObjectFrom($_), \"" + returnType + "\")" + w.suffix + ";";
                 }
 
                 changes.setNewEndSrc( changes.getNewEndSrc() + nl + line );

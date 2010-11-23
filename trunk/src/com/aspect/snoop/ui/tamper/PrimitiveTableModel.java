@@ -67,14 +67,16 @@ public class PrimitiveTableModel extends AbstractTableModel {
             case 1:
             case 2:
                 try {
-                    fields.get(rowIndex).setAccessible(true);
-                    Object innerObject = fields.get(rowIndex).get(toEdit);
+                    
+                    Field f = fields.get(rowIndex);
+                    f.setAccessible(true);
+                    Object innerObject = f.get(toEdit);
 
                     if ( columnIndex == 1 ) {
-                        return innerObject.getClass().getName();
+                        return f.getType().getName();
                     }
 
-                    return innerObject.toString();
+                    return String.valueOf(innerObject);
 
                 } catch (Exception e) {e.printStackTrace(); };
         }
