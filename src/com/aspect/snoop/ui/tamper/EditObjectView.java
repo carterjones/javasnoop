@@ -19,12 +19,25 @@
 
 package com.aspect.snoop.ui.tamper;
 
+import com.aspect.snoop.util.IOUtil;
 import com.aspect.snoop.util.ReflectionUtil;
+import com.aspect.snoop.util.UIUtil;
+import com.thoughtworks.xstream.XStream;
+import java.io.File;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
+import org.apache.log4j.Logger;
+import org.jdesktop.application.Action;
 
 public class EditObjectView extends javax.swing.JDialog {
+
+    private static Logger logger = Logger.getLogger(EditObjectView.class);
 
     private Object toEdit;
 
@@ -39,20 +52,7 @@ public class EditObjectView extends javax.swing.JDialog {
 
         this.toEdit = toEdit;
 
-        lblClassName.setText(this.toEdit.getClass().getName());
-
-        primitiveFields = ReflectionUtil.getAllPrimitiveFields(toEdit);
-        objectFields = ReflectionUtil.getAllNonPrimitiveFields(toEdit);
-
-        tblNonPrimitives.setModel( new ObjectTableModel(toEdit, objectFields));
-        tblPrimitives.setModel( new PrimitiveTableModel(toEdit, primitiveFields));
-
-        ParameterTableCellRenderer renderer = new ParameterTableCellRenderer();
-        tblNonPrimitives.setDefaultEditor(JButton.class, renderer);
-        tblNonPrimitives.setDefaultRenderer(JButton.class, renderer);
-
-        tblPrimitives.setRowHeight(25);
-        tblNonPrimitives.setRowHeight(25);
+        initialize();
 
     }
 
@@ -74,6 +74,8 @@ public class EditObjectView extends javax.swing.JDialog {
         jScrollPane3 = new javax.swing.JScrollPane();
         tblPrimitives = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
+        btnSerialize = new javax.swing.JButton();
+        btnSave1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getResourceMap(EditObjectView.class);
@@ -135,13 +137,21 @@ public class EditObjectView extends javax.swing.JDialog {
         jLabel3.setText(resourceMap.getString("jLabel3.text")); // NOI18N
         jLabel3.setName("jLabel3"); // NOI18N
 
+        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getActionMap(EditObjectView.class, this);
+        btnSerialize.setAction(actionMap.get("serialize")); // NOI18N
+        btnSerialize.setText(resourceMap.getString("btnSerialize.text")); // NOI18N
+        btnSerialize.setName("btnSerialize"); // NOI18N
+
+        btnSave1.setText(resourceMap.getString("btnSave1.text")); // NOI18N
+        btnSave1.setName("btnSave1"); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
                     .addGroup(layout.createSequentialGroup()
@@ -149,11 +159,13 @@ public class EditObjectView extends javax.swing.JDialog {
                         .addGap(18, 18, 18)
                         .addComponent(lblClassName))
                     .addComponent(jLabel3)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(301, Short.MAX_VALUE)
-                .addComponent(btnSave)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(btnSerialize)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnSave1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnSave)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -172,7 +184,10 @@ public class EditObjectView extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnSave)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnSave)
+                    .addComponent(btnSerialize)
+                    .addComponent(btnSave1))
                 .addContainerGap())
         );
 
@@ -182,10 +197,106 @@ public class EditObjectView extends javax.swing.JDialog {
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         dispose();
     }//GEN-LAST:event_btnSaveActionPerformed
+   
+    @Action
+    public void deserialize() {
 
+        JFileChooser fc = null;
+
+        if ( currentOutputFile.length() > 0 && new File(currentOutputFile).exists() ) {
+            fc = new JFileChooser(new File(currentOutputFile).getParentFile());
+        } else {
+            fc = new JFileChooser();
+        }
+
+        fc.setApproveButtonText("Load");
+        
+        fc.setFileFilter(new FileFilter() {
+
+            public boolean accept(File pathname) {
+                return pathname.isDirectory() || pathname.getName().endsWith(".ser");
+            }
+
+            public String getDescription() {
+                return "Serialized object file (.ser)";
+            }
+
+        });
+        
+        int rc = fc.showOpenDialog(this);
+
+        if (rc == JFileChooser.APPROVE_OPTION) {
+            File input = fc.getSelectedFile();
+            try {
+
+                byte[] xml = IOUtil.getBytesFromFile(input);
+                toEdit = serializer.fromXML(new String(xml));
+                replaceObject = true;
+                initialize();
+
+            } catch (IOException ioe) {
+                UIUtil.showErrorMessage(this, "Error deserializing object: " + ioe.getMessage());
+                logger.error("Error deserializing object: " + ioe.getMessage(),ioe);
+            }
+        }
+    }
+
+    private String currentOutputFile = "";
+    private XStream serializer = new XStream();
+
+    boolean replaceObject = false;
+
+    public boolean shouldReplaceObject() {
+        return replaceObject;
+    }
+
+    @Action
+    public void serialize() {
+        JFileChooser fc = null;
+
+        if ( currentOutputFile.length() > 0 && new File(currentOutputFile).exists() ) {
+            fc = new JFileChooser(new File(currentOutputFile).getParentFile());
+        } else {
+            fc = new JFileChooser();
+        }
+
+        fc.setApproveButtonText("Save");
+        fc.setFileFilter(new FileFilter() {
+
+            public boolean accept(File pathname) {
+                return pathname.isDirectory() || pathname.getName().endsWith(".ser");
+            }
+
+            public String getDescription() {
+                return "Serialized object file (.ser)";
+            }
+
+        });
+
+        int rc = fc.showOpenDialog(this);
+
+        if (rc == JFileChooser.APPROVE_OPTION) {
+            File of = fc.getSelectedFile();
+            try {
+                
+                FileOutputStream fos = new FileOutputStream(of.getAbsolutePath());
+
+                currentOutputFile = of.getAbsolutePath();
+                serializer.toXML(toEdit, fos);
+
+                fos.close();
+
+            } catch (IOException ioe) {
+                UIUtil.showErrorMessage(this, "Error serializing object: " + ioe.getMessage());
+                logger.error("Error serializing object: " + ioe.getMessage(),ioe);
+            }
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnSave;
+    private javax.swing.JButton btnSave1;
+    private javax.swing.JButton btnSerialize;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -195,5 +306,27 @@ public class EditObjectView extends javax.swing.JDialog {
     private javax.swing.JTable tblNonPrimitives;
     private javax.swing.JTable tblPrimitives;
     // End of variables declaration//GEN-END:variables
+
+    private void initialize() {
+        
+        lblClassName.setText(this.toEdit.getClass().getName());
+
+        primitiveFields = ReflectionUtil.getAllPrimitiveFields(toEdit);
+        objectFields = ReflectionUtil.getAllNonPrimitiveFields(toEdit);
+
+        tblNonPrimitives.setModel( new ObjectTableModel(toEdit, objectFields));
+        tblPrimitives.setModel( new PrimitiveTableModel(toEdit, primitiveFields));
+
+        ParameterTableCellRenderer renderer = new ParameterTableCellRenderer();
+        tblNonPrimitives.setDefaultEditor(JButton.class, renderer);
+        tblNonPrimitives.setDefaultRenderer(JButton.class, renderer);
+
+        tblPrimitives.setRowHeight(25);
+        tblNonPrimitives.setRowHeight(25);
+    }
+
+    public Object getObjectReplacement() {
+        return toEdit;
+    }
 
 }

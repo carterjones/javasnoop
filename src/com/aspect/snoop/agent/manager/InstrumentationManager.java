@@ -19,6 +19,7 @@
 
 package com.aspect.snoop.agent.manager;
 
+import com.aspect.snoop.agent.AgentLogger;
 import com.aspect.snoop.agent.classpath.manager.SmartURLClassPath;
 import java.io.IOException;
 import java.lang.instrument.ClassDefinition;
@@ -27,6 +28,7 @@ import java.lang.instrument.UnmodifiableClassException;
 import java.net.URL;
 import java.security.CodeSource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import javassist.CannotCompileException;
@@ -35,6 +37,7 @@ import javassist.CtClass;
 import javassist.NotFoundException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 import javassist.ByteArrayClassPath;
 import javassist.CtBehavior;
 import javassist.LoaderClassPath;
@@ -46,7 +49,7 @@ public class InstrumentationManager {
     private Instrumentation inst;
     private List<ClassLoader> classloaders;
 
-    //private Logger logger = Logger.getLogger(InstrumentationManager.class);
+    HashMap<URL, SmartURLClassPath> urlSources;
 
     public List<String> getLoadedClassesAsStrings() {
         
@@ -56,15 +59,14 @@ public class InstrumentationManager {
                 classes.add( c.getName() );
             }
         }
+        
         return classes;
     }
 
     public List<Class> getLoadedClasses() {
 
         List<Class> classes = new ArrayList<Class>();
-        for ( Class c : inst.getAllLoadedClasses() ) {
-            classes.add( c );
-        }
+        classes.addAll(Arrays.asList(inst.getAllLoadedClasses()));
         return classes;
     }
 
@@ -73,32 +75,29 @@ public class InstrumentationManager {
         this.inst = inst;
         this.modifiedClasses  = new HashMap<Integer,ClassHistory>();
         this.classloaders = new ArrayList<ClassLoader>();
+        this.urlSources = new HashMap<URL, SmartURLClassPath>();
+        
+        updateClassPool();
+        
+    }
+
+    public void updateClassPool() {
 
         ClassPool classPool = ClassPool.getDefault();
-        
-        // for applets we have to make sure we add all the proper code
-        // sources (classpath entries, basically), since they could come
-        // from remote URLs.
-
-        HashMap<URL, SmartURLClassPath> urlSources = new HashMap<URL, SmartURLClassPath>();
 
         for ( Class c : inst.getAllLoadedClasses() ) {
-
             CodeSource cs = c.getProtectionDomain().getCodeSource();
-            
+
             if ( cs != null && cs.getLocation() != null ) {
-
                 URL url = cs.getLocation();
-
                 SmartURLClassPath cp = urlSources.get(url);
-
                 if ( cp == null ) {
                     cp = new SmartURLClassPath(url);
                     urlSources.put(url, cp);
+                    classPool.appendClassPath( cp );
+                    AgentLogger.debug("Adding " + url.toExternalForm()  + " to classpath lookup");
                 }
-
                 cp.addClass(c.getName());
-
             }
 
             ClassLoader cl = c.getClassLoader();
@@ -108,10 +107,6 @@ public class InstrumentationManager {
             }
         }
 
-        for ( URL url : urlSources.keySet() ) {
-            classPool.appendClassPath( urlSources.get(url) );
-        }
-        
     }
 
     public boolean hasClassBeenModified(String clazz)
@@ -182,7 +177,7 @@ public class InstrumentationManager {
             byte[] lastVersionByteCode = null;
             
             if ( ch != null ) {
-                // we're instrumented this class before. we've got to
+                // we've instrumented this class before. we've got to
                 // be tricky here.
                 originalByteCode = ch.getOriginalClass();
                 //System.out.println("Restoring saved bytes for " + clazz.getName() + " (" + md5(originalByteCode) + ")");
@@ -237,8 +232,21 @@ public class InstrumentationManager {
                     method.addLocalVariable(newVar.getName(), newVar.getType());
                 }
 
-                method.insertBefore( " { " + change.getNewStartSrc() + " } ");
-                method.insertAfter( " { " + change.getNewEndSrc() + " } ");
+                AgentLogger.debug("Adding to class " + clazz.getName());
+
+                if ( change.getNewStartSrc().length() > 0 ) {
+                    AgentLogger.debug("Compiling code at beginnging of function:");
+                    AgentLogger.debug(change.getNewStartSrc());
+                    method.insertBefore( " { " + change.getNewStartSrc() + " } ");
+                }
+
+                if ( change.getNewEndSrc().length() > 0 ) {
+                    AgentLogger.debug("Compiling code for end of function:");
+                    AgentLogger.debug(change.getNewEndSrc());
+                    method.insertAfter( " { " + change.getNewEndSrc() + " } ");
+                }
+                
+                AgentLogger.debug("Done bytecode modification for " + clazz.getName());
 
             }
            
@@ -275,13 +283,23 @@ public class InstrumentationManager {
     }
 
     
+    Map<String,byte[]> classBytes = new HashMap<String,byte[]>();
+
     public byte[] getClassBytes(String clazz) {
 
         try {
 
-            CtClass cls = ClassPool.getDefault().get(clazz);
+            byte[] bytes = classBytes.get(clazz);
+            
+            if ( bytes != null ) {
+                return bytes;
+            }
+   
+            CtClass cls = ClassPool.getDefault().get(clazz);    
+            bytes = cls.toBytecode();
+            classBytes.put(clazz,bytes);
 
-            return cls.toBytecode();
+            return bytes;
 
         } catch (IOException ex) {
             //logger.error(ex);
@@ -377,6 +395,10 @@ public class InstrumentationManager {
 
         return res;
 
+    }
+
+    public List<ClassLoader> getClassLoaders() {
+        return classloaders;
     }
 
     

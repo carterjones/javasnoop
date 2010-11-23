@@ -113,6 +113,7 @@ public class ParameterTableModel extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
 
         Parameter p = parameters.get(rowIndex);
+        final int row = rowIndex;
 
         try {
             switch (columnIndex) {
@@ -141,7 +142,6 @@ public class ParameterTableModel extends AbstractTableModel {
                         final Object o = p.getObject();
                         final JTable t = table;
                         
-
                         JButton btn = new JButton("Edit");
                         final JButton btn2 = btn;
                         btn.setEnabled(true);
@@ -174,8 +174,13 @@ public class ParameterTableModel extends AbstractTableModel {
                                     EditObjectView view = new EditObjectView(JavaSnoop.getApplication().getMainFrame(), true, o);
                                     view.setVisible(true);
                                     UIUtil.waitForInput(view);
+
+                                    if ( view.shouldReplaceObject() ) {
+                                        Object replacement = view.getObjectReplacement();
+                                        parameters.get(row).setObject(replacement);
+                                    }
                                 }
-                               
+
                             }
                         });
 

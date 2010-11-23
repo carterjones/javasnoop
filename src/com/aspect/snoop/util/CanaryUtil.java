@@ -18,6 +18,7 @@
  */
 package com.aspect.snoop.util;
 
+import com.aspect.snoop.agent.AgentLogger;
 import com.aspect.snoop.agent.manager.InstrumentationException;
 import com.aspect.snoop.agent.manager.InstrumentationManager;
 import com.aspect.snoop.agent.manager.MethodChanges;
@@ -82,7 +83,7 @@ public class CanaryUtil {
 
         List<Class> loadedClasses = manager.getLoadedClasses();
 
-        System.out.println("Applying canaries to " + loadedClasses.size() + " classes...");
+        AgentLogger.debug("Applying canaries to " + loadedClasses.size() + " classes...");
         int clsCount = 0;
         int mtdCount = 0;
 
@@ -122,7 +123,7 @@ public class CanaryUtil {
             try {
                 constructors = c.getDeclaredConstructors();
             } catch (Throwable t) {
-                //logger.debug("Failed to canary " + c.getName() + ": " + t.getMessage());
+                AgentLogger.debug("Failed to canary " + c.getName() + ": " + t.getMessage());
             }
 
             List<Member> members = new ArrayList<Member>();
@@ -174,9 +175,9 @@ public class CanaryUtil {
                             mtdCount++;
 
                         } catch (ClassNotFoundException ex) {
-                            System.out.println("Couldn't apply canary to " + c.getName() + "." + m.getName() + ": " + ex.getMessage());
+                            AgentLogger.debug("Couldn't apply canary to " + c.getName() + "." + m.getName() + ": " + ex.getMessage());
                         } catch (NoClassDefFoundError ex) {
-                            System.out.println("Couldn't apply canary to " + c.getName() + "." + m.getName() + ": " + ex.getMessage());
+                            AgentLogger.debug("Couldn't apply canary to " + c.getName() + "." + m.getName() + ": " + ex.getMessage());
                         }
                     }
                 }
@@ -186,11 +187,11 @@ public class CanaryUtil {
                 manager.instrument(c, classChanges.toArray(new MethodChanges[]{}));
                 clsCount++;
             } catch (InstrumentationException ex) {
-                System.out.println("Failed to apply canary to " + clsName + ": " + ex.getMessage());
+                AgentLogger.debug("Failed to apply canary to " + clsName + ": " + ex.getMessage());
             }
 
         }
 
-        System.out.println("Successfully canaried " + clsCount + " classes and " + mtdCount + " methods.");
+        AgentLogger.debug("Successfully canaried " + clsCount + " classes and " + mtdCount + " methods.");
     }
 }

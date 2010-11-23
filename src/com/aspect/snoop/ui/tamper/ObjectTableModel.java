@@ -31,13 +31,13 @@ import java.awt.event.ActionListener;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.table.AbstractTableModel;
+import org.apache.log4j.Logger;
 
 class ObjectTableModel extends AbstractTableModel {
 
+    private static Logger logger = Logger.getLogger(ObjectTableModel.class);
     
     private List<Field> fields;
     private Object toEdit;
@@ -101,9 +101,13 @@ class ObjectTableModel extends AbstractTableModel {
                     Object innerObject = accessibleField.get(toEdit);
 
                     if ( columnIndex == 1 ) {
-                        return innerObject.getClass().getName();
+                        return accessibleField.getType().getName();
                     } else if ( columnIndex == 2 ) {
-                        return innerObject.toString();
+                        return String.valueOf(innerObject);
+                    }
+
+                    if ( innerObject == null ) {
+                        return null; // can't edit null objects
                     }
 
                     final Object obj = innerObject;
@@ -131,15 +135,24 @@ class ObjectTableModel extends AbstractTableModel {
                             try {
                                 accessibleField.set(toEdit, view.getBytes());
                             } catch (IllegalArgumentException ex) {
-                                Logger.getLogger(ObjectTableModel.class.getName()).log(Level.SEVERE, null, ex);
+                                logger.error(ex);
                             } catch (IllegalAccessException ex) {
-                                Logger.getLogger(ObjectTableModel.class.getName()).log(Level.SEVERE, null, ex);
+                                logger.error(ex);
                             }
                             fireTableStructureChanged();
                         } else {
                             EditObjectView view = new EditObjectView(JavaSnoop.getApplication().getMainFrame(), true, obj);
                             view.setVisible(true);
                             UIUtil.waitForInput(view);
+                            if ( view.shouldReplaceObject() ) {
+                                try {
+                                    accessibleField.set(toEdit, view.getObjectReplacement());
+                                } catch (IllegalArgumentException ex) {
+                                    logger.error("Couldn't save edited object: " + ex.getMessage(), ex);
+                                } catch (IllegalAccessException ex) {
+                                    logger.error("Couldn't save edited object: " + ex.getMessage(), ex);
+                                }
+                            }
                         }
                     }});
 

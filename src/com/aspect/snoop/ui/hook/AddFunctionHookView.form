@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.1" encoding="UTF-8" ?>
 
 <Form version="1.5" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JDialogFormInfo">
   <Properties>
@@ -36,7 +36,7 @@
                       <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
                       <Component id="txtClass" max="32767" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="btnBrowseForMainClass" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnBrowseForClass" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
@@ -64,7 +64,7 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="txtClass" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="btnBrowseForMainClass" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="btnBrowseForClass" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -99,17 +99,17 @@
         <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txtClassKeyTyped"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="btnBrowseForMainClass">
+    <Component class="javax.swing.JButton" name="btnBrowseForClass">
       <Properties>
         <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
           <action class="com.aspect.snoop.ui.JavaSpyView" id="showChooseClassForm" methodName="showChooseClassForm"/>
         </Property>
-        <Property name="text" type="java.lang.String" resourceKey="btnBrowseForMainClass.text"/>
+        <Property name="text" type="java.lang.String" resourceKey="btnBrowseForClass.text"/>
         <Property name="focusable" type="boolean" value="false"/>
-        <Property name="name" type="java.lang.String" value="btnBrowseForMainClass" noResource="true"/>
+        <Property name="name" type="java.lang.String" value="btnBrowseForClass" noResource="true"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnBrowseForMainClassActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnBrowseForClassActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">

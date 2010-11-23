@@ -40,12 +40,40 @@ import com.aspect.snoop.messages.client.TamperParametersResponse;
 import com.aspect.snoop.messages.client.TamperReturnRequest;
 import com.aspect.snoop.messages.client.TamperReturnResponse;
 import com.aspect.snoop.util.SerializationUtil;
+import com.aspect.snoop.util.UIUtil;
+import com.thoughtworks.xstream.InitializationException;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.ConverterLookup;
+import com.thoughtworks.xstream.converters.ConverterRegistry;
+import com.thoughtworks.xstream.converters.reflection.ReflectionProvider;
+import com.thoughtworks.xstream.core.DefaultConverterLookup;
+import com.thoughtworks.xstream.core.JVM;
+import com.thoughtworks.xstream.io.xml.XppDriver;
+import com.thoughtworks.xstream.mapper.ArrayMapper;
+import com.thoughtworks.xstream.mapper.AttributeAliasingMapper;
+import com.thoughtworks.xstream.mapper.AttributeMapper;
+import com.thoughtworks.xstream.mapper.CachingMapper;
+import com.thoughtworks.xstream.mapper.ClassAliasingMapper;
+import com.thoughtworks.xstream.mapper.DefaultImplementationsMapper;
+import com.thoughtworks.xstream.mapper.DefaultMapper;
+import com.thoughtworks.xstream.mapper.DynamicProxyMapper;
+import com.thoughtworks.xstream.mapper.FieldAliasingMapper;
+import com.thoughtworks.xstream.mapper.ImmutableTypesMapper;
+import com.thoughtworks.xstream.mapper.ImplicitCollectionMapper;
+import com.thoughtworks.xstream.mapper.LocalConversionMapper;
+import com.thoughtworks.xstream.mapper.Mapper;
+import com.thoughtworks.xstream.mapper.OuterClassMapper;
+import com.thoughtworks.xstream.mapper.PackageAliasingMapper;
+import com.thoughtworks.xstream.mapper.SystemAttributeAliasingMapper;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Constructor;
+import org.apache.log4j.Logger;
 
 public class SnoopServerThread extends AbstractServerThread {
+
+    public static Logger logger = Logger.getLogger(SnoopServerThread.class);
 
     public final static String SUCCESS = "SUCCESS";
     public final static String FAIL = "FAIL";
@@ -59,8 +87,13 @@ public class SnoopServerThread extends AbstractServerThread {
         super();
 
         this.port = port;
-        this.serializer = new XStream();
 
+        JVM jvm = new JVM();
+        ReflectionProvider reflectionProvider = jvm.bestReflectionProvider();
+        Mapper mapper = buildMapper(jvm,reflectionProvider,JavaSnoop.getClassLoader());
+
+        this.serializer = new XStream(null,new XppDriver(),JavaSnoop.getClassLoader(),mapper);
+        this.serializer.setClassLoader(JavaSnoop.getClassLoader());
     }
 
     /**
@@ -71,8 +104,6 @@ public class SnoopServerThread extends AbstractServerThread {
      * @throws IOException
      */
     protected void processCommand(AgentMessage message, ObjectInputStream input, ObjectOutputStream output) throws IOException {
-
-        String nl = System.getProperty("line.separator");
 
         if ( message instanceof PauseRequest ) {
 
@@ -142,7 +173,7 @@ public class SnoopServerThread extends AbstractServerThread {
 
             try {
 
-                // run the script
+              // run the script
 
             } catch(Exception e) {
                 populateResponse(response,e);
@@ -172,6 +203,9 @@ public class SnoopServerThread extends AbstractServerThread {
 
             } catch (Exception e) {
                 populateResponse(message,e);
+                UIUtil.showErrorMessage(JavaSnoop.getMainForm().getFrame(), "Problem tampering with parameters: " + e.getMessage());
+                logger.error(e);
+                e.printStackTrace();
             }
 
             output.writeObject(response);
@@ -202,6 +236,8 @@ public class SnoopServerThread extends AbstractServerThread {
 
             } catch (Exception e) {
                 populateResponse(message,e);
+                UIUtil.showErrorMessage(JavaSnoop.getMainForm().getFrame(), "Problem tampering with return value: " + e.getMessage());
+                logger.error(e);
             }
 
             output.writeObject(response);
@@ -248,5 +284,53 @@ public class SnoopServerThread extends AbstractServerThread {
             }
         }
         return objects;
+    }
+
+    private Mapper buildMapper(JVM jvm, ReflectionProvider reflectionProvider, ClassLoader cl) {
+
+        ConverterLookup converterLookup = new DefaultConverterLookup();
+
+        Mapper mapper = new DefaultMapper(cl);
+
+        mapper = new DynamicProxyMapper(mapper);
+        mapper = new PackageAliasingMapper(mapper);
+        mapper = new ClassAliasingMapper(mapper);
+        mapper = new FieldAliasingMapper(mapper);
+        mapper = new AttributeAliasingMapper(mapper);
+        mapper = new SystemAttributeAliasingMapper(mapper);
+        mapper = new ImplicitCollectionMapper(mapper);
+        mapper = new OuterClassMapper(mapper);
+        mapper = new ArrayMapper(mapper);
+        mapper = new DefaultImplementationsMapper(mapper);
+        mapper = new AttributeMapper(mapper, converterLookup);
+
+        if (JVM.is15()) {
+            mapper = buildMapperDynamically(
+                "com.thoughtworks.xstream.mapper.EnumMapper", new Class[]{Mapper.class},
+                new Object[]{mapper});
+        }
+        mapper = new LocalConversionMapper(mapper);
+        mapper = new ImmutableTypesMapper(mapper);
+        if (JVM.is15()) {
+            mapper = buildMapperDynamically(
+                "com.thoughtworks.xstream.mapper.AnnotationMapper",
+                new Class[]{Mapper.class, ConverterRegistry.class, ClassLoader.class, ReflectionProvider.class, JVM.class},
+                new Object[]{mapper, converterLookup, cl, reflectionProvider, jvm});
+        }
+
+        mapper = new CachingMapper(mapper);
+        return mapper;
+    }
+
+    private Mapper buildMapperDynamically(
+            String className, Class[] constructorParamTypes,
+            Object[] constructorParamValues) {
+        try {
+            Class type = Class.forName(className, false, JavaSnoop.getClassLoader());
+            Constructor constructor = type.getConstructor(constructorParamTypes);
+            return (Mapper)constructor.newInstance(constructorParamValues);
+        } catch (Exception e) {
+            throw new InitializationException("Could not instantiate mapper : " + className, e);
+        }
     }
 }

@@ -37,6 +37,7 @@ import com.aspect.snoop.SnoopSession;
 import com.aspect.snoop.agent.ProcessInfo;
 import com.aspect.snoop.agent.SnoopToAgentClient;
 import com.aspect.snoop.ui.canary.StartCanaryModeView;
+import com.aspect.snoop.ui.forceclass.ForceLoadClassesView;
 import com.aspect.snoop.ui.pause.PauseView;
 import com.aspect.snoop.ui.script.EditScriptView;
 import com.aspect.snoop.ui.tamper.Parameter;
@@ -157,6 +158,8 @@ public class JavaSnoopView extends FrameView {
         mnuLogLevels.add(mnuLogWarn);
         mnuLogLevels.add(mnuLogDebug);
         mnuLogLevels.add(mnuLogTrace);
+
+        disableSnoopUI();
         
         // create the "Delete condition" popup menu for the Conditions table
         JMenuItem deleteCondition = new JMenuItem("Delete condition");
@@ -322,6 +325,8 @@ public class JavaSnoopView extends FrameView {
         actionsMenu = new javax.swing.JMenu();
         mnuGetProcessInfo = new javax.swing.JMenuItem();
         mnuBrowseRemoteClasses = new javax.swing.JMenuItem();
+        mnuUpdateClasses = new javax.swing.JMenuItem();
+        mnuForceLoadClasses = new javax.swing.JMenuItem();
         mnuStartCanaryMode = new javax.swing.JMenuItem();
         mnuDecompileClass = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JSeparator();
@@ -339,6 +344,7 @@ public class JavaSnoopView extends FrameView {
         mnuLogError = new javax.swing.JCheckBoxMenuItem();
         mnuLogFatal = new javax.swing.JCheckBoxMenuItem();
         mnuLogOff = new javax.swing.JCheckBoxMenuItem();
+        mnuChkAgentDebugging = new javax.swing.JCheckBoxMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem mnuAbout = new javax.swing.JMenuItem();
         mnuGotoHomePage = new javax.swing.JMenuItem();
@@ -980,24 +986,37 @@ public class JavaSnoopView extends FrameView {
 
         mnuGetProcessInfo.setAction(actionMap.get("getProcessInfo")); // NOI18N
         mnuGetProcessInfo.setText(resourceMap.getString("mnuGetProcessInfo.text")); // NOI18N
-        mnuGetProcessInfo.setEnabled(false);
+        mnuGetProcessInfo.setToolTipText(resourceMap.getString("mnuGetProcessInfo.toolTipText")); // NOI18N
         mnuGetProcessInfo.setName("mnuGetProcessInfo"); // NOI18N
         actionsMenu.add(mnuGetProcessInfo);
 
         mnuBrowseRemoteClasses.setAction(actionMap.get("browseRemoteClasses")); // NOI18N
         mnuBrowseRemoteClasses.setText(resourceMap.getString("mnuBrowseRemoteClasses.text")); // NOI18N
-        mnuBrowseRemoteClasses.setEnabled(false);
+        mnuBrowseRemoteClasses.setToolTipText(resourceMap.getString("mnuBrowseRemoteClasses.toolTipText")); // NOI18N
         mnuBrowseRemoteClasses.setName("mnuBrowseRemoteClasses"); // NOI18N
         actionsMenu.add(mnuBrowseRemoteClasses);
 
+        mnuUpdateClasses.setAction(actionMap.get("updateClasses")); // NOI18N
+        mnuUpdateClasses.setText(resourceMap.getString("mnuUpdateClasses.text")); // NOI18N
+        mnuUpdateClasses.setToolTipText(resourceMap.getString("mnuUpdateClasses.toolTipText")); // NOI18N
+        mnuUpdateClasses.setName("mnuUpdateClasses"); // NOI18N
+        actionsMenu.add(mnuUpdateClasses);
+
+        mnuForceLoadClasses.setAction(actionMap.get("forceLoadClasses")); // NOI18N
+        mnuForceLoadClasses.setText(resourceMap.getString("mnuForceLoadClasses.text")); // NOI18N
+        mnuForceLoadClasses.setToolTipText(resourceMap.getString("mnuForceLoadClasses.toolTipText")); // NOI18N
+        mnuForceLoadClasses.setName("mnuForceLoadClasses"); // NOI18N
+        actionsMenu.add(mnuForceLoadClasses);
+
         mnuStartCanaryMode.setAction(actionMap.get("enterCanaryMode")); // NOI18N
         mnuStartCanaryMode.setText(resourceMap.getString("mnuStartCanaryMode.text")); // NOI18N
-        mnuStartCanaryMode.setEnabled(false);
+        mnuStartCanaryMode.setToolTipText(resourceMap.getString("mnuStartCanaryMode.toolTipText")); // NOI18N
         mnuStartCanaryMode.setName("mnuStartCanaryMode"); // NOI18N
         actionsMenu.add(mnuStartCanaryMode);
 
         mnuDecompileClass.setAction(actionMap.get("decompileClass")); // NOI18N
         mnuDecompileClass.setText(resourceMap.getString("mnuDecompileClass.text")); // NOI18N
+        mnuDecompileClass.setToolTipText(resourceMap.getString("mnuDecompileClass.toolTipText")); // NOI18N
         mnuDecompileClass.setName("mnuDecompileClass"); // NOI18N
         actionsMenu.add(mnuDecompileClass);
 
@@ -1007,7 +1026,7 @@ public class JavaSnoopView extends FrameView {
 
         mnuManageJavaAppletSecuritySettings.setAction(actionMap.get("manageJavaSecuritySettings")); // NOI18N
         mnuManageJavaAppletSecuritySettings.setText(resourceMap.getString("mnuManageJavaAppletSecuritySettings.text")); // NOI18N
-        mnuManageJavaAppletSecuritySettings.setEnabled(false);
+        mnuManageJavaAppletSecuritySettings.setToolTipText(resourceMap.getString("mnuManageJavaAppletSecuritySettings.toolTipText")); // NOI18N
         mnuManageJavaAppletSecuritySettings.setName("mnuManageJavaAppletSecuritySettings"); // NOI18N
         actionsMenu.add(mnuManageJavaAppletSecuritySettings);
 
@@ -1015,6 +1034,7 @@ public class JavaSnoopView extends FrameView {
         actionsMenu.add(jSeparator4);
 
         mnuManageJad.setText(resourceMap.getString("mnuManageJad.text")); // NOI18N
+        mnuManageJad.setToolTipText(resourceMap.getString("mnuManageJad.toolTipText")); // NOI18N
         mnuManageJad.setName("mnuManageJad"); // NOI18N
 
         chkShowMethodCode.setSelected(true);
@@ -1038,6 +1058,7 @@ public class JavaSnoopView extends FrameView {
         actionsMenu.add(jSeparator5);
 
         mnuLogSetting.setText(resourceMap.getString("mnuLogSetting.text")); // NOI18N
+        mnuLogSetting.setToolTipText(resourceMap.getString("mnuLogSetting.toolTipText")); // NOI18N
         mnuLogSetting.setName("mnuLogSetting"); // NOI18N
 
         mnuLogTrace.setAction(actionMap.get("changeLogLevel")); // NOI18N
@@ -1077,6 +1098,17 @@ public class JavaSnoopView extends FrameView {
         mnuLogSetting.add(mnuLogOff);
 
         actionsMenu.add(mnuLogSetting);
+
+        mnuChkAgentDebugging.setSelected(true);
+        mnuChkAgentDebugging.setText(resourceMap.getString("mnuChkAgentDebugging.text")); // NOI18N
+        mnuChkAgentDebugging.setToolTipText(resourceMap.getString("mnuChkAgentDebugging.toolTipText")); // NOI18N
+        mnuChkAgentDebugging.setName("mnuChkAgentDebugging"); // NOI18N
+        mnuChkAgentDebugging.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                mnuChkAgentDebuggingItemStateChanged(evt);
+            }
+        });
+        actionsMenu.add(mnuChkAgentDebugging);
 
         menuBar.add(actionsMenu);
 
@@ -1193,7 +1225,7 @@ public class JavaSnoopView extends FrameView {
                     returnType,
                     shouldInherit,
                     MethodInterceptor.Mode.AlwaysIntercept,
-                    true,
+                    false,
                     false,
                     false,
                     false,
@@ -1544,6 +1576,16 @@ public class JavaSnoopView extends FrameView {
         JavaSnoop.saveProperties();
     }//GEN-LAST:event_chkShowMethodCodeActionPerformed
 
+    private void mnuChkAgentDebuggingItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_mnuChkAgentDebuggingItemStateChanged
+        boolean debug = evt.getStateChange() == java.awt.event.ItemEvent.SELECTED;
+        try {
+            if ( client != null ) client.toggleDebug(debug);
+        } catch (AgentCommunicationException ex) {
+            UIUtil.showErrorMessage(getFrame(), "Couldn't enable logging on agent: " + ex.getMessage());
+            logger.error(ex);
+        }
+    }//GEN-LAST:event_mnuChkAgentDebuggingItemStateChanged
+
     @Action
     public void enableDisableAllHooks(ActionEvent evt) {
 
@@ -1694,6 +1736,9 @@ public class JavaSnoopView extends FrameView {
 
                     if (client != null) {
 
+                        statusMessageLabel.setText("Sending agent logging settings");
+                        client.toggleDebug(mnuChkAgentDebugging.isSelected());
+
                         statusMessageLabel.setText("Sending agent the hook rules...");
                         client.sendSnoopSession(currentSession);
 
@@ -1785,7 +1830,9 @@ public class JavaSnoopView extends FrameView {
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem mnuBrowseRemoteClasses;
+    private javax.swing.JCheckBoxMenuItem mnuChkAgentDebugging;
     private javax.swing.JMenuItem mnuDecompileClass;
+    private javax.swing.JMenuItem mnuForceLoadClasses;
     private javax.swing.JMenuItem mnuGetProcessInfo;
     private javax.swing.JMenuItem mnuGotoHomePage;
     private javax.swing.JMenuItem mnuLoadConfiguration;
@@ -1803,6 +1850,7 @@ public class JavaSnoopView extends FrameView {
     private javax.swing.JMenuItem mnuSaveConfigurationAs;
     private javax.swing.JMenuItem mnuSetJadPath;
     private javax.swing.JMenuItem mnuStartCanaryMode;
+    private javax.swing.JMenuItem mnuUpdateClasses;
     private javax.swing.JMenuItem mnuViewFAQ;
     private javax.swing.JScrollPane pnlCode;
     private javax.swing.JScrollPane pnlConsole;
@@ -2155,17 +2203,12 @@ public class JavaSnoopView extends FrameView {
 
         FunctionsHookedTableModel model = (FunctionsHookedTableModel) tblFunctionsHooked.getModel();
 
-        //System.out.println("Looking for hook: " + hookId);
-
         for (int i = 0; i < model.getRowCount(); i++) {
             FunctionHook hook = model.getHookFromRow(i);
-            //System.out.println("Comparing to stored hook: " + hook.hashCode());
             if (hook.hashCode() == hookId) {
                 return hook;
             }
         }
-
-        //System.out.println("Compared " + model.getRowCount() + " hooks");
 
         return null;
     }
@@ -2253,9 +2296,12 @@ public class JavaSnoopView extends FrameView {
         btnBrowseForMainClass.setEnabled(true);
 
         mnuBrowseRemoteClasses.setEnabled(false);
+        mnuUpdateClasses.setEnabled(false);
+        mnuForceLoadClasses.setEnabled(false);
         mnuGetProcessInfo.setEnabled(false);
         mnuStartCanaryMode.setEnabled(false);
         mnuDecompileClass.setEnabled(false);
+        mnuChkAgentDebugging.setEnabled(false);
 
         txtMainClass.setEnabled(true);
         txtMainClass.setBackground(Color.white);
@@ -2282,9 +2328,12 @@ public class JavaSnoopView extends FrameView {
         btnBrowseForMainClass.setEnabled(false);
 
         mnuBrowseRemoteClasses.setEnabled(false);
+        mnuUpdateClasses.setEnabled(false);
+        mnuForceLoadClasses.setEnabled(false);
         mnuGetProcessInfo.setEnabled(false);
         mnuStartCanaryMode.setEnabled(false);
         mnuDecompileClass.setEnabled(false);
+        mnuChkAgentDebugging.setEnabled(false);
 
         txtMainClass.setEnabled(false);
         txtMainClass.setBackground(Color.orange);
@@ -2310,9 +2359,12 @@ public class JavaSnoopView extends FrameView {
         btnBrowseForMainClass.setEnabled(false);
 
         mnuBrowseRemoteClasses.setEnabled(true);
+        mnuUpdateClasses.setEnabled(true);
+        mnuForceLoadClasses.setEnabled(true);
         mnuGetProcessInfo.setEnabled(true);
         mnuStartCanaryMode.setEnabled(true);
         mnuDecompileClass.setEnabled(true);
+        mnuChkAgentDebugging.setEnabled(true);
 
         txtMainClass.setBackground(Color.green);
         txtMainClass.setEnabled(false);
@@ -2719,6 +2771,54 @@ public class JavaSnoopView extends FrameView {
             Desktop.getDesktop().browse(URI.create(homeUrl));
         } catch (IOException ex) {
             showConsoleErrorMessage("Couldn't browse to FAQ page: " + ex.getMessage());
+        }
+    }
+
+    @Action
+    public void updateClasses() {
+        try {
+            client.importRemoteClasses();
+        } catch (AgentCommunicationException ex) {
+            UIUtil.showErrorMessage(getFrame(), "Couldn't get updated class info from client: " + ex.getMessage());
+            logger.error("Couldn't get updated classes from ", ex);
+        }
+    }
+
+    @Action
+    public void forceLoadClasses() {
+        
+        ForceLoadClassesView view = new ForceLoadClassesView(getFrame(),true);
+        view.setVisible(true);
+
+        UIUtil.waitForInput(view);
+
+        if ( ! view.userCanceled() ) {
+
+            List<String> classesToLoad = view.getClassesToLoad();
+            
+            try {
+
+                statusMessageLabel.setText("Asking target process to load classes...");
+                List<String> failedClasses = client.forceLoadClasses(classesToLoad);
+                statusMessageLabel.setText("Done");
+                
+                showSnoopMessage(getTimeStamp() + "Successfully loaded " + classesToLoad.size() + " classes" + nl);
+
+                if ( failedClasses.isEmpty() ) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("Failed to load the following classes: ");
+                    sb.append(nl);
+                    for(String fail : failedClasses) {
+                        sb.append(fail);
+                        sb.append(nl);
+                    }
+                    String errorMsg = sb.toString();
+                    UIUtil.showErrorMessage(getFrame(),errorMsg);
+                    logger.error(errorMsg);
+                }
+            } catch (AgentCommunicationException ex) {
+                logger.error(ex);
+            }
         }
     }
 

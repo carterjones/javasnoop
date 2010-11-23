@@ -45,6 +45,15 @@ public class ReflectionUtil {
         String.class, // not really a primitive but there is a default editor for it in the table
         Double.class,
         Float.class,
+        boolean.class,
+        byte.class,
+        int.class,
+        char.class,
+        short.class,
+        int.class,
+        long.class,
+        double.class,
+        float.class
     };
 
     public static Map<String,String> primitiveArrayMap;
@@ -211,14 +220,19 @@ public class ReflectionUtil {
     public static List<Field> getAllPrimitiveFields(Object o) {
         List<Field> primitiveFields = new ArrayList<Field>();
 
-        Field[] allFields = o.getClass().getDeclaredFields();
+        Field[] allFields = o.getClass().getFields();
 
         for (Field f : allFields) {
+
+            int mod = f.getModifiers();
+            if ( Modifier.isStatic(mod) ) {
+                continue;
+            }
+
             for (Class c : PRIMITIVE_CLASSES) {
                 try {
                     f.setAccessible(true);
-                    Object innerObject = f.get(o);
-                    if (innerObject.getClass().equals(c)) {
+                    if (f.getType().equals(c)) {
                         primitiveFields.add(f);
                     }
                 } catch (Exception e) {
@@ -232,11 +246,18 @@ public class ReflectionUtil {
     }
 
     public static List<Field> getAllNonPrimitiveFields(Object o) {
+
         List<Field> nonPrimitiveFields = new ArrayList<Field>();
 
-        Field[] allFields = o.getClass().getDeclaredFields();
+        Field[] allFields = o.getClass().getFields();
 
         for (Field f : allFields) {
+            
+            int mod = f.getModifiers();
+
+            if ( Modifier.isStatic(mod) ) {
+                continue;
+            }
 
             boolean isPrimitive = false;
 
@@ -244,10 +265,8 @@ public class ReflectionUtil {
 
                 f.setAccessible(true);
 
-                Object innerObject = f.get(o);
-
                 for (Class c : PRIMITIVE_CLASSES) {
-                    if (innerObject.getClass().equals(c)) {
+                    if (f.getType().equals(c)) {
                         isPrimitive = true;
                     }
                 }

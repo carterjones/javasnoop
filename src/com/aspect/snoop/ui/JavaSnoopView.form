@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.1" encoding="UTF-8" ?>
 
 <Form version="1.6" maxVersion="1.7">
   <NonVisualComponents>
@@ -957,16 +957,38 @@
                   <action class="com.aspect.snoop.ui.AspectSpyView" id="getProcessInfo" methodName="getProcessInfo"/>
                 </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuGetProcessInfo.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuGetProcessInfo.toolTipText"/>
                 <Property name="name" type="java.lang.String" value="mnuGetProcessInfo" noResource="true"/>
               </Properties>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="mnuBrowseRemoteClasses">
               <Properties>
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
-                  <action class="com.aspect.snoop.ui.AspectSpyView" id="browseRemoteClasses" methodName="browseRemoteClasses"/>
+                  <action class="com.aspect.snoop.ui.JavaSnoopView" id="browseRemoteClasses" methodName="browseRemoteClasses"/>
                 </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuBrowseRemoteClasses.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuBrowseRemoteClasses.toolTipText"/>
                 <Property name="name" type="java.lang.String" value="mnuBrowseRemoteClasses" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="mnuUpdateClasses">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="com.aspect.snoop.ui.JavaSnoopView" id="updateClasses" methodName="updateClasses"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="mnuUpdateClasses.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuUpdateClasses.toolTipText"/>
+                <Property name="name" type="java.lang.String" value="mnuUpdateClasses" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="mnuForceLoadClasses">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="com.aspect.snoop.ui.JavaSnoopView" id="forceLoadClasses" methodName="forceLoadClasses"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="mnuForceLoadClasses.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuForceLoadClasses.toolTipText"/>
+                <Property name="name" type="java.lang.String" value="mnuForceLoadClasses" noResource="true"/>
               </Properties>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="mnuStartCanaryMode">
@@ -975,6 +997,7 @@
                   <action class="com.aspect.snoop.ui.JavaSnoopView" id="enterCanaryMode" methodName="enterCanaryMode"/>
                 </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuStartCanaryMode.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuStartCanaryMode.toolTipText"/>
                 <Property name="name" type="java.lang.String" value="mnuStartCanaryMode" noResource="true"/>
               </Properties>
             </MenuItem>
@@ -984,6 +1007,7 @@
                   <action class="com.aspect.snoop.ui.JavaSnoopView" id="decompileClass" methodName="decompileClass"/>
                 </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuDecompileClass.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuDecompileClass.toolTipText"/>
                 <Property name="name" type="java.lang.String" value="mnuDecompileClass" noResource="true"/>
               </Properties>
             </MenuItem>
@@ -999,6 +1023,7 @@
                   <action class="com.aspect.snoop.ui.AspectSpyView" id="manageJavaSecuritySettings" methodName="manageJavaSecuritySettings"/>
                 </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuManageJavaAppletSecuritySettings.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuManageJavaAppletSecuritySettings.toolTipText"/>
                 <Property name="name" type="java.lang.String" value="mnuManageJavaAppletSecuritySettings" noResource="true"/>
               </Properties>
             </MenuItem>
@@ -1010,6 +1035,7 @@
             <Menu class="javax.swing.JMenu" name="mnuManageJad">
               <Properties>
                 <Property name="text" type="java.lang.String" resourceKey="mnuManageJad.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuManageJad.toolTipText"/>
                 <Property name="name" type="java.lang.String" value="mnuManageJad" noResource="true"/>
               </Properties>
               <SubComponents>
@@ -1042,6 +1068,7 @@
             <Menu class="javax.swing.JMenu" name="mnuLogSetting">
               <Properties>
                 <Property name="text" type="java.lang.String" resourceKey="mnuLogSetting.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuLogSetting.toolTipText"/>
                 <Property name="name" type="java.lang.String" value="mnuLogSetting" noResource="true"/>
               </Properties>
               <SubComponents>
@@ -1111,6 +1138,17 @@
                 </MenuItem>
               </SubComponents>
             </Menu>
+            <MenuItem class="javax.swing.JCheckBoxMenuItem" name="mnuChkAgentDebugging">
+              <Properties>
+                <Property name="selected" type="boolean" value="true"/>
+                <Property name="text" type="java.lang.String" resourceKey="mnuChkAgentDebugging.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuChkAgentDebugging.toolTipText"/>
+                <Property name="name" type="java.lang.String" value="mnuChkAgentDebugging" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="mnuChkAgentDebuggingItemStateChanged"/>
+              </Events>
+            </MenuItem>
           </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="helpMenu">

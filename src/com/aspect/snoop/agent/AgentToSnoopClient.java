@@ -112,7 +112,7 @@ public class AgentToSnoopClient {
      * This method tells the Snoop program about the usage of this particular parameter type.
      */
     public void canaryChirp(Class canaryType, String className, String methodName, Class[] types, Object[] objects) {
-        
+
         if ( ! canaryIsHeard(canaryType, types, objects)) {
             return;
         }
@@ -151,7 +151,9 @@ public class AgentToSnoopClient {
      *
      * @throws AgentCommunicationException if there is a communication error
      */
-    public Object[] tamperParameters(String clazz, int hookId, Object[] objects, String argTypes) {
+    public Object[] tamperParameters(int hookId, Object[] objects, String argTypes) {
+
+        String clazz = new Exception().getStackTrace()[1].getClassName();
 
         Socket socket = null;
 
@@ -195,7 +197,9 @@ public class AgentToSnoopClient {
      *
      * @throws AgentCommunicationException if there is a communication error
      */
-    public Object tamperReturn(String clazz, int hookId, Object object, String returnType) {
+    public Object tamperReturn(int hookId, Object object, String returnType) {
+
+        String clazz = new Exception().getStackTrace()[1].getClassName();
 
         Socket socket = null;
 
@@ -244,8 +248,9 @@ public class AgentToSnoopClient {
      *
      * @throws AgentCommunicationException if there is a communication error
      */
-    public void printStackTrace(String clazz, int hookId, Object[] objects, String paramTypes) {
+    public void printStackTrace(int hookId, Object[] objects, String paramTypes) {
 
+        String clazz = new Exception().getStackTrace()[1].getClassName();
         Socket socket = null;
 
         try {
@@ -282,8 +287,10 @@ public class AgentToSnoopClient {
      *
      * @throws AgentCommunicationException if there is a communication error
      */
-    public void printParameters(String clazz, int hookId, Object[] objects, String paramTypes) {
+    public void printParameters(int hookId, Object[] objects, String paramTypes) {
         
+        String clazz = new Exception().getStackTrace()[1].getClassName();
+
         Socket socket = null;
 
         try {
@@ -320,7 +327,9 @@ public class AgentToSnoopClient {
      *
      * @throws AgentCommunicationException if there is a communication error
      */
-    public void pauseProgram(String clazz, int hookId, Object[] objects, String paramTypes) {
+    public void pauseProgram(int hookId, Object[] objects, String paramTypes) {
+
+        String clazz = new Exception().getStackTrace()[1].getClassName();
 
         Socket socket = null;
 
