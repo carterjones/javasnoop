@@ -255,7 +255,11 @@ public class ForceLoadClassesView extends javax.swing.JDialog {
             }
         }
 
-        txtClasses.setText(txtClasses.getText() + sb.toString().trim());
+        String currentText = txtClasses.getText();
+        if ( currentText.length() > 0 && ! currentText.endsWith(nl) ) {
+            currentText += nl;
+        }
+        txtClasses.setText(currentText + sb.toString().trim());
 
     }
 }

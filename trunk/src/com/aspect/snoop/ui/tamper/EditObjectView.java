@@ -19,6 +19,7 @@
 
 package com.aspect.snoop.ui.tamper;
 
+import com.aspect.snoop.SnoopSession;
 import com.aspect.snoop.util.IOUtil;
 import com.aspect.snoop.util.ReflectionUtil;
 import com.aspect.snoop.util.UIUtil;
@@ -70,12 +71,12 @@ public class EditObjectView extends javax.swing.JDialog {
         jScrollPane2 = new javax.swing.JScrollPane();
         tblNonPrimitives = new javax.swing.JTable();
         lblClassName = new javax.swing.JLabel();
-        btnSave = new javax.swing.JButton();
+        btnAcceptChanges = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         tblPrimitives = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
-        btnSerialize = new javax.swing.JButton();
-        btnSave1 = new javax.swing.JButton();
+        btnSave = new javax.swing.JButton();
+        btnLoad = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getResourceMap(EditObjectView.class);
@@ -109,11 +110,11 @@ public class EditObjectView extends javax.swing.JDialog {
         lblClassName.setText(resourceMap.getString("lblClassName.text")); // NOI18N
         lblClassName.setName("lblClassName"); // NOI18N
 
-        btnSave.setText(resourceMap.getString("btnSave.text")); // NOI18N
-        btnSave.setName("btnSave"); // NOI18N
-        btnSave.addActionListener(new java.awt.event.ActionListener() {
+        btnAcceptChanges.setText(resourceMap.getString("btnAcceptChanges.text")); // NOI18N
+        btnAcceptChanges.setName("btnAcceptChanges"); // NOI18N
+        btnAcceptChanges.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSaveActionPerformed(evt);
+                btnAcceptChangesActionPerformed(evt);
             }
         });
 
@@ -138,12 +139,13 @@ public class EditObjectView extends javax.swing.JDialog {
         jLabel3.setName("jLabel3"); // NOI18N
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getActionMap(EditObjectView.class, this);
-        btnSerialize.setAction(actionMap.get("serialize")); // NOI18N
-        btnSerialize.setText(resourceMap.getString("btnSerialize.text")); // NOI18N
-        btnSerialize.setName("btnSerialize"); // NOI18N
+        btnSave.setAction(actionMap.get("serialize")); // NOI18N
+        btnSave.setText(resourceMap.getString("btnSave.text")); // NOI18N
+        btnSave.setName("btnSave"); // NOI18N
 
-        btnSave1.setText(resourceMap.getString("btnSave1.text")); // NOI18N
-        btnSave1.setName("btnSave1"); // NOI18N
+        btnLoad.setAction(actionMap.get("deserialize")); // NOI18N
+        btnLoad.setText(resourceMap.getString("btnLoad.text")); // NOI18N
+        btnLoad.setName("btnLoad"); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -161,11 +163,11 @@ public class EditObjectView extends javax.swing.JDialog {
                     .addComponent(jLabel3)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(btnSerialize)
+                        .addComponent(btnSave)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnSave1)
+                        .addComponent(btnLoad)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnSave)))
+                        .addComponent(btnAcceptChanges)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -185,18 +187,18 @@ public class EditObjectView extends javax.swing.JDialog {
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAcceptChanges)
                     .addComponent(btnSave)
-                    .addComponent(btnSerialize)
-                    .addComponent(btnSave1))
+                    .addComponent(btnLoad))
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+    private void btnAcceptChangesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAcceptChangesActionPerformed
         dispose();
-    }//GEN-LAST:event_btnSaveActionPerformed
+    }//GEN-LAST:event_btnAcceptChangesActionPerformed
    
     @Action
     public void deserialize() {
@@ -278,10 +280,17 @@ public class EditObjectView extends javax.swing.JDialog {
         if (rc == JFileChooser.APPROVE_OPTION) {
             File of = fc.getSelectedFile();
             try {
-                
-                FileOutputStream fos = new FileOutputStream(of.getAbsolutePath());
 
-                currentOutputFile = of.getAbsolutePath();
+                String path = of.getAbsolutePath();
+
+                if ( ! path.endsWith(".ser") ) {
+                    path += ".ser";
+                }
+
+                currentOutputFile = path;
+
+                FileOutputStream fos = new FileOutputStream(currentOutputFile);
+
                 serializer.toXML(toEdit, fos);
 
                 fos.close();
@@ -294,9 +303,9 @@ public class EditObjectView extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAcceptChanges;
+    private javax.swing.JButton btnLoad;
     private javax.swing.JButton btnSave;
-    private javax.swing.JButton btnSave1;
-    private javax.swing.JButton btnSerialize;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -327,6 +336,20 @@ public class EditObjectView extends javax.swing.JDialog {
 
     public Object getObjectReplacement() {
         return toEdit;
+    }
+
+    public static void main(String[] args) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                EditObjectView dialog = new EditObjectView(new javax.swing.JFrame(), true, new SnoopSession());
+                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        System.exit(0);
+                    }
+                });
+                dialog.setVisible(true);
+            }
+        });
     }
 
 }

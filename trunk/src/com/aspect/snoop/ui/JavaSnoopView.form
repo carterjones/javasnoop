@@ -945,10 +945,10 @@
             </MenuItem>
           </SubComponents>
         </Menu>
-        <Menu class="javax.swing.JMenu" name="actionsMenu">
+        <Menu class="javax.swing.JMenu" name="classesMenu">
           <Properties>
-            <Property name="text" type="java.lang.String" resourceKey="actionsMenu.text"/>
-            <Property name="name" type="java.lang.String" value="actionsMenu" noResource="true"/>
+            <Property name="text" type="java.lang.String" resourceKey="classesMenu.text"/>
+            <Property name="name" type="java.lang.String" value="classesMenu" noResource="true"/>
           </Properties>
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="mnuGetProcessInfo">
@@ -1011,59 +1011,46 @@
                 <Property name="name" type="java.lang.String" value="mnuDecompileClass" noResource="true"/>
               </Properties>
             </MenuItem>
-            <MenuItem class="javax.swing.JSeparator" name="jSeparator1">
-              <Properties>
-                <Property name="enabled" type="boolean" value="false"/>
-                <Property name="name" type="java.lang.String" value="jSeparator1" noResource="true"/>
-              </Properties>
-            </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="mnuManageJavaAppletSecuritySettings">
-              <Properties>
-                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
-                  <action class="com.aspect.snoop.ui.AspectSpyView" id="manageJavaSecuritySettings" methodName="manageJavaSecuritySettings"/>
-                </Property>
-                <Property name="text" type="java.lang.String" resourceKey="mnuManageJavaAppletSecuritySettings.text"/>
-                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuManageJavaAppletSecuritySettings.toolTipText"/>
-                <Property name="name" type="java.lang.String" value="mnuManageJavaAppletSecuritySettings" noResource="true"/>
-              </Properties>
-            </MenuItem>
             <MenuItem class="javax.swing.JSeparator" name="jSeparator4">
               <Properties>
                 <Property name="name" type="java.lang.String" value="jSeparator4" noResource="true"/>
               </Properties>
             </MenuItem>
-            <Menu class="javax.swing.JMenu" name="mnuManageJad">
+          </SubComponents>
+        </Menu>
+        <Menu class="javax.swing.JMenu" name="scriptingMenu">
+          <Properties>
+            <Property name="text" type="java.lang.String" resourceKey="scriptingMenu.text"/>
+            <Property name="name" type="java.lang.String" value="scriptingMenu" noResource="true"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="mnuOpenScriptingConsole">
               <Properties>
-                <Property name="text" type="java.lang.String" resourceKey="mnuManageJad.text"/>
-                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuManageJad.toolTipText"/>
-                <Property name="name" type="java.lang.String" value="mnuManageJad" noResource="true"/>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="com.aspect.snoop.ui.JavaSnoopView" id="openScriptingConsole" methodName="openScriptingConsole"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="mnuOpenScriptingConsole.text"/>
+                <Property name="name" type="java.lang.String" value="mnuOpenScriptingConsole" noResource="true"/>
               </Properties>
-              <SubComponents>
-                <MenuItem class="javax.swing.JCheckBoxMenuItem" name="chkShowMethodCode">
-                  <Properties>
-                    <Property name="selected" type="boolean" value="true"/>
-                    <Property name="text" type="java.lang.String" resourceKey="chkShowMethodCode.text"/>
-                    <Property name="name" type="java.lang.String" value="chkShowMethodCode" noResource="true"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkShowMethodCodeActionPerformed"/>
-                  </Events>
-                </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="mnuSetJadPath">
-                  <Properties>
-                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
-                      <action class="com.aspect.snoop.ui.JavaSnoopView" id="changeJadPath" methodName="changeJadPath"/>
-                    </Property>
-                    <Property name="text" type="java.lang.String" resourceKey="mnuSetJadPath.text"/>
-                    <Property name="name" type="java.lang.String" value="mnuSetJadPath" noResource="true"/>
-                  </Properties>
-                </MenuItem>
-              </SubComponents>
-            </Menu>
-            <MenuItem class="javax.swing.JSeparator" name="jSeparator5">
+            </MenuItem>
+          </SubComponents>
+        </Menu>
+        <Menu class="javax.swing.JMenu" name="settingsMenu">
+          <Properties>
+            <Property name="text" type="java.lang.String" resourceKey="settingsMenu.text"/>
+            <Property name="name" type="java.lang.String" value="settingsMenu" noResource="true"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JCheckBoxMenuItem" name="mnuChkAgentDebugging">
               <Properties>
-                <Property name="name" type="java.lang.String" value="jSeparator5" noResource="true"/>
+                <Property name="selected" type="boolean" value="true"/>
+                <Property name="text" type="java.lang.String" resourceKey="mnuChkAgentDebugging.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuChkAgentDebugging.toolTipText"/>
+                <Property name="name" type="java.lang.String" value="mnuChkAgentDebugging" noResource="true"/>
               </Properties>
+              <Events>
+                <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="mnuChkAgentDebuggingItemStateChanged"/>
+              </Events>
             </MenuItem>
             <Menu class="javax.swing.JMenu" name="mnuLogSetting">
               <Properties>
@@ -1138,17 +1125,36 @@
                 </MenuItem>
               </SubComponents>
             </Menu>
-            <MenuItem class="javax.swing.JCheckBoxMenuItem" name="mnuChkAgentDebugging">
-              <Properties>
-                <Property name="selected" type="boolean" value="true"/>
-                <Property name="text" type="java.lang.String" resourceKey="mnuChkAgentDebugging.text"/>
-                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuChkAgentDebugging.toolTipText"/>
-                <Property name="name" type="java.lang.String" value="mnuChkAgentDebugging" noResource="true"/>
-              </Properties>
-              <Events>
-                <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="mnuChkAgentDebuggingItemStateChanged"/>
-              </Events>
+            <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator5">
             </MenuItem>
+            <Menu class="javax.swing.JMenu" name="mnuManageJad">
+              <Properties>
+                <Property name="text" type="java.lang.String" resourceKey="mnuManageJad.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuManageJad.toolTipText"/>
+                <Property name="name" type="java.lang.String" value="mnuManageJad" noResource="true"/>
+              </Properties>
+              <SubComponents>
+                <MenuItem class="javax.swing.JCheckBoxMenuItem" name="chkShowMethodCode">
+                  <Properties>
+                    <Property name="selected" type="boolean" value="true"/>
+                    <Property name="text" type="java.lang.String" resourceKey="chkShowMethodCode.text"/>
+                    <Property name="name" type="java.lang.String" value="chkShowMethodCode" noResource="true"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkShowMethodCodeActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="mnuSetJadPath">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="com.aspect.snoop.ui.JavaSnoopView" id="changeJadPath" methodName="changeJadPath"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="mnuSetJadPath.text"/>
+                    <Property name="name" type="java.lang.String" value="mnuSetJadPath" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+              </SubComponents>
+            </Menu>
           </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="helpMenu">

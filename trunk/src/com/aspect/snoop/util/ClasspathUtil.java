@@ -20,6 +20,7 @@
 package com.aspect.snoop.util;
 
 import com.aspect.snoop.JavaSnoop;
+import com.aspect.snoop.agent.AgentLogger;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
@@ -59,6 +60,8 @@ public class ClasspathUtil {
         while (st.hasMoreTokens()) {
 
             String token = st.nextToken();
+            AgentLogger.debug("looking for " + clazz + " in " + token);
+            
             File classpathElement = new File(token);
 
             if (classpathElement.isDirectory() ) {
@@ -83,6 +86,8 @@ public class ClasspathUtil {
 
                 for ( String file : jarFiles ) {
 
+                    AgentLogger.debug("Looking in jar file " + file);
+                    
                     byte[] classBytes = null;
 
                     try {
