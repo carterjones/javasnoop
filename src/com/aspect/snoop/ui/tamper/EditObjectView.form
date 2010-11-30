@@ -38,11 +38,11 @@
                   <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="jScrollPane2" alignment="0" min="-2" pref="400" max="-2" attributes="0"/>
                   <Group type="102" alignment="1" attributes="1">
-                      <Component id="btnSerialize" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="btnSave1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
                       <Component id="btnSave" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="btnLoad" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
+                      <Component id="btnAcceptChanges" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -67,9 +67,9 @@
               <Component id="jScrollPane2" min="-2" pref="111" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="btnAcceptChanges" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="btnSave" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="btnSerialize" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="btnSave1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="btnLoad" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
@@ -129,13 +129,13 @@
         <Property name="name" type="java.lang.String" value="lblClassName" noResource="true"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="btnSave">
+    <Component class="javax.swing.JButton" name="btnAcceptChanges">
       <Properties>
-        <Property name="text" type="java.lang.String" resourceKey="btnSave.text"/>
-        <Property name="name" type="java.lang.String" value="btnSave" noResource="true"/>
+        <Property name="text" type="java.lang.String" resourceKey="btnAcceptChanges.text"/>
+        <Property name="name" type="java.lang.String" value="btnAcceptChanges" noResource="true"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSaveActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAcceptChangesActionPerformed"/>
       </Events>
     </Component>
     <Container class="javax.swing.JScrollPane" name="jScrollPane3">
@@ -178,19 +178,22 @@
         <Property name="name" type="java.lang.String" value="jLabel3" noResource="true"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="btnSerialize">
+    <Component class="javax.swing.JButton" name="btnSave">
       <Properties>
         <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
           <action class="com.aspect.snoop.ui.tamper.EditObjectView" id="serialize" methodName="serialize"/>
         </Property>
-        <Property name="text" type="java.lang.String" resourceKey="btnSerialize.text"/>
-        <Property name="name" type="java.lang.String" value="btnSerialize" noResource="true"/>
+        <Property name="text" type="java.lang.String" resourceKey="btnSave.text"/>
+        <Property name="name" type="java.lang.String" value="btnSave" noResource="true"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="btnSave1">
+    <Component class="javax.swing.JButton" name="btnLoad">
       <Properties>
-        <Property name="text" type="java.lang.String" resourceKey="btnSave1.text"/>
-        <Property name="name" type="java.lang.String" value="btnSave1" noResource="true"/>
+        <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+          <action class="com.aspect.snoop.ui.tamper.EditObjectView" id="deserialize" methodName="deserialize"/>
+        </Property>
+        <Property name="text" type="java.lang.String" resourceKey="btnLoad.text"/>
+        <Property name="name" type="java.lang.String" value="btnLoad" noResource="true"/>
       </Properties>
     </Component>
   </SubComponents>

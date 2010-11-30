@@ -19,6 +19,9 @@
 
 package com.aspect.snoop.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 public class StringUtil {
 
     public static String join(String[] parts, String seperator) {
@@ -36,4 +39,11 @@ public class StringUtil {
         return startSrc != null && startSrc.length() > 0;
     }
 
+    public static String exception2string(Exception e) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        pw.flush();
+        return sw.toString();
+    }
 }

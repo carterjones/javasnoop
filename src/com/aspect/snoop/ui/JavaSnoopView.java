@@ -322,20 +322,18 @@ public class JavaSnoopView extends FrameView {
         mnuSaveConfigurationAs = new javax.swing.JMenuItem();
         jSeparator3 = new javax.swing.JSeparator();
         javax.swing.JMenuItem mnuExit = new javax.swing.JMenuItem();
-        actionsMenu = new javax.swing.JMenu();
+        classesMenu = new javax.swing.JMenu();
         mnuGetProcessInfo = new javax.swing.JMenuItem();
         mnuBrowseRemoteClasses = new javax.swing.JMenuItem();
         mnuUpdateClasses = new javax.swing.JMenuItem();
         mnuForceLoadClasses = new javax.swing.JMenuItem();
         mnuStartCanaryMode = new javax.swing.JMenuItem();
         mnuDecompileClass = new javax.swing.JMenuItem();
-        jSeparator1 = new javax.swing.JSeparator();
-        mnuManageJavaAppletSecuritySettings = new javax.swing.JMenuItem();
         jSeparator4 = new javax.swing.JSeparator();
-        mnuManageJad = new javax.swing.JMenu();
-        chkShowMethodCode = new javax.swing.JCheckBoxMenuItem();
-        mnuSetJadPath = new javax.swing.JMenuItem();
-        jSeparator5 = new javax.swing.JSeparator();
+        scriptingMenu = new javax.swing.JMenu();
+        mnuOpenScriptingConsole = new javax.swing.JMenuItem();
+        settingsMenu = new javax.swing.JMenu();
+        mnuChkAgentDebugging = new javax.swing.JCheckBoxMenuItem();
         mnuLogSetting = new javax.swing.JMenu();
         mnuLogTrace = new javax.swing.JCheckBoxMenuItem();
         mnuLogDebug = new javax.swing.JCheckBoxMenuItem();
@@ -344,7 +342,10 @@ public class JavaSnoopView extends FrameView {
         mnuLogError = new javax.swing.JCheckBoxMenuItem();
         mnuLogFatal = new javax.swing.JCheckBoxMenuItem();
         mnuLogOff = new javax.swing.JCheckBoxMenuItem();
-        mnuChkAgentDebugging = new javax.swing.JCheckBoxMenuItem();
+        jSeparator5 = new javax.swing.JPopupMenu.Separator();
+        mnuManageJad = new javax.swing.JMenu();
+        chkShowMethodCode = new javax.swing.JCheckBoxMenuItem();
+        mnuSetJadPath = new javax.swing.JMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem mnuAbout = new javax.swing.JMenuItem();
         mnuGotoHomePage = new javax.swing.JMenuItem();
@@ -981,81 +982,73 @@ public class JavaSnoopView extends FrameView {
 
         menuBar.add(fileMenu);
 
-        actionsMenu.setText(resourceMap.getString("actionsMenu.text")); // NOI18N
-        actionsMenu.setName("actionsMenu"); // NOI18N
+        classesMenu.setText(resourceMap.getString("classesMenu.text")); // NOI18N
+        classesMenu.setName("classesMenu"); // NOI18N
 
         mnuGetProcessInfo.setAction(actionMap.get("getProcessInfo")); // NOI18N
         mnuGetProcessInfo.setText(resourceMap.getString("mnuGetProcessInfo.text")); // NOI18N
         mnuGetProcessInfo.setToolTipText(resourceMap.getString("mnuGetProcessInfo.toolTipText")); // NOI18N
         mnuGetProcessInfo.setName("mnuGetProcessInfo"); // NOI18N
-        actionsMenu.add(mnuGetProcessInfo);
+        classesMenu.add(mnuGetProcessInfo);
 
         mnuBrowseRemoteClasses.setAction(actionMap.get("browseRemoteClasses")); // NOI18N
         mnuBrowseRemoteClasses.setText(resourceMap.getString("mnuBrowseRemoteClasses.text")); // NOI18N
         mnuBrowseRemoteClasses.setToolTipText(resourceMap.getString("mnuBrowseRemoteClasses.toolTipText")); // NOI18N
         mnuBrowseRemoteClasses.setName("mnuBrowseRemoteClasses"); // NOI18N
-        actionsMenu.add(mnuBrowseRemoteClasses);
+        classesMenu.add(mnuBrowseRemoteClasses);
 
         mnuUpdateClasses.setAction(actionMap.get("updateClasses")); // NOI18N
         mnuUpdateClasses.setText(resourceMap.getString("mnuUpdateClasses.text")); // NOI18N
         mnuUpdateClasses.setToolTipText(resourceMap.getString("mnuUpdateClasses.toolTipText")); // NOI18N
         mnuUpdateClasses.setName("mnuUpdateClasses"); // NOI18N
-        actionsMenu.add(mnuUpdateClasses);
+        classesMenu.add(mnuUpdateClasses);
 
         mnuForceLoadClasses.setAction(actionMap.get("forceLoadClasses")); // NOI18N
         mnuForceLoadClasses.setText(resourceMap.getString("mnuForceLoadClasses.text")); // NOI18N
         mnuForceLoadClasses.setToolTipText(resourceMap.getString("mnuForceLoadClasses.toolTipText")); // NOI18N
         mnuForceLoadClasses.setName("mnuForceLoadClasses"); // NOI18N
-        actionsMenu.add(mnuForceLoadClasses);
+        classesMenu.add(mnuForceLoadClasses);
 
         mnuStartCanaryMode.setAction(actionMap.get("enterCanaryMode")); // NOI18N
         mnuStartCanaryMode.setText(resourceMap.getString("mnuStartCanaryMode.text")); // NOI18N
         mnuStartCanaryMode.setToolTipText(resourceMap.getString("mnuStartCanaryMode.toolTipText")); // NOI18N
         mnuStartCanaryMode.setName("mnuStartCanaryMode"); // NOI18N
-        actionsMenu.add(mnuStartCanaryMode);
+        classesMenu.add(mnuStartCanaryMode);
 
         mnuDecompileClass.setAction(actionMap.get("decompileClass")); // NOI18N
         mnuDecompileClass.setText(resourceMap.getString("mnuDecompileClass.text")); // NOI18N
         mnuDecompileClass.setToolTipText(resourceMap.getString("mnuDecompileClass.toolTipText")); // NOI18N
         mnuDecompileClass.setName("mnuDecompileClass"); // NOI18N
-        actionsMenu.add(mnuDecompileClass);
-
-        jSeparator1.setEnabled(false);
-        jSeparator1.setName("jSeparator1"); // NOI18N
-        actionsMenu.add(jSeparator1);
-
-        mnuManageJavaAppletSecuritySettings.setAction(actionMap.get("manageJavaSecuritySettings")); // NOI18N
-        mnuManageJavaAppletSecuritySettings.setText(resourceMap.getString("mnuManageJavaAppletSecuritySettings.text")); // NOI18N
-        mnuManageJavaAppletSecuritySettings.setToolTipText(resourceMap.getString("mnuManageJavaAppletSecuritySettings.toolTipText")); // NOI18N
-        mnuManageJavaAppletSecuritySettings.setName("mnuManageJavaAppletSecuritySettings"); // NOI18N
-        actionsMenu.add(mnuManageJavaAppletSecuritySettings);
+        classesMenu.add(mnuDecompileClass);
 
         jSeparator4.setName("jSeparator4"); // NOI18N
-        actionsMenu.add(jSeparator4);
+        classesMenu.add(jSeparator4);
 
-        mnuManageJad.setText(resourceMap.getString("mnuManageJad.text")); // NOI18N
-        mnuManageJad.setToolTipText(resourceMap.getString("mnuManageJad.toolTipText")); // NOI18N
-        mnuManageJad.setName("mnuManageJad"); // NOI18N
+        menuBar.add(classesMenu);
 
-        chkShowMethodCode.setSelected(true);
-        chkShowMethodCode.setText(resourceMap.getString("chkShowMethodCode.text")); // NOI18N
-        chkShowMethodCode.setName("chkShowMethodCode"); // NOI18N
-        chkShowMethodCode.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                chkShowMethodCodeActionPerformed(evt);
+        scriptingMenu.setText(resourceMap.getString("scriptingMenu.text")); // NOI18N
+        scriptingMenu.setName("scriptingMenu"); // NOI18N
+
+        mnuOpenScriptingConsole.setAction(actionMap.get("openScriptingConsole")); // NOI18N
+        mnuOpenScriptingConsole.setText(resourceMap.getString("mnuOpenScriptingConsole.text")); // NOI18N
+        mnuOpenScriptingConsole.setName("mnuOpenScriptingConsole"); // NOI18N
+        scriptingMenu.add(mnuOpenScriptingConsole);
+
+        menuBar.add(scriptingMenu);
+
+        settingsMenu.setText(resourceMap.getString("settingsMenu.text")); // NOI18N
+        settingsMenu.setName("settingsMenu"); // NOI18N
+
+        mnuChkAgentDebugging.setSelected(true);
+        mnuChkAgentDebugging.setText(resourceMap.getString("mnuChkAgentDebugging.text")); // NOI18N
+        mnuChkAgentDebugging.setToolTipText(resourceMap.getString("mnuChkAgentDebugging.toolTipText")); // NOI18N
+        mnuChkAgentDebugging.setName("mnuChkAgentDebugging"); // NOI18N
+        mnuChkAgentDebugging.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                mnuChkAgentDebuggingItemStateChanged(evt);
             }
         });
-        mnuManageJad.add(chkShowMethodCode);
-
-        mnuSetJadPath.setAction(actionMap.get("changeJadPath")); // NOI18N
-        mnuSetJadPath.setText(resourceMap.getString("mnuSetJadPath.text")); // NOI18N
-        mnuSetJadPath.setName("mnuSetJadPath"); // NOI18N
-        mnuManageJad.add(mnuSetJadPath);
-
-        actionsMenu.add(mnuManageJad);
-
-        jSeparator5.setName("jSeparator5"); // NOI18N
-        actionsMenu.add(jSeparator5);
+        settingsMenu.add(mnuChkAgentDebugging);
 
         mnuLogSetting.setText(resourceMap.getString("mnuLogSetting.text")); // NOI18N
         mnuLogSetting.setToolTipText(resourceMap.getString("mnuLogSetting.toolTipText")); // NOI18N
@@ -1097,20 +1090,31 @@ public class JavaSnoopView extends FrameView {
         mnuLogOff.setName("mnuLogOff"); // NOI18N
         mnuLogSetting.add(mnuLogOff);
 
-        actionsMenu.add(mnuLogSetting);
+        settingsMenu.add(mnuLogSetting);
+        settingsMenu.add(jSeparator5);
 
-        mnuChkAgentDebugging.setSelected(true);
-        mnuChkAgentDebugging.setText(resourceMap.getString("mnuChkAgentDebugging.text")); // NOI18N
-        mnuChkAgentDebugging.setToolTipText(resourceMap.getString("mnuChkAgentDebugging.toolTipText")); // NOI18N
-        mnuChkAgentDebugging.setName("mnuChkAgentDebugging"); // NOI18N
-        mnuChkAgentDebugging.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                mnuChkAgentDebuggingItemStateChanged(evt);
+        mnuManageJad.setText(resourceMap.getString("mnuManageJad.text")); // NOI18N
+        mnuManageJad.setToolTipText(resourceMap.getString("mnuManageJad.toolTipText")); // NOI18N
+        mnuManageJad.setName("mnuManageJad"); // NOI18N
+
+        chkShowMethodCode.setSelected(true);
+        chkShowMethodCode.setText(resourceMap.getString("chkShowMethodCode.text")); // NOI18N
+        chkShowMethodCode.setName("chkShowMethodCode"); // NOI18N
+        chkShowMethodCode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chkShowMethodCodeActionPerformed(evt);
             }
         });
-        actionsMenu.add(mnuChkAgentDebugging);
+        mnuManageJad.add(chkShowMethodCode);
 
-        menuBar.add(actionsMenu);
+        mnuSetJadPath.setAction(actionMap.get("changeJadPath")); // NOI18N
+        mnuSetJadPath.setText(resourceMap.getString("mnuSetJadPath.text")); // NOI18N
+        mnuSetJadPath.setName("mnuSetJadPath"); // NOI18N
+        mnuManageJad.add(mnuSetJadPath);
+
+        settingsMenu.add(mnuManageJad);
+
+        menuBar.add(settingsMenu);
 
         helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
         helpMenu.setName("helpMenu"); // NOI18N
@@ -1786,7 +1790,6 @@ public class JavaSnoopView extends FrameView {
 
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenu actionsMenu;
     private javax.swing.JButton btnAddHook;
     private javax.swing.JButton btnAddNewCondition;
     private javax.swing.JButton btnAttachSpy;
@@ -1807,6 +1810,7 @@ public class JavaSnoopView extends FrameView {
     private javax.swing.JCheckBoxMenuItem chkShowMethodCode;
     private javax.swing.JCheckBox chkTamperParameters;
     private javax.swing.JCheckBox chkTamperReturnValue;
+    private javax.swing.JMenu classesMenu;
     private javax.swing.JPanel functionHookPanel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
@@ -1820,7 +1824,6 @@ public class JavaSnoopView extends FrameView {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
@@ -1845,7 +1848,7 @@ public class JavaSnoopView extends FrameView {
     private javax.swing.JCheckBoxMenuItem mnuLogTrace;
     private javax.swing.JCheckBoxMenuItem mnuLogWarn;
     private javax.swing.JMenu mnuManageJad;
-    private javax.swing.JMenuItem mnuManageJavaAppletSecuritySettings;
+    private javax.swing.JMenuItem mnuOpenScriptingConsole;
     private javax.swing.JMenuItem mnuSaveConfiguration;
     private javax.swing.JMenuItem mnuSaveConfigurationAs;
     private javax.swing.JMenuItem mnuSetJadPath;
@@ -1860,6 +1863,8 @@ public class JavaSnoopView extends FrameView {
     private javax.swing.JRadioButton rdoDontHookIf;
     private javax.swing.JRadioButton rdoHookIf;
     private javax.swing.JPanel reportingPanel;
+    private javax.swing.JMenu scriptingMenu;
+    private javax.swing.JMenu settingsMenu;
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
@@ -2303,6 +2308,8 @@ public class JavaSnoopView extends FrameView {
         mnuDecompileClass.setEnabled(false);
         mnuChkAgentDebugging.setEnabled(false);
 
+        mnuOpenScriptingConsole.setEnabled(false);
+
         txtMainClass.setEnabled(true);
         txtMainClass.setBackground(Color.white);
         txtJavaArgs.setEnabled(true);
@@ -2365,6 +2372,8 @@ public class JavaSnoopView extends FrameView {
         mnuStartCanaryMode.setEnabled(true);
         mnuDecompileClass.setEnabled(true);
         mnuChkAgentDebugging.setEnabled(true);
+
+        mnuOpenScriptingConsole.setEnabled(true);
 
         txtMainClass.setBackground(Color.green);
         txtMainClass.setEnabled(false);
@@ -2821,5 +2830,15 @@ public class JavaSnoopView extends FrameView {
             }
         }
     }
+
+    @Action
+    public void openScriptingConsole() {
+        ScriptingView scriptView = new ScriptingView(getFrame(),true,client);
+        scriptView.setVisible(true);
+
+        UIUtil.waitForInput(scriptView);
+    }
+
+
 
 }

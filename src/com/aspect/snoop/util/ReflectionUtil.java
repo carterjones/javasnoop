@@ -29,6 +29,7 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -220,7 +221,15 @@ public class ReflectionUtil {
     public static List<Field> getAllPrimitiveFields(Object o) {
         List<Field> primitiveFields = new ArrayList<Field>();
 
-        Field[] allFields = o.getClass().getFields();
+        Field[] fields = o.getClass().getDeclaredFields();
+
+        List<Field> allFields = new ArrayList<Field>();
+        allFields.addAll( Arrays.asList(fields) );
+
+        Class cls = o.getClass();
+        while( (cls = cls.getSuperclass()) != null && ! cls.getClass().equals(Object.class) ) {
+            allFields.addAll( Arrays.asList(cls.getDeclaredFields()) );
+        }
 
         for (Field f : allFields) {
 
@@ -229,12 +238,15 @@ public class ReflectionUtil {
                 continue;
             }
 
+            f.setAccessible(true);
+
             for (Class c : PRIMITIVE_CLASSES) {
                 try {
-                    f.setAccessible(true);
+
                     if (f.getType().equals(c)) {
                         primitiveFields.add(f);
                     }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -249,21 +261,29 @@ public class ReflectionUtil {
 
         List<Field> nonPrimitiveFields = new ArrayList<Field>();
 
-        Field[] allFields = o.getClass().getFields();
+        Field[] fields = o.getClass().getDeclaredFields();
+
+        List<Field> allFields = new ArrayList<Field>();
+        allFields.addAll( Arrays.asList(fields) );
+
+        Class cls = o.getClass();
+        while( (cls = cls.getSuperclass()) != null && ! cls.getClass().equals(Object.class) ) {
+            allFields.addAll( Arrays.asList(cls.getDeclaredFields()) );
+        }
 
         for (Field f : allFields) {
-            
+
+            f.setAccessible(true);
+
             int mod = f.getModifiers();
 
-            if ( Modifier.isStatic(mod) ) {
+            if ( Modifier.isStatic(mod) || f.isSynthetic() ) {
                 continue;
             }
 
             boolean isPrimitive = false;
 
             try {
-
-                f.setAccessible(true);
 
                 for (Class c : PRIMITIVE_CLASSES) {
                     if (f.getType().equals(c)) {
@@ -274,7 +294,7 @@ public class ReflectionUtil {
                 if (!isPrimitive) {
                     nonPrimitiveFields.add(f);
                 }
-
+                
             } catch (Exception e) {
                 e.printStackTrace();
             }

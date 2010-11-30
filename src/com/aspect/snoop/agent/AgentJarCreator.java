@@ -28,7 +28,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.jar.Attributes;
@@ -42,6 +41,11 @@ import org.apache.log4j.Logger;
 public class AgentJarCreator {
 
     private static String nl = System.getProperty("line.separator");
+
+    private static final String[] jarsToNotBootClasspath = {
+      "bsh-2.0b4.jar",
+      "jython.jar"
+    };
 
     private static Logger logger = Logger.getLogger(AgentJarCreator.class);
 
@@ -252,6 +256,29 @@ public class AgentJarCreator {
                 Attributes attrs = m.getMainAttributes();
                 String cp = attrs.getValue("Class-Path");
                 cp = cp.replaceAll("lib/","../lib/");
+                System.out.println("Classpath: " + cp);
+
+                String[] entries = cp.split("\\s");
+                StringBuilder cpBuff = new StringBuilder();
+                for(int i=0;i<entries.length;i++) {
+                    String entry = entries[i];
+                    boolean shouldIgnore = false;
+                    for(String ignoreJar : jarsToNotBootClasspath) {
+                        if ( entry.endsWith(ignoreJar) ) {
+                            shouldIgnore = true;
+                        }
+                    }
+                    
+                    if ( ! shouldIgnore ) {
+                        cpBuff.append(entry);
+                        if ( i != entries.length-1 )
+                            cpBuff.append(" ");
+                    }
+                }
+
+                cp = cpBuff.toString();
+                System.out.println("Afterwards: " + cp);
+
                 return getManifestRepresentation( (72-(nl.length()+prefixLength)), cp );
             } catch (IOException ex) {
                 logger.fatal(ex);

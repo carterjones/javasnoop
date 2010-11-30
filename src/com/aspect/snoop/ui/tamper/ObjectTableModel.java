@@ -120,18 +120,26 @@ class ObjectTableModel extends AbstractTableModel {
                             EditArrayView view = new EditArrayView(JavaSnoop.getApplication().getMainFrame(), true, (Object[])obj);
                             view.setVisible(true);
                             UIUtil.waitForInput(view);
+                            fireTableStructureChanged();
+
                         } else if ( obj instanceof Map ) {
                             EditMapView view = new EditMapView(JavaSnoop.getApplication().getMainFrame(), true, (Map)obj);
                             view.setVisible(true);
                             UIUtil.waitForInput(view);
+                            fireTableStructureChanged();
+
                         } else if ( obj instanceof List ) {
                             EditListView view = new EditListView(JavaSnoop.getApplication().getMainFrame(), true, (List)obj);
                             view.setVisible(true);
                             UIUtil.waitForInput(view);
+                            fireTableStructureChanged();
+
                         } else if ( obj instanceof byte[] ) {
                             EditByteArrayView view = new EditByteArrayView(JavaSnoop.getApplication().getMainFrame(), true, (byte[])obj);
                             view.setVisible(true);
                             UIUtil.waitForInput(view);
+                            fireTableStructureChanged();
+
                             try {
                                 accessibleField.set(toEdit, view.getBytes());
                             } catch (IllegalArgumentException ex) {
@@ -140,10 +148,13 @@ class ObjectTableModel extends AbstractTableModel {
                                 logger.error(ex);
                             }
                             fireTableStructureChanged();
+                            
                         } else {
                             EditObjectView view = new EditObjectView(JavaSnoop.getApplication().getMainFrame(), true, obj);
                             view.setVisible(true);
                             UIUtil.waitForInput(view);
+                            fireTableStructureChanged();
+                            
                             if ( view.shouldReplaceObject() ) {
                                 try {
                                     accessibleField.set(toEdit, view.getObjectReplacement());
@@ -158,7 +169,7 @@ class ObjectTableModel extends AbstractTableModel {
 
                   return btn;
 
-                } catch(Exception e) { }
+                } catch(Exception e) { e.printStackTrace(); }
         }
 
         return null;

@@ -22,6 +22,8 @@ package com.aspect.snoop.agent;
 import com.aspect.snoop.JavaSnoop;
 import com.aspect.snoop.SnoopSession;
 import com.aspect.snoop.messages.agent.ClassBytes;
+import com.aspect.snoop.messages.agent.ExecuteScriptRequest;
+import com.aspect.snoop.messages.agent.ExecuteScriptResponse;
 import com.aspect.snoop.messages.agent.ExitProgramRequest;
 import com.aspect.snoop.messages.agent.ExitProgramResponse;
 import com.aspect.snoop.messages.agent.GetClassDefinitionsRequest;
@@ -571,6 +573,40 @@ public class SnoopToAgentClient {
 
             ToggleDebugResponse response = (ToggleDebugResponse)input.readObject();
 
+        } catch (ClassNotFoundException ex) {
+            throw new AgentCommunicationException(ex);
+        } catch (UnknownHostException ex) {
+            throw new AgentCommunicationException(ex);
+        } catch (IOException ex) {
+            throw new AgentCommunicationException(ex);
+        } finally {
+            closeConnection(socket);
+        }
+    }
+
+    public ExecuteScriptResponse executeScript(String lang, String code) throws AgentCommunicationException {
+
+        Socket socket = null;
+
+        try {
+
+            socket = getConnection();
+
+            ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+
+            // Send our command
+
+            ExecuteScriptRequest request = new ExecuteScriptRequest();
+            request.setLanguage(lang);
+            request.setScript(code);
+
+            output.writeObject(request);
+
+            ExecuteScriptResponse response = (ExecuteScriptResponse)input.readObject();
+
+            return response;
+            
         } catch (ClassNotFoundException ex) {
             throw new AgentCommunicationException(ex);
         } catch (UnknownHostException ex) {

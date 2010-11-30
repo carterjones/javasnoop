@@ -38,6 +38,8 @@ import com.aspect.snoop.messages.agent.TransportSessionRequest.SessionRetrievalT
 import com.aspect.snoop.messages.agent.TransportSessionResponse;
 import com.aspect.snoop.messages.UnrecognizedMessage;
 import com.aspect.snoop.messages.agent.ClassBytes;
+import com.aspect.snoop.messages.agent.ExecuteScriptRequest;
+import com.aspect.snoop.messages.agent.ExecuteScriptResponse;
 import com.aspect.snoop.messages.agent.GetClassDefinitionsRequest;
 import com.aspect.snoop.messages.agent.GetClassDefinitionsResponse;
 import com.aspect.snoop.messages.agent.GetClassesRequest;
@@ -53,25 +55,37 @@ import com.aspect.snoop.messages.agent.StopCanaryResponse;
 import com.aspect.snoop.messages.agent.ToggleDebugRequest;
 import com.aspect.snoop.messages.agent.ToggleDebugResponse;
 import com.aspect.snoop.util.CanaryUtil;
-import com.aspect.snoop.util.ClasspathUtil;
 import com.aspect.snoop.util.ReflectionUtil;
 import com.aspect.snoop.util.SessionPersistenceUtil;
+import com.aspect.snoop.util.StringUtil;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.lang.instrument.Instrumentation;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.jar.JarFile;
 
 public class AgentServerThread extends AbstractServerThread {
 
     public final static String SUCCESS = "SUCCESS";
     public final static String FAIL = "FAIL";
+
+    private static final String jythonJar = "jython.jar";
+    private static final String bshJar = "bsh-2.0b4.jar";
 
     public int ourPort = 0xADDA; // default
     public int homePort = 0xADDA+1; // default
@@ -83,12 +97,15 @@ public class AgentServerThread extends AbstractServerThread {
 
     public static String agentJar;
 
+    private Object bshInterp;
+    private Object jyInterp;
+
     protected AgentServerThread(Instrumentation inst, String agentArgs) {
         super();
         this.agentArgs = agentArgs;
 
         try {
-            
+
             String s[] = this.agentArgs.split(",");
             ourPort = Integer.parseInt(s[0]);
             homePort = Integer.parseInt(s[1]);
@@ -97,7 +114,20 @@ public class AgentServerThread extends AbstractServerThread {
             /* default debugging to true */
             AgentLogger.debugging = true;
 
-            AgentLogger.debug("Our port: "+ourPort +", home port: "+homePort);
+            AgentLogger.debug("Welcome to JavaSnoop!");
+            AgentLogger.debug("=====================");
+            AgentLogger.debug("Host port: " + ourPort + ", home port: " + homePort);
+            AgentLogger.debug("Using auto-generated jar at " + agentJar);
+
+            String libDir = new File(agentJar).getParentFile().getParent() +
+                    File.separator + "lib" + File.separator;
+
+            try {
+                inst.appendToSystemClassLoaderSearch(new JarFile(libDir + bshJar));
+                inst.appendToSystemClassLoaderSearch(new JarFile(libDir + jythonJar));
+            } catch (Exception ioe) {
+                AgentLogger.debug("Scripting not available because scripting jars failed to be added to classpath: " + ioe.getMessage());
+            }
 
         } catch (NumberFormatException nfe) {
             nfe.printStackTrace();
@@ -109,7 +139,7 @@ public class AgentServerThread extends AbstractServerThread {
     /**
      * Main Java agent command logic. Takes its orders from the GUI, and figures
      * out how to implement them.
-     * 
+     *
      * @throws IOException During communication error with the JavaSnoop program.
      */
     protected void processCommand(AgentMessage message, ObjectInputStream input, ObjectOutputStream output) throws IOException {
@@ -137,13 +167,13 @@ public class AgentServerThread extends AbstractServerThread {
                     snoopSession = request.getSnoopSession();
 
                 }
-                
+
             } catch (Exception e) {
                 populateResponse(response, e);
             }
 
             output.writeObject(response);
-            
+
         } else if ( message instanceof StartSnoopingRequest ) {
 
             StartSnoopingResponse response = new StartSnoopingResponse();
@@ -162,7 +192,7 @@ public class AgentServerThread extends AbstractServerThread {
             output.writeObject(response);
 
         } else if ( message instanceof StopSnoopingRequest ) {
-            
+
             StopSnoopingResponse response = new StopSnoopingResponse();
 
             try {
@@ -171,7 +201,7 @@ public class AgentServerThread extends AbstractServerThread {
 
                 // if currently instrumenting, stops
                 uninstallHooks();
-                
+
             } catch(Exception e) {
                 populateResponse(response, e);
             }
@@ -184,7 +214,7 @@ public class AgentServerThread extends AbstractServerThread {
 
             String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
             response.setPid(pid);
-            
+
             output.writeObject(response);
 
         } else if ( message instanceof GetProcessInfoRequest ) {
@@ -197,7 +227,7 @@ public class AgentServerThread extends AbstractServerThread {
 
             info.setCmd( path );
             info.setClasspath(System.getProperty("java.class.path"));
-            
+
             response.setProcessInfo(info);
 
             output.writeObject(response);
@@ -217,7 +247,7 @@ public class AgentServerThread extends AbstractServerThread {
             Collections.sort(classes);
 
             response.setClasses(classes);
-            
+
             output.writeObject(response);
 
         } else if ( message instanceof GetClassDefinitionsRequest ) {
@@ -256,7 +286,7 @@ public class AgentServerThread extends AbstractServerThread {
             output.flush();
 
             output.close();
-            
+
             System.exit(0);
 
         } else if ( message instanceof StartCanaryRequest ) {
@@ -307,13 +337,13 @@ public class AgentServerThread extends AbstractServerThread {
             List<String> failedClasses = new ArrayList<String>();
 
             List<ClassLoader> classloaders = manager.getClassLoaders();
-            
+
             for(String cls : classesToLoad) {
 
                 boolean loaded = false;
-                
+
                 try {
-                    
+
                     /*
                      * First, try to load the class using current class loader.
                      */
@@ -364,6 +394,71 @@ public class AgentServerThread extends AbstractServerThread {
 
             output.close();
 
+        } else if ( message instanceof ExecuteScriptRequest ) {
+
+            ExecuteScriptRequest request = (ExecuteScriptRequest)message;
+            ExecuteScriptResponse response = new ExecuteScriptResponse();
+
+            boolean isBsh = "BeanShell".equals(request.getLanguage());
+
+            String script = request.getScript();
+            
+            if ( isBsh ) {
+
+                if ( bshInterp == null || ! request.shouldRememberState() ) {
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    PrintStream psOut = new PrintStream(baos);
+                    bshInterp = new bsh.Interpreter(new StringReader(script),psOut,null,false);
+
+                    try {
+                        ((bsh.Interpreter) bshInterp).eval(script);
+                    } catch (Exception ex) {
+                        AgentLogger.debug("Error evaluating expression: " + ex.getMessage());
+                        response.setErr(StringUtil.exception2string(ex));
+                        ex.printStackTrace();
+                    } finally {
+                        psOut.flush();
+                        String out = baos.toString();
+
+                        response.setOutput(out);
+                        System.out.println("Set output: " + out);
+                    }
+                }
+
+            } else {
+                if ( jyInterp == null || ! request.shouldRememberState() )
+                    jyInterp = new org.python.util.PythonInterpreter();
+
+                StringWriter swOut = new StringWriter();
+                StringWriter swErr = new StringWriter();
+
+                ((org.python.util.PythonInterpreter)jyInterp).setOut(swOut);
+                ((org.python.util.PythonInterpreter)jyInterp).setErr(swErr);
+
+                try {
+                    ((org.python.util.PythonInterpreter)jyInterp).exec(script);
+                    swOut.flush();
+                    swErr.flush();
+
+                    String out = swOut.toString();
+                    String err = swErr.toString();
+
+                    response.setOutput(out);
+                    response.setErr(err);
+                    
+                } catch (Exception ex) {
+                    AgentLogger.debug("Error evaluating expression: " + ex.getMessage());
+                    ex.printStackTrace();
+                    response.setErr(StringUtil.exception2string(ex));
+                }
+            }
+
+            output.writeObject(response);
+            output.flush();
+
+            output.close();
+
         } else {
 
             UnrecognizedMessage response = new UnrecognizedMessage();
@@ -392,7 +487,7 @@ public class AgentServerThread extends AbstractServerThread {
         }
 
         for (FunctionHook hook : snoopSession.getFunctionHooks()) {
-            
+
             try {
 
                 Class clazz = manager.getFromAllClasses(hook.getClassName());
@@ -406,27 +501,31 @@ public class AgentServerThread extends AbstractServerThread {
                     Class[] subtypes = getAllSubtypes(clazz);
 
                     for (Class c : subtypes ) {
-                        manager.deinstrument(c);
+                        if ( manager.hasClassBeenModified(c) ) {
+                            manager.deinstrument(c);
+                        }
                     }
 
-                } 
+                }
 
                 try {
-                    manager.deinstrument(clazz);
+                    if ( manager.hasClassBeenModified(clazz) ) {
+                        manager.deinstrument(clazz);
+                    }
                 } catch(InstrumentationException e) {
                     // this could be normal, but its faster to just catch-ignore
                 }
 
-                
+
             } catch (ClassNotFoundException cnfe) {
                 throw new InstrumentationException(cnfe);
             }
-            
+
         }
     }
 
     private void installHooks() throws InstrumentationException {
-    
+
         HashMap<Class, ClassChanges> classChanges = new HashMap<Class,ClassChanges>();
 
         for(FunctionHook hook : snoopSession.getFunctionHooks() ) {
@@ -434,6 +533,9 @@ public class AgentServerThread extends AbstractServerThread {
             if ( ! hook.isEnabled() ) {
                 continue;
             }
+
+            String methodName = hook.getMethodName();
+            String[] parameterTypes = hook.getParameterTypes();
 
             try {
 
@@ -444,11 +546,30 @@ public class AgentServerThread extends AbstractServerThread {
                     Class[] subtypes = getAllSubtypes(clazz);
 
                     for (Class c : subtypes ) {
-                        ClassChanges change = classChanges.get(c);
+
+                        if ( hasMethod(c, methodName, parameterTypes) ) {
+                            ClassChanges change = classChanges.get(c);
+
+                            if (change == null) {
+                                change = new ClassChanges(c);
+                                classChanges.put(c, change);
+                            }
+
+                            change.registerHook(hook, manager);
+                        }
+
+                    }
+
+                }
+
+                if ( ! clazz.isInterface() ) {
+
+                    if ( ! Modifier.isAbstract(clazz.getModifiers()) || hasMethod(clazz,methodName,parameterTypes)) {
+                        ClassChanges change = classChanges.get(clazz);
 
                         if (change == null) {
-                            change = new ClassChanges(c);
-                            classChanges.put(c, change);
+                            change = new ClassChanges(clazz);
+                            classChanges.put(clazz, change);
                         }
 
                         change.registerHook(hook, manager);
@@ -456,17 +577,6 @@ public class AgentServerThread extends AbstractServerThread {
 
                 }
 
-                if ( ! ReflectionUtil.isInterfaceOrAbstract(clazz) ) {
-                    ClassChanges change = classChanges.get(clazz);
-
-                    if (change == null) {
-                        change = new ClassChanges(clazz);
-                        classChanges.put(clazz, change);
-                    }
-
-                    change.registerHook(hook, manager);
-                }
-                
             } catch (ClassNotFoundException ex) {
                 throw new InstrumentationException(ex);
             }
@@ -478,7 +588,7 @@ public class AgentServerThread extends AbstractServerThread {
             try {
 
                 ClassChanges change = classChanges.get(clazz);
-                
+
                 manager.instrument(
                         clazz,
                         change.getAllMethodChanges());
@@ -502,4 +612,48 @@ public class AgentServerThread extends AbstractServerThread {
         return subtypes.toArray( new Class[]{} );
     }
 
+    private boolean hasMethod(Class c, String name, String[] params) {
+
+        for(Method method : c.getDeclaredMethods()) {
+            if ( method.getName().equals(name) ) {
+                Class[] paramTypes = method.getParameterTypes();
+                if ( paramTypes.length == params.length ) {
+                    boolean matched = true;
+                    for(int i=0;i<paramTypes.length && matched;i++) {
+                        if ( ! params[i].equals(paramTypes[i].getName()) ) {
+                            matched = false;
+                        }
+                    }
+                    if ( matched ) {
+                        return !Modifier.isAbstract(method.getModifiers());
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    class WriterOutputStream extends OutputStream
+    {
+            Writer writer;
+            WriterOutputStream( Writer writer )
+            {
+                    this.writer = writer;
+            }
+
+            public void write( int b ) throws IOException
+            {
+                    writer.write(b);
+            }
+
+            public void flush() throws IOException
+            {
+                    writer.flush();
+            }
+
+            public void close() throws IOException
+            {
+                    writer.close();
+            }
+    }
 }

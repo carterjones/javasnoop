@@ -20,6 +20,7 @@
 package com.aspect.snoop.ui.tamper;
 
 import com.aspect.snoop.JavaSnoop;
+import com.aspect.snoop.ui.tamper.array.EditArrayView;
 import com.aspect.snoop.ui.tamper.bytearray.EditByteArrayView;
 import com.aspect.snoop.ui.tamper.list.EditListView;
 import com.aspect.snoop.ui.tamper.map.EditMapView;
@@ -113,19 +114,19 @@ public class ParameterTableModel extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
 
         Parameter p = parameters.get(rowIndex);
-        final int row = rowIndex;
 
         try {
             switch (columnIndex) {
                 case 0:
                     return p.getIndex();
+
                 case 1:
+                    
                     if ( p.getObject() != null ) {
                         return ReflectionUtil.getSimpleClassName(p.getObject().getClass().getName());
                     } else {
 
                     }
-
 
                 case 2:
                     return p.getObject();
@@ -140,10 +141,8 @@ public class ParameterTableModel extends AbstractTableModel {
 
                         final Parameter param = p;
                         final Object o = p.getObject();
-                        final JTable t = table;
                         
                         JButton btn = new JButton("Edit");
-                        final JButton btn2 = btn;
                         btn.setEnabled(true);
                         btn.addActionListener(new ActionListener() {
 
@@ -154,12 +153,14 @@ public class ParameterTableModel extends AbstractTableModel {
                                     EditMapView view = new EditMapView(JavaSnoop.getApplication().getMainFrame(), true, (Map)o);
                                     view.setVisible(true);
                                     UIUtil.waitForInput(view);
-                                    
+                                    fireTableStructureChanged();
+
                                 } else if ( o instanceof List ) {
 
                                     EditListView view = new EditListView(JavaSnoop.getApplication().getMainFrame(), true, (List)o);
                                     view.setVisible(true);
                                     UIUtil.waitForInput(view);
+                                    fireTableStructureChanged();
 
                                 } else if ( o instanceof byte[] ) {
 
@@ -169,6 +170,13 @@ public class ParameterTableModel extends AbstractTableModel {
                                     param.setObject(view.getBytes());
                                     fireTableStructureChanged();
 
+                                } else if (o.getClass().isArray()) {
+
+                                    EditArrayView view = new EditArrayView(JavaSnoop.getApplication().getMainFrame(), true, (Object[])o);
+                                    view.setVisible(true);
+                                    UIUtil.waitForInput(view);
+                                    fireTableStructureChanged();
+                                    
                                 } else {
 
                                     EditObjectView view = new EditObjectView(JavaSnoop.getApplication().getMainFrame(), true, o);
@@ -177,8 +185,10 @@ public class ParameterTableModel extends AbstractTableModel {
 
                                     if ( view.shouldReplaceObject() ) {
                                         Object replacement = view.getObjectReplacement();
-                                        parameters.get(row).setObject(replacement);
+                                        param.setObject(replacement);
                                     }
+                                    
+                                    fireTableStructureChanged();
                                 }
 
                             }

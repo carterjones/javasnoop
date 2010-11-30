@@ -121,6 +121,11 @@ public class EditListView extends javax.swing.JDialog {
 
         btnAccept.setText(resourceMap.getString("btnAccept.text")); // NOI18N
         btnAccept.setName("btnAccept"); // NOI18N
+        btnAccept.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAcceptActionPerformed(evt);
+            }
+        });
 
         btnAddItem.setText(resourceMap.getString("btnAddItem.text")); // NOI18N
         btnAddItem.setName("btnAddItem"); // NOI18N
@@ -267,6 +272,10 @@ public class EditListView extends javax.swing.JDialog {
         tblListItems.updateUI();
         
     }//GEN-LAST:event_btnMoveDownActionPerformed
+
+    private void btnAcceptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAcceptActionPerformed
+        dispose();
+    }//GEN-LAST:event_btnAcceptActionPerformed
 
     /**
     * @param args the command line arguments
