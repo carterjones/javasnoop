@@ -256,7 +256,7 @@ public class AgentJarCreator {
                 Attributes attrs = m.getMainAttributes();
                 String cp = attrs.getValue("Class-Path");
                 cp = cp.replaceAll("lib/","../lib/");
-                System.out.println("Classpath: " + cp);
+                //System.out.println("Classpath: " + cp);
 
                 String[] entries = cp.split("\\s");
                 StringBuilder cpBuff = new StringBuilder();
@@ -277,7 +277,7 @@ public class AgentJarCreator {
                 }
 
                 cp = cpBuff.toString();
-                System.out.println("Afterwards: " + cp);
+                //System.out.println("Afterwards: " + cp);
 
                 return getManifestRepresentation( (72-(nl.length()+prefixLength)), cp );
             } catch (IOException ex) {

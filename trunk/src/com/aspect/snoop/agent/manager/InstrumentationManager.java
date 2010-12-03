@@ -232,17 +232,17 @@ public class InstrumentationManager {
                     method.addLocalVariable(newVar.getName(), newVar.getType());
                 }
 
-                AgentLogger.debug("Adding to class " + clazz.getName());
+                AgentLogger.trace("Adding to class " + clazz.getName());
 
                 if ( change.getNewStartSrc().length() > 0 ) {
-                    AgentLogger.debug("Compiling code at beginnging of function:");
-                    AgentLogger.debug(change.getNewStartSrc());
+                    AgentLogger.trace("Compiling code at beginnging of function:");
+                    AgentLogger.trace(change.getNewStartSrc());
                     method.insertBefore( " { " + change.getNewStartSrc() + " } ");
                 }
 
                 if ( change.getNewEndSrc().length() > 0 ) {
-                    AgentLogger.debug("Compiling code for end of function:");
-                    AgentLogger.debug(change.getNewEndSrc());
+                    AgentLogger.trace("Compiling code for end of function:");
+                    AgentLogger.trace(change.getNewEndSrc());
                     method.insertAfter( " { " + change.getNewEndSrc() + " } ");
                 }
                 

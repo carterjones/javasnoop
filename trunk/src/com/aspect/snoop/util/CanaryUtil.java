@@ -36,7 +36,7 @@ public class CanaryUtil {
     //private static Logger logger = Logger.getLogger(CanaryUtil.class);
     public static String getChirp(String canaryType, String className, String methodName, String returnType) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         String nl = System.getProperty("line.separator");
 
@@ -123,7 +123,7 @@ public class CanaryUtil {
             try {
                 constructors = c.getDeclaredConstructors();
             } catch (Throwable t) {
-                AgentLogger.debug("Failed to canary " + c.getName() + ": " + t.getMessage());
+                AgentLogger.trace("Failed to canary " + c.getName() + ": " + t.getMessage());
             }
 
             List<Member> members = new ArrayList<Member>();
@@ -175,9 +175,9 @@ public class CanaryUtil {
                             mtdCount++;
 
                         } catch (ClassNotFoundException ex) {
-                            AgentLogger.debug("Couldn't apply canary to " + c.getName() + "." + m.getName() + ": " + ex.getMessage());
+                            AgentLogger.trace("Couldn't apply canary to " + c.getName() + "." + m.getName() + ": " + ex.getMessage());
                         } catch (NoClassDefFoundError ex) {
-                            AgentLogger.debug("Couldn't apply canary to " + c.getName() + "." + m.getName() + ": " + ex.getMessage());
+                            AgentLogger.trace("Couldn't apply canary to " + c.getName() + "." + m.getName() + ": " + ex.getMessage());
                         }
                     }
                 }
@@ -187,11 +187,11 @@ public class CanaryUtil {
                 manager.instrument(c, classChanges.toArray(new MethodChanges[]{}));
                 clsCount++;
             } catch (InstrumentationException ex) {
-                AgentLogger.debug("Failed to apply canary to " + clsName + ": " + ex.getMessage());
+                AgentLogger.trace("Failed to apply canary to " + clsName + ": " + ex.getMessage());
             }
 
         }
 
-        AgentLogger.debug("Successfully canaried " + clsCount + " classes and " + mtdCount + " methods.");
+        AgentLogger.info("Successfully canaried " + clsCount + " classes and " + mtdCount + " methods.");
     }
 }

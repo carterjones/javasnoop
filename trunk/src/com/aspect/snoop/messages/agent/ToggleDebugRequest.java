@@ -24,13 +24,13 @@ import java.io.Serializable;
 
 public class ToggleDebugRequest extends AgentMessage implements Serializable {
 
-    boolean debug;
+    int level;
 
-    public void setDebug(boolean debug) {
-        this.debug = debug;
+    public void setLevel(int level) {
+        this.level = level;
     }
 
-    public boolean shouldDebug() {
-        return debug;
+    public int getLevel() {
+        return this.level;
     }
 }

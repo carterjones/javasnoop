@@ -112,12 +112,12 @@ public class AgentServerThread extends AbstractServerThread {
             agentJar = s[2];
 
             /* default debugging to true */
-            AgentLogger.debugging = true;
+            AgentLogger.level = AgentLogger.INFO;
 
-            AgentLogger.debug("Welcome to JavaSnoop!");
-            AgentLogger.debug("=====================");
-            AgentLogger.debug("Host port: " + ourPort + ", home port: " + homePort);
-            AgentLogger.debug("Using auto-generated jar at " + agentJar);
+            AgentLogger.info("Welcome to JavaSnoop!");
+            AgentLogger.info("=====================");
+            AgentLogger.info("Host port: " + ourPort + ", home port: " + homePort);
+            AgentLogger.info("Using auto-generated jar at " + agentJar);
 
             String libDir = new File(agentJar).getParentFile().getParent() +
                     File.separator + "lib" + File.separator;
@@ -126,7 +126,7 @@ public class AgentServerThread extends AbstractServerThread {
                 inst.appendToSystemClassLoaderSearch(new JarFile(libDir + bshJar));
                 inst.appendToSystemClassLoaderSearch(new JarFile(libDir + jythonJar));
             } catch (Exception ioe) {
-                AgentLogger.debug("Scripting not available because scripting jars failed to be added to classpath: " + ioe.getMessage());
+                AgentLogger.error("Scripting not available because scripting jars failed to be added to classpath: " + ioe.getMessage());
             }
 
         } catch (NumberFormatException nfe) {
@@ -242,7 +242,7 @@ public class AgentServerThread extends AbstractServerThread {
 
             List<String> classes = manager.getLoadedClassesAsStrings();
 
-            AgentLogger.debug("Sending back " + classes.size() + " classes");
+            AgentLogger.info("Sending back " + classes.size() + " classes");
 
             Collections.sort(classes);
 
@@ -347,14 +347,14 @@ public class AgentServerThread extends AbstractServerThread {
                     /*
                      * First, try to load the class using current class loader.
                      */
-                    AgentLogger.debug("Trying to load " + cls + " with " + this.getClass().getClassLoader());
+                    AgentLogger.trace("Trying to load " + cls + " with " + this.getClass().getClassLoader());
                     Class.forName(cls);
                     loaded = true;
                 } catch (Throwable t) {
                     for (int i=0;i<classloaders.size() && !loaded;i++) {
                         ClassLoader cl = classloaders.get(i);
                         try {
-                            AgentLogger.debug("Trying to load " + cls + " with " + cl);
+                            AgentLogger.trace("Trying to load " + cls + " with " + cl);
                             Class.forName(cls,true,cl);
                             loaded = true;
                             /*
@@ -369,7 +369,7 @@ public class AgentServerThread extends AbstractServerThread {
                 if ( ! loaded ) {
                     failedClasses.add(cls);
                 } else {
-                    AgentLogger.debug("Successfully loaded " + cls);
+                    AgentLogger.trace("Successfully loaded " + cls);
                 }
 
             }
@@ -384,8 +384,9 @@ public class AgentServerThread extends AbstractServerThread {
 
             ToggleDebugRequest request = (ToggleDebugRequest)message;
 
-            AgentLogger.debugging = request.shouldDebug();
-            System.out.println("Turning agent logging " + (AgentLogger.debugging ? "ON" : "OFF"));
+            AgentLogger.level = request.getLevel();
+            
+            System.out.println("Setting agent log level to: " + AgentLogger.levelName(AgentLogger.level));
 
             ToggleDebugResponse response = new ToggleDebugResponse();
 
@@ -414,15 +415,13 @@ public class AgentServerThread extends AbstractServerThread {
                     try {
                         ((bsh.Interpreter) bshInterp).eval(script);
                     } catch (Exception ex) {
-                        AgentLogger.debug("Error evaluating expression: " + ex.getMessage());
+                        AgentLogger.error("Error evaluating expression: " + ex.getMessage());
                         response.setErr(StringUtil.exception2string(ex));
                         ex.printStackTrace();
                     } finally {
                         psOut.flush();
                         String out = baos.toString();
-
                         response.setOutput(out);
-                        System.out.println("Set output: " + out);
                     }
                 }
 
@@ -448,7 +447,7 @@ public class AgentServerThread extends AbstractServerThread {
                     response.setErr(err);
                     
                 } catch (Exception ex) {
-                    AgentLogger.debug("Error evaluating expression: " + ex.getMessage());
+                    AgentLogger.error("Error evaluating expression: " + ex.getMessage());
                     ex.printStackTrace();
                     response.setErr(StringUtil.exception2string(ex));
                 }
