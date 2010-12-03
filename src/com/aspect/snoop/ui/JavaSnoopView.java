@@ -34,6 +34,7 @@ import com.aspect.snoop.FunctionHook;
 import com.aspect.snoop.MethodInterceptor;
 import com.aspect.snoop.MethodInterceptor.Mode;
 import com.aspect.snoop.SnoopSession;
+import com.aspect.snoop.agent.AgentLogger;
 import com.aspect.snoop.agent.ProcessInfo;
 import com.aspect.snoop.agent.SnoopToAgentClient;
 import com.aspect.snoop.ui.canary.StartCanaryModeView;
@@ -126,6 +127,7 @@ public class JavaSnoopView extends FrameView {
     private JPopupMenu popupMenu;
 
     List<JCheckBoxMenuItem> mnuLogLevels;
+    List<JCheckBoxMenuItem> mnuAgentLogLevels;
 
     protected StartCanaryModeView canaryView;
 
@@ -158,6 +160,15 @@ public class JavaSnoopView extends FrameView {
         mnuLogLevels.add(mnuLogWarn);
         mnuLogLevels.add(mnuLogDebug);
         mnuLogLevels.add(mnuLogTrace);
+
+        mnuAgentLogLevels = new ArrayList<JCheckBoxMenuItem>();
+        mnuAgentLogLevels.add(mnuAgentLogOff);
+        mnuAgentLogLevels.add(mnuAgentLogFatal);
+        mnuAgentLogLevels.add(mnuAgentLogError);
+        mnuAgentLogLevels.add(mnuAgentLogInfo);
+        mnuAgentLogLevels.add(mnuAgentLogWarn);
+        mnuAgentLogLevels.add(mnuAgentLogDebug);
+        mnuAgentLogLevels.add(mnuAgentLogTrace);
 
         disableSnoopUI();
         
@@ -333,7 +344,6 @@ public class JavaSnoopView extends FrameView {
         scriptingMenu = new javax.swing.JMenu();
         mnuOpenScriptingConsole = new javax.swing.JMenuItem();
         settingsMenu = new javax.swing.JMenu();
-        mnuChkAgentDebugging = new javax.swing.JCheckBoxMenuItem();
         mnuLogSetting = new javax.swing.JMenu();
         mnuLogTrace = new javax.swing.JCheckBoxMenuItem();
         mnuLogDebug = new javax.swing.JCheckBoxMenuItem();
@@ -342,6 +352,14 @@ public class JavaSnoopView extends FrameView {
         mnuLogError = new javax.swing.JCheckBoxMenuItem();
         mnuLogFatal = new javax.swing.JCheckBoxMenuItem();
         mnuLogOff = new javax.swing.JCheckBoxMenuItem();
+        mnuAgentLogSetting = new javax.swing.JMenu();
+        mnuAgentLogTrace = new javax.swing.JCheckBoxMenuItem();
+        mnuAgentLogDebug = new javax.swing.JCheckBoxMenuItem();
+        mnuAgentLogInfo = new javax.swing.JCheckBoxMenuItem();
+        mnuAgentLogWarn = new javax.swing.JCheckBoxMenuItem();
+        mnuAgentLogError = new javax.swing.JCheckBoxMenuItem();
+        mnuAgentLogFatal = new javax.swing.JCheckBoxMenuItem();
+        mnuAgentLogOff = new javax.swing.JCheckBoxMenuItem();
         jSeparator5 = new javax.swing.JPopupMenu.Separator();
         mnuManageJad = new javax.swing.JMenu();
         chkShowMethodCode = new javax.swing.JCheckBoxMenuItem();
@@ -1039,20 +1057,7 @@ public class JavaSnoopView extends FrameView {
         settingsMenu.setText(resourceMap.getString("settingsMenu.text")); // NOI18N
         settingsMenu.setName("settingsMenu"); // NOI18N
 
-        mnuChkAgentDebugging.setSelected(true);
-        mnuChkAgentDebugging.setText(resourceMap.getString("mnuChkAgentDebugging.text")); // NOI18N
-        mnuChkAgentDebugging.setToolTipText(resourceMap.getString("mnuChkAgentDebugging.toolTipText")); // NOI18N
-        mnuChkAgentDebugging.setName("mnuChkAgentDebugging"); // NOI18N
-        mnuChkAgentDebugging.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                mnuChkAgentDebuggingItemStateChanged(evt);
-            }
-        });
-        settingsMenu.add(mnuChkAgentDebugging);
-
         mnuLogSetting.setText(resourceMap.getString("mnuLogSetting.text")); // NOI18N
-        mnuLogSetting.setToolTipText(resourceMap.getString("mnuLogSetting.toolTipText")); // NOI18N
-        mnuLogSetting.setName("mnuLogSetting"); // NOI18N
 
         mnuLogTrace.setAction(actionMap.get("changeLogLevel")); // NOI18N
         mnuLogTrace.setText(resourceMap.getString("mnuLogTrace.text")); // NOI18N
@@ -1091,6 +1096,47 @@ public class JavaSnoopView extends FrameView {
         mnuLogSetting.add(mnuLogOff);
 
         settingsMenu.add(mnuLogSetting);
+
+        mnuAgentLogSetting.setText(resourceMap.getString("mnuAgentLogSetting.text")); // NOI18N
+        mnuAgentLogSetting.setName("mnuAgentLogSetting"); // NOI18N
+
+        mnuAgentLogTrace.setAction(actionMap.get("changeAgentLogLevel")); // NOI18N
+        mnuAgentLogTrace.setText(resourceMap.getString("mnuAgentLogTrace.text")); // NOI18N
+        mnuAgentLogTrace.setName("mnuAgentLogTrace"); // NOI18N
+        mnuAgentLogSetting.add(mnuAgentLogTrace);
+
+        mnuAgentLogDebug.setAction(actionMap.get("changeAgentLogLevel")); // NOI18N
+        mnuAgentLogDebug.setText(resourceMap.getString("mnuAgentLogDebug.text")); // NOI18N
+        mnuAgentLogDebug.setName("mnuAgentLogDebug"); // NOI18N
+        mnuAgentLogSetting.add(mnuAgentLogDebug);
+
+        mnuAgentLogInfo.setAction(actionMap.get("changeAgentLogLevel")); // NOI18N
+        mnuAgentLogInfo.setSelected(true);
+        mnuAgentLogInfo.setText(resourceMap.getString("mnuAgentLogInfo.text")); // NOI18N
+        mnuAgentLogInfo.setName("mnuAgentLogInfo"); // NOI18N
+        mnuAgentLogSetting.add(mnuAgentLogInfo);
+
+        mnuAgentLogWarn.setAction(actionMap.get("changeAgentLogLevel")); // NOI18N
+        mnuAgentLogWarn.setText(resourceMap.getString("mnuAgentLogWarn.text")); // NOI18N
+        mnuAgentLogWarn.setName("mnuAgentLogWarn"); // NOI18N
+        mnuAgentLogSetting.add(mnuAgentLogWarn);
+
+        mnuAgentLogError.setAction(actionMap.get("changeAgentLogLevel")); // NOI18N
+        mnuAgentLogError.setText(resourceMap.getString("mnuAgentLogError.text")); // NOI18N
+        mnuAgentLogError.setName("mnuAgentLogError"); // NOI18N
+        mnuAgentLogSetting.add(mnuAgentLogError);
+
+        mnuAgentLogFatal.setAction(actionMap.get("changeAgentLogLevel")); // NOI18N
+        mnuAgentLogFatal.setText(resourceMap.getString("mnuAgentLogFatal.text")); // NOI18N
+        mnuAgentLogFatal.setName("mnuAgentLogFatal"); // NOI18N
+        mnuAgentLogSetting.add(mnuAgentLogFatal);
+
+        mnuAgentLogOff.setAction(actionMap.get("changeAgentLogLevel")); // NOI18N
+        mnuAgentLogOff.setText(resourceMap.getString("mnuAgentLogOff.text")); // NOI18N
+        mnuAgentLogOff.setName("mnuAgentLogOff"); // NOI18N
+        mnuAgentLogSetting.add(mnuAgentLogOff);
+
+        settingsMenu.add(mnuAgentLogSetting);
         settingsMenu.add(jSeparator5);
 
         mnuManageJad.setText(resourceMap.getString("mnuManageJad.text")); // NOI18N
@@ -1580,16 +1626,6 @@ public class JavaSnoopView extends FrameView {
         JavaSnoop.saveProperties();
     }//GEN-LAST:event_chkShowMethodCodeActionPerformed
 
-    private void mnuChkAgentDebuggingItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_mnuChkAgentDebuggingItemStateChanged
-        boolean debug = evt.getStateChange() == java.awt.event.ItemEvent.SELECTED;
-        try {
-            if ( client != null ) client.toggleDebug(debug);
-        } catch (AgentCommunicationException ex) {
-            UIUtil.showErrorMessage(getFrame(), "Couldn't enable logging on agent: " + ex.getMessage());
-            logger.error(ex);
-        }
-    }//GEN-LAST:event_mnuChkAgentDebuggingItemStateChanged
-
     @Action
     public void enableDisableAllHooks(ActionEvent evt) {
 
@@ -1741,7 +1777,7 @@ public class JavaSnoopView extends FrameView {
                     if (client != null) {
 
                         statusMessageLabel.setText("Sending agent logging settings");
-                        client.toggleDebug(mnuChkAgentDebugging.isSelected());
+                        client.toggleDebug(getAgentLogLevel());
 
                         statusMessageLabel.setText("Sending agent the hook rules...");
                         client.sendSnoopSession(currentSession);
@@ -1827,13 +1863,20 @@ public class JavaSnoopView extends FrameView {
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
-    private javax.swing.JSeparator jSeparator5;
+    private javax.swing.JPopupMenu.Separator jSeparator5;
     private javax.swing.JLabel lblFilename;
     private javax.swing.JLabel lblSnoopingOrNot;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
+    private javax.swing.JCheckBoxMenuItem mnuAgentLogDebug;
+    private javax.swing.JCheckBoxMenuItem mnuAgentLogError;
+    private javax.swing.JCheckBoxMenuItem mnuAgentLogFatal;
+    private javax.swing.JCheckBoxMenuItem mnuAgentLogInfo;
+    private javax.swing.JCheckBoxMenuItem mnuAgentLogOff;
+    private javax.swing.JMenu mnuAgentLogSetting;
+    private javax.swing.JCheckBoxMenuItem mnuAgentLogTrace;
+    private javax.swing.JCheckBoxMenuItem mnuAgentLogWarn;
     private javax.swing.JMenuItem mnuBrowseRemoteClasses;
-    private javax.swing.JCheckBoxMenuItem mnuChkAgentDebugging;
     private javax.swing.JMenuItem mnuDecompileClass;
     private javax.swing.JMenuItem mnuForceLoadClasses;
     private javax.swing.JMenuItem mnuGetProcessInfo;
@@ -2306,7 +2349,8 @@ public class JavaSnoopView extends FrameView {
         mnuGetProcessInfo.setEnabled(false);
         mnuStartCanaryMode.setEnabled(false);
         mnuDecompileClass.setEnabled(false);
-        mnuChkAgentDebugging.setEnabled(false);
+
+        mnuAgentLogSetting.setEnabled(false);
 
         mnuOpenScriptingConsole.setEnabled(false);
 
@@ -2340,7 +2384,8 @@ public class JavaSnoopView extends FrameView {
         mnuGetProcessInfo.setEnabled(false);
         mnuStartCanaryMode.setEnabled(false);
         mnuDecompileClass.setEnabled(false);
-        mnuChkAgentDebugging.setEnabled(false);
+
+        mnuAgentLogSetting.setEnabled(false);
 
         txtMainClass.setEnabled(false);
         txtMainClass.setBackground(Color.orange);
@@ -2371,7 +2416,8 @@ public class JavaSnoopView extends FrameView {
         mnuGetProcessInfo.setEnabled(true);
         mnuStartCanaryMode.setEnabled(true);
         mnuDecompileClass.setEnabled(true);
-        mnuChkAgentDebugging.setEnabled(true);
+
+        mnuAgentLogSetting.setEnabled(true);
 
         mnuOpenScriptingConsole.setEnabled(true);
 
@@ -2701,6 +2747,38 @@ public class JavaSnoopView extends FrameView {
     }
 
     @Action
+    public void changeAgentLogLevel(ActionEvent e) {
+
+        String action = e.getActionCommand();
+
+        for(JCheckBoxMenuItem item : mnuAgentLogLevels) {
+            if ( ! item.getText().equals(action) ) {
+                item.setSelected(false);
+                item.setState(false);
+            } else {
+                try {
+                    client.toggleDebug(AgentLogger.levelValue(item.getText()));
+                } catch (AgentCommunicationException ex) {
+                    UIUtil.showErrorMessage(getFrame(), "Couldn't change agent log settings: " + ex.getMessage());
+                    logger.error(ex);
+                }
+            }
+        }
+
+        Logger.getRootLogger().setLevel(Level.toLevel(action));
+    }
+
+    private int getAgentLogLevel() {
+        for(JCheckBoxMenuItem item : mnuAgentLogLevels) {
+            if ( item.isSelected() ) {
+                return AgentLogger.levelValue(item.getText());
+            }
+        }
+        mnuAgentLogInfo.setSelected(true);
+        return AgentLogger.INFO;
+    }
+
+    @Action
     public void changeJadPath() {
         
         String oldPath = JavaSnoop.getProperty(JavaSnoop.JAD_PATH);
@@ -2813,7 +2891,7 @@ public class JavaSnoopView extends FrameView {
                 
                 showSnoopMessage(getTimeStamp() + "Successfully loaded " + classesToLoad.size() + " classes" + nl);
 
-                if ( failedClasses.isEmpty() ) {
+                if ( ! failedClasses.isEmpty() ) {
                     StringBuilder sb = new StringBuilder();
                     sb.append("Failed to load the following classes: ");
                     sb.append(nl);

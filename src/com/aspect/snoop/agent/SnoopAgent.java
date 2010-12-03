@@ -27,8 +27,7 @@ public class SnoopAgent {
     private static AgentServerThread server = null;
 
     public static void premain(String args, Instrumentation inst) {
-        
-        System.out.println("Starting up JavaSnoop server... (args="+args+")");
+
         final String fArgs = args;
         final Instrumentation fInst = inst;
 
@@ -40,8 +39,6 @@ public class SnoopAgent {
     }
 
     public static void agentmain(String args, Instrumentation inst) {
-
-        System.out.println("Starting up JavaSnoop server... (args="+args+")");
 
         if ( server == null ) {
             final String fArgs = args;

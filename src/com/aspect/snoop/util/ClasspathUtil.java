@@ -60,7 +60,6 @@ public class ClasspathUtil {
         while (st.hasMoreTokens()) {
 
             String token = st.nextToken();
-            AgentLogger.debug("looking for " + clazz + " in " + token);
             
             File classpathElement = new File(token);
 
@@ -85,8 +84,6 @@ public class ClasspathUtil {
                 String[] jarFiles = classpathElement.list(new JarFilter());
 
                 for ( String file : jarFiles ) {
-
-                    AgentLogger.debug("Looking in jar file " + file);
                     
                     byte[] classBytes = null;
 

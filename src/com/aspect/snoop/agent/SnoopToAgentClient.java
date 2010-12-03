@@ -554,7 +554,7 @@ public class SnoopToAgentClient {
         }
     }
 
-    public void toggleDebug(boolean debug) throws AgentCommunicationException {
+    public void toggleDebug(int level) throws AgentCommunicationException {
 
         Socket socket = null;
 
@@ -566,9 +566,8 @@ public class SnoopToAgentClient {
             ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
 
             // Send our command
-
             ToggleDebugRequest request = new ToggleDebugRequest();
-            request.setDebug(debug);
+            request.setLevel(level);
             output.writeObject(request);
 
             ToggleDebugResponse response = (ToggleDebugResponse)input.readObject();
