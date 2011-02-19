@@ -1,3 +1,5 @@
+package com.aspect.snoop.util;
+
 /*
  * Copyright, Aspect Security, Inc.
  *
@@ -17,8 +19,9 @@
  * along with JavaSnoop.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.aspect.snoop.util;
 
+
+import com.aspect.snoop.agent.AgentLogger;
 import java.nio.channels.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -26,6 +29,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.NotFoundException;
 
 public class IOUtil {
 
@@ -97,5 +106,16 @@ public class IOUtil {
                 outChannel.close();
             }
         }
+    }
+
+    public static byte[] getClassBytes(Class clazz) {
+
+        try {
+            CtClass ct = ClassPool.getDefault().get(clazz.getName());
+            return ct.toBytecode();
+        } catch (Exception ex) {
+            AgentLogger.error(ex);
+        }
+        return null;
     }
 }

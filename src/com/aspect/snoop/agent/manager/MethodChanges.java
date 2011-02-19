@@ -19,11 +19,13 @@
 
 package com.aspect.snoop.agent.manager;
 
+import java.lang.reflect.AccessibleObject;
+
 public class MethodChanges {
     private LocalVariable[] newLocalVariables;
     private String newStartSrc;
     private String newEndSrc;
-    private UniqueMethod uniqueMethod;
+    private AccessibleObject method;
 
     public void initialize(LocalVariable[] newLocalVars, String newStartSrc, String newEndSrc) {
         this.newLocalVariables = newLocalVars;
@@ -31,8 +33,8 @@ public class MethodChanges {
         this.newEndSrc = newEndSrc;
     }
 
-    public MethodChanges(UniqueMethod method) {
-        this.uniqueMethod = method;
+    public MethodChanges(AccessibleObject method) {
+        this.method = method;
         this.newLocalVariables = new LocalVariable[0];
         this.newStartSrc = "";
         this.newEndSrc = "";
@@ -99,8 +101,8 @@ public class MethodChanges {
         this.newLocalVariables = lvs;
     }
 
-    public UniqueMethod getUniqueMethod() {
-        return uniqueMethod;
+    public AccessibleObject getMethod() {
+        return method;
     }
 
     

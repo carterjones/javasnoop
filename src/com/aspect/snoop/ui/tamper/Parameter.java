@@ -22,9 +22,9 @@ package com.aspect.snoop.ui.tamper;
 public class Parameter {
     private int index;
     private Object object;
-    private String type;
+    private Class type;
 
-    public Parameter(int index, Object object, String type) {
+    public Parameter(int index, Object object, Class type) {
         this.index = index;
         this.object = object;
         this.type = type;
@@ -34,7 +34,7 @@ public class Parameter {
         this(index,object,null);
     }
 
-    public String getType() {
+    public Class getType() {
         return type;
     }
 

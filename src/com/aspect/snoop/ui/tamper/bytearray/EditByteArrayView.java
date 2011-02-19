@@ -368,7 +368,7 @@ public class EditByteArrayView extends javax.swing.JDialog {
     @Action
     public void editBytesAsString() {
 
-        EditStringView view = new EditStringView(JavaSnoop.getMainForm().getFrame(), true, "");
+        EditStringView view = new EditStringView(this, true, "");
         view.setVisible(true);
         
         UIUtil.waitForInput(view);
@@ -383,7 +383,7 @@ public class EditByteArrayView extends javax.swing.JDialog {
 
         String s = new String(bytes);
 
-        EditStringView view = new EditStringView(JavaSnoop.getMainForm().getFrame(), true, s);
+        EditStringView view = new EditStringView(this, true, s);
         view.setVisible(true);
         
         UIUtil.waitForInput(view);

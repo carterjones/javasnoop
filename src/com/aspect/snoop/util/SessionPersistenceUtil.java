@@ -21,8 +21,8 @@ package com.aspect.snoop.util;
 
 import com.aspect.snoop.Condition;
 import com.aspect.snoop.FunctionHook;
-import com.aspect.snoop.MethodInterceptor;
 import com.aspect.snoop.SnoopSession;
+import com.aspect.snoop.agent.SnoopAgent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -71,7 +71,7 @@ public class SessionPersistenceUtil {
             Element hookRoot = new Element("hook");
 
             hookRoot.addAttribute ( new Attribute("enabled", Boolean.toString(hook.isEnabled()) ));
-            hookRoot.addAttribute ( new Attribute("class", hook.getClassName() ));
+            hookRoot.addAttribute ( new Attribute("class", hook.getClazz().getName()) );
             hookRoot.addAttribute ( new Attribute("method", hook.getMethodName() ));
 
             hookRoot.addAttribute ( new Attribute("shouldInherit", Boolean.toString(hook.isAppliedToSubtypes())));
@@ -79,7 +79,7 @@ public class SessionPersistenceUtil {
             String allParamTypes = StringUtil.join(hook.getParameterTypes(), ",");
 
             hookRoot.addAttribute ( new Attribute("params", allParamTypes ) );
-            hookRoot.addAttribute ( new Attribute("returnType", hook.getReturnType()));
+            hookRoot.addAttribute ( new Attribute("returnType", hook.getReturnType().getName()));
             
             hookRoot.addAttribute ( new Attribute("shouldTamperParameters", Boolean.toString(hook.shouldTamperParameters())));
             hookRoot.addAttribute ( new Attribute("shouldTamperReturnValue", Boolean.toString(hook.shouldTamperReturnValue())));
@@ -205,7 +205,7 @@ public class SessionPersistenceUtil {
 
             String interceptCondition = hookRoot.getAttributeValue("interceptCondition");
 
-            MethodInterceptor.Mode mode = MethodInterceptor.Mode.valueOf(interceptCondition);
+            FunctionHook.Mode mode = FunctionHook.Mode.valueOf(interceptCondition);
 
             boolean shouldTamperParameters = "true".equals(hookRoot.getAttributeValue("shouldTamperParameters"));
             boolean shouldTamperReturnValue = "true".equals(hookRoot.getAttributeValue("shouldTamperReturnValue"));
@@ -243,28 +243,46 @@ public class SessionPersistenceUtil {
                 conditions.add(c);
             }
 
-            FunctionHook hook = new FunctionHook(
-                    shouldTamperParameters,
-                    shouldTamperReturnValue,
-                    shouldRunScript,
-                    startScript,
-                    endScript,
-                    shouldPause,
-                    enabled,
-                    clazz,
-                    method,
-                    params.trim().length() == 0 ? new String[]{} : params.split(","),
-                    returnType,
-                    applyToSubTypes,
-                    mode,
-                    printParameters,
-                    printStackTrace,
-                    isOutputToConsole,
-                    isOutputToFile,
-                    outputFile,
-                    conditions);
+            try {
+                Class realClass = SnoopAgent.getAgentManager().getFromAllClasses(clazz);
+                Class realReturnClass = getClazzFor(returnType);
+                Class[] realParams = null;
+                if ( params.trim().length() == 0 ) {
+                    realParams = new Class[]{};
+                } else {
+                    String[] sParamType = params.split(",");
+                    realParams = new Class[sParamType.length];
+                    for(int j=0;j<realParams.length;j++) {
+                        realParams[j] = getClazzFor(sParamType[j]);
+                    }
 
-             hooks.add(hook);
+                }
+
+                FunctionHook hook = new FunctionHook(
+                        shouldTamperParameters,
+                        shouldTamperReturnValue,
+                        shouldRunScript,
+                        startScript,
+                        endScript,
+                        shouldPause,
+                        enabled,
+                        realClass,
+                        method,
+                        realParams,
+                        realReturnClass,
+                        applyToSubTypes,
+                        mode,
+                        printParameters,
+                        printStackTrace,
+                        isOutputToConsole,
+                        isOutputToFile,
+                        outputFile,
+                        conditions);
+
+                 hooks.add(hook);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
         }
 
         session.setFunctionHooks(hooks);
@@ -273,6 +291,30 @@ public class SessionPersistenceUtil {
 
         return session;
         
+    }
+
+    private static Class getClazzFor(String type) throws ClassNotFoundException {
+        if ( "boolean".equals(type) ) {
+            return boolean.class;
+        } else if ( "byte".equals(type) ) {
+            return byte.class;
+        } else if ( "char".equals(type) ) {
+            return char.class;
+        } else if ( "short".equals(type) ) {
+            return short.class;
+        } else if ( "int".equals(type) ) {
+            return int.class;
+        } else if ( "long".equals(type) ) {
+            return long.class;
+        } else if ( "double".equals(type) ) {
+            return double.class;
+        } else if ( "float".equals(type) ) {
+            return float.class;
+        } else if ( "void".equals(type) ) {
+            return void.class;
+        }
+        
+        return SnoopAgent.getAgentManager().getFromAllClasses(type);
     }
 
 }

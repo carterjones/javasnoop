@@ -20,10 +20,12 @@
 package com.aspect.snoop.ui.tamper;
 
 import com.aspect.snoop.SnoopSession;
+import com.aspect.snoop.agent.AgentLogger;
 import com.aspect.snoop.util.IOUtil;
 import com.aspect.snoop.util.ReflectionUtil;
 import com.aspect.snoop.util.UIUtil;
 import com.thoughtworks.xstream.XStream;
+
 import java.io.File;
 
 import java.io.FileOutputStream;
@@ -33,12 +35,9 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
-import org.apache.log4j.Logger;
 import org.jdesktop.application.Action;
 
 public class EditObjectView extends javax.swing.JDialog {
-
-    private static Logger logger = Logger.getLogger(EditObjectView.class);
 
     private Object toEdit;
 
@@ -238,7 +237,7 @@ public class EditObjectView extends javax.swing.JDialog {
 
             } catch (IOException ioe) {
                 UIUtil.showErrorMessage(this, "Error deserializing object: " + ioe.getMessage());
-                logger.error("Error deserializing object: " + ioe.getMessage(),ioe);
+                AgentLogger.error("Error deserializing object: " + ioe.getMessage(),ioe);
             }
         }
     }
@@ -297,7 +296,7 @@ public class EditObjectView extends javax.swing.JDialog {
 
             } catch (IOException ioe) {
                 UIUtil.showErrorMessage(this, "Error serializing object: " + ioe.getMessage());
-                logger.error("Error serializing object: " + ioe.getMessage(),ioe);
+                AgentLogger.error("Error serializing object: " + ioe.getMessage(),ioe);
             }
         }
     }

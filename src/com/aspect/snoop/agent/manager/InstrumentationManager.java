@@ -20,15 +20,16 @@
 package com.aspect.snoop.agent.manager;
 
 import com.aspect.snoop.agent.AgentLogger;
-import com.aspect.snoop.agent.classpath.manager.SmartURLClassPath;
+import com.aspect.snoop.util.ReflectionUtil;
 import java.io.IOException;
 import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.security.CodeSource;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import javassist.CannotCompileException;
@@ -52,10 +53,10 @@ public class InstrumentationManager {
     HashMap<URL, SmartURLClassPath> urlSources;
 
     public List<String> getLoadedClassesAsStrings() {
-        
+       
         List<String> classes = new ArrayList<String>();
         for ( Class c  : inst.getAllLoadedClasses() ) {
-            if ( ! c.isArray() ) {
+            if ( ! c.isArray() && ! c.isPrimitive() && ! c.isSynthetic() ) {
                 classes.add( c.getName() );
             }
         }
@@ -64,24 +65,25 @@ public class InstrumentationManager {
     }
 
     public List<Class> getLoadedClasses() {
-
         List<Class> classes = new ArrayList<Class>();
-        classes.addAll(Arrays.asList(inst.getAllLoadedClasses()));
+        for ( Class c  : inst.getAllLoadedClasses() ) {
+            if ( ! c.isArray() && ! c.isPrimitive() && ! c.isSynthetic() ) {
+                classes.add( c );
+            }
+        }
         return classes;
     }
 
     public InstrumentationManager(Instrumentation inst) {
-
         this.inst = inst;
-        this.modifiedClasses  = new HashMap<Integer,ClassHistory>();
+        this.modifiedClasses = new HashMap<Integer,ClassHistory>();
         this.classloaders = new ArrayList<ClassLoader>();
         this.urlSources = new HashMap<URL, SmartURLClassPath>();
-        
+
         updateClassPool();
-        
     }
 
-    public void updateClassPool() {
+    public final void updateClassPool() {
 
         ClassPool classPool = ClassPool.getDefault();
 
@@ -158,13 +160,9 @@ public class InstrumentationManager {
 
     }
 
-    public void instrument(
-            Class clazz,
-            MethodChanges[] methodChanges
-            ) throws InstrumentationException {
+    public void instrument(Class clazz,MethodChanges[] methodChanges) throws InstrumentationException {
 
         // step #1: get original class
-
         try {
      
             ClassPool classPool = ClassPool.getDefault();
@@ -177,23 +175,24 @@ public class InstrumentationManager {
             byte[] lastVersionByteCode = null;
             
             if ( ch != null ) {
+
                 // we've instrumented this class before. we've got to
                 // be tricky here.
                 originalByteCode = ch.getOriginalClass();
-                //System.out.println("Restoring saved bytes for " + clazz.getName() + " (" + md5(originalByteCode) + ")");
+                AgentLogger.trace("Restoring saved bytes for " + clazz.getName() + " (" + md5(originalByteCode) + ")");
                 
                 ClassPool cp = new ClassPool(classPool);
                 cp.childFirstLookup = true;
                 cp.insertClassPath(new ByteArrayClassPath(clazz.getName(),originalByteCode));
                 cls = cp.get(clazz.getName());
                 cp.childFirstLookup = false;
-                //System.out.println("Retrieved bytes after save: " + md5(cls.toBytecode()));
+                AgentLogger.trace("Retrieved bytes after save: " + md5(cls.toBytecode()));
 
                 lastVersionByteCode = ch.getCurrentClass();
                 
             } else {
                 originalByteCode = cls.toBytecode();
-                //System.out.println("New class " + clazz.getName() + " (" + md5(originalByteCode) + ")");
+                AgentLogger.trace("Instrumenting new class " + clazz.getName() + " (" + md5(originalByteCode) + ")");
                 lastVersionByteCode = originalByteCode;
             }
 
@@ -201,21 +200,25 @@ public class InstrumentationManager {
             cls.defrost();
 
             for ( MethodChanges change : methodChanges ) {
-                UniqueMethod methodToChange = change.getUniqueMethod();
+                AccessibleObject methodToChange = change.getMethod();
 
                 // get the parameters in order so we can get the method to instrument
-                String[] parameterTypes = methodToChange.getParameterTypes();
+                Class[] parameterTypes = ReflectionUtil.getParameterTypes(methodToChange);
 
                 CtClass[] classes = new CtClass[parameterTypes.length];
 
                 //System.out.println(clazz.getName() + ": " + change.getUniqueMethod().getName() + "(" + parameterTypes.length);
                 
-                for(int i=0;i<parameterTypes.length;i++) {
-                    classes[i] = classPool.get(parameterTypes[i]);
-                }
+                for(int i=0;i<parameterTypes.length;i++) 
+                    classes[i] = classPool.get(parameterTypes[i].getName());
 
                 // get the method to instrument
-                String methodName = methodToChange.getName();
+                String methodName = null;
+                if ( methodToChange instanceof Method )
+                    methodName = ((Method)methodToChange).getName();
+                else
+                    methodName = "<init>";
+
                 CtBehavior method = null;
 
                 if ( "<init>".equals(methodName)) {

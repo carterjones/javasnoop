@@ -19,30 +19,26 @@
 
 package com.aspect.snoop.ui;
 
-import com.aspect.snoop.agent.AgentCommunicationException;
-import com.aspect.snoop.agent.SnoopToAgentClient;
-import com.aspect.snoop.messages.agent.ExecuteScriptResponse;
+import com.aspect.snoop.agent.AgentLogger;
+import com.aspect.snoop.util.StringUtil;
 import com.aspect.snoop.util.UIUtil;
 import java.awt.Color;
 import java.awt.Font;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-import org.apache.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.jdesktop.application.Action;
 
-/**
- *
- * @author adabirsiaghi
- */
 public class ScriptingView extends javax.swing.JDialog {
-
-    private static final Logger logger = Logger.getLogger(ScriptingView.class);
 
     private static final String nl = System.getProperty("line.separator");
 
@@ -50,12 +46,13 @@ public class ScriptingView extends javax.swing.JDialog {
 
     private StyledDocument console;
 
-    SnoopToAgentClient client;
+    // we have to cast these at the latest opportunity possible
+    private Object jython;
+    private Object bsh;
 
-    public ScriptingView(java.awt.Frame parent, boolean modal, SnoopToAgentClient client) {
+    public ScriptingView(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
 
-        this.client = client;
         console = new DefaultStyledDocument();
 
         initComponents();
@@ -183,7 +180,7 @@ public class ScriptingView extends javax.swing.JDialog {
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ScriptingView dialog = new ScriptingView(new javax.swing.JFrame(), true, null);
+                ScriptingView dialog = new ScriptingView(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     public void windowClosing(java.awt.event.WindowEvent e) {
                         System.exit(0);
@@ -205,7 +202,7 @@ public class ScriptingView extends javax.swing.JDialog {
             console.insertString(console.getLength(), prompt, attributes);
             txtConsole.setCaretPosition( console.getLength() );
         } catch (BadLocationException ex) {
-            logger.error(ex);
+            AgentLogger.error(ex);
         }
         
     }
@@ -218,10 +215,10 @@ public class ScriptingView extends javax.swing.JDialog {
         attributes.addAttribute(StyleConstants.CharacterConstants.Foreground, Color.red);
 
         try {
-            console.insertString(console.getLength(), message + nl, attributes);
+            console.insertString(console.getLength(), message, attributes);
             txtConsole.setCaretPosition( console.getLength() );
         } catch (BadLocationException ex) {
-            logger.error(ex);
+            AgentLogger.error(ex);
         }
     }
 
@@ -233,10 +230,10 @@ public class ScriptingView extends javax.swing.JDialog {
         attributes.addAttribute(StyleConstants.CharacterConstants.Foreground, Color.blue);
 
         try {
-            console.insertString(console.getLength(), s + nl, attributes);
+            console.insertString(console.getLength(), s, attributes);
             txtConsole.setCaretPosition( console.getLength() );
         } catch (BadLocationException ex) {
-            logger.error(ex);
+            AgentLogger.error(ex);
         }
     }
 
@@ -248,24 +245,60 @@ public class ScriptingView extends javax.swing.JDialog {
             String lang = (String) lstLanguage.getSelectedItem();
             String code = txtScript.getText();
 
-            ExecuteScriptResponse response = client.executeScript(lang, code);
-            
-            String output = response.getOutput();
-            String err = response.getErr();
+            if ( "Jython".equals(lang) ) {
+                StringWriter swOut = new StringWriter();
+                StringWriter swErr = new StringWriter();
 
-            if ( output != null && output.length() > 0 )
-                showOut(response.getOutput());
+                if ( jython == null || ! chkRememberState.isSelected() )
+                    jython = new org.python.util.PythonInterpreter();
 
-            if ( err != null && err.length() > 0 )
-                showErr(response.getErr());
+                ((org.python.util.PythonInterpreter)jython).setOut(swOut);
+                ((org.python.util.PythonInterpreter)jython).setErr(swErr);
+
+                try {
+                    ((org.python.util.PythonInterpreter)jython).exec(code);
+                    swOut.flush();
+                    swErr.flush();
+
+                    String out = swOut.toString();
+                    String err = swErr.toString();
+
+                    showOut(out);
+                    showErr(err);
+                    
+                } catch (Exception ex) {
+                    AgentLogger.error("Error evaluating expression: " + ex.getMessage());
+                    showErr(StringUtil.exception2string(ex));
+                }
+            } else if ( "BeanShell".equals(lang) ) {
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                PrintStream psOut = new PrintStream(baos);
+
+                if ( bsh == null || ! chkRememberState.isSelected() )
+                    bsh = new bsh.Interpreter(new StringReader(code),psOut,null,false);
+
+                try {
+                    ((bsh.Interpreter)bsh).eval(code);
+                } catch (Exception ex) {
+                    AgentLogger.error("Error evaluating expression: " + ex.getMessage());
+                    showErr(StringUtil.exception2string(ex));
+                    ex.printStackTrace();
+                } finally {
+                    psOut.flush();
+                    String out = baos.toString();
+                    showOut(out);
+                }
+            }
 
             showOut("");
+            showErr("");
 
             showPrompt();
 
-        } catch (AgentCommunicationException ex) {
+        } catch (Exception ex) {
             UIUtil.showErrorMessage(this, "Problem with script execution: " + ex.getMessage());
-           logger.error(ex);
+           AgentLogger.error(ex);
         }
     }
 

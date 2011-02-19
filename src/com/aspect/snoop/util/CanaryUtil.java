@@ -18,11 +18,13 @@
  */
 package com.aspect.snoop.util;
 
+import com.aspect.snoop.MethodWrapper;
 import com.aspect.snoop.agent.AgentLogger;
+import com.aspect.snoop.agent.SnoopAgent;
 import com.aspect.snoop.agent.manager.InstrumentationException;
 import com.aspect.snoop.agent.manager.InstrumentationManager;
 import com.aspect.snoop.agent.manager.MethodChanges;
-import com.aspect.snoop.agent.manager.UniqueMethod;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -30,168 +32,94 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CanaryUtil {
 
-    //private static Logger logger = Logger.getLogger(CanaryUtil.class);
+    public static String currentCanary = null;
+
     public static String getChirp(String canaryType, String className, String methodName, String returnType) {
 
         StringBuilder sb = new StringBuilder();
 
         String nl = System.getProperty("line.separator");
 
-        //sb.append("  javassist.runtime.Desc.useContextClassLoader = true;" + nl);
-
-        sb.append("  com.aspect.snoop.agent.AgentToSnoopClient.currentClient().canaryChirp(");
+        sb.append("  com.aspect.snoop.util.CanaryUtil.canaryChirp(");
         sb.append(canaryType);
-        sb.append(".class, \"");
+        sb.append(".class, ");
         sb.append(className);
-        sb.append("\", \"");
+        sb.append(".class, \"");
         sb.append(methodName);
-        sb.append("\", $sig, $args, \"");
-        sb.append(returnType);
-        sb.append("\");");
+        sb.append("\", $sig, $args);");
         sb.append(nl);
-        //sb.append("  javassist.runtime.Desc.useContextClassLoader = false;" + nl);
 
         return sb.toString();
     }
 
-    public static void applyCanaries(InstrumentationManager manager, String type, String canary, String pkg) throws InstrumentationException {
+    public static void canaryChirp(Class canaryType, Class clazz, String methodName, Class[] types, Object[] objects) {
 
-        String canaryType = null;
+        if ( ! canaryIsHeard(canaryType, types, objects)) {
+            return;
+        }
+        try {
+            SnoopAgent.getMainView().getCanaryView().addChirp(clazz, clazz.getDeclaredMethod(methodName, types));
+        } catch (Exception ex) {
+            AgentLogger.error("Problem receiving canary",ex);
+        }
+    }
 
-        if ("String".equals(type)) {
-            canaryType = "java.lang.String";
-        } else if ("short".equals(type)) {
-            canaryType = "java.lang.Short";
-        } else if ("int".equals(type)) {
-            canaryType = "java.lang.Integer";
-        } else if ("long".equals(type)) {
-            canaryType = "java.lang.Long";
-        } else if ("double".equals(type)) {
-            canaryType = "java.lang.Double";
-        } else if ("float".equals(type)) {
-            canaryType = "java.lang.Float";
+    private static boolean canaryIsHeard(Class canaryType, Class[] types, Object[] objects) {
+
+        if ( currentCanary == null ) {
+            System.err.println("Got canary message but canary is null");
+            return false;
         }
 
-        if (canary == null) {
-            throw new InstrumentationException("Can't apply canary to unknown type: " + type);
-        }
+        for(int i=0; i<types.length; i++) {
 
-        manager.resetAllClasses();
-
-        List<Class> loadedClasses = manager.getLoadedClasses();
-
-        AgentLogger.debug("Applying canaries to " + loadedClasses.size() + " classes...");
-        int clsCount = 0;
-        int mtdCount = 0;
-
-        for (Class c : loadedClasses) {
-
-            if (c == null || c.isInterface() || c.isArray()) {
+            if ( objects[i] == null )
                 continue;
-            }
 
-            String clsName = c.getName();
+            Class type = types[i];
 
-            if (pkg != null && pkg.length() > 0 && ! clsName.startsWith(pkg)) {
-                continue;
-            }
+            if ( canaryType.equals(type) ) {
 
-            // FIXME: run into errors here on applets. should work.
-            if (ClasspathUtil.isJavaOrSunClass(clsName) || ClasspathUtil.isJavaSnoopClass(clsName)) {
-                continue;
-            }
-
-            List<MethodChanges> classChanges = new ArrayList<MethodChanges>();
-
-            Method[] methods = null;
-
-            try {
-                methods = c.getDeclaredMethods();
-            } catch (Throwable t) {
-                // sometimes we'll get NoClassDefFoundErrors here if the
-                // methods refere to a class that hasn't been loaded by the
-                // target process (and therefore definitely not visible here
-                // in our world).
-                continue;
-            }
-
-            Constructor[] constructors = null;
-
-            try {
-                constructors = c.getDeclaredConstructors();
-            } catch (Throwable t) {
-                AgentLogger.trace("Failed to canary " + c.getName() + ": " + t.getMessage());
-            }
-
-            List<Member> members = new ArrayList<Member>();
-
-            if (methods != null) {
-                members.addAll(Arrays.asList(methods));
-            }
-
-            if (constructors != null) {
-                members.addAll(Arrays.asList(constructors));
-            }
-
-            for (Member m : members) {
-
-                if (Modifier.isAbstract(m.getModifiers())) {
-                    continue;
-                }
-
-                Class[] types = null;
-
-                if (m instanceof Constructor) {
-                    types = ((Constructor) m).getParameterTypes();
-                } else {
-                    types = ((Method) m).getParameterTypes();
-                }
-
-                for (Class paramType : types) {
-
-                    boolean match = paramType.getName().equals(canaryType);
-
-                    if (match) {
-
-                        try {
-
-                            UniqueMethod method = null;
-
-                            if (m instanceof Constructor) {
-                                method = new UniqueMethod((Constructor) m);
-                            } else {
-                                method = new UniqueMethod((Method) m);
-                            }
-
-                            MethodChanges change = new MethodChanges(method);
-
-                            change.setNewStartSrc(getChirp(canaryType, clsName, m.getName(),method.getReturnTypeName()));
-
-                            //System.out.println("Applying canary to " + method.toString());
-                            classChanges.add(change);
-                            mtdCount++;
-
-                        } catch (ClassNotFoundException ex) {
-                            AgentLogger.trace("Couldn't apply canary to " + c.getName() + "." + m.getName() + ": " + ex.getMessage());
-                        } catch (NoClassDefFoundError ex) {
-                            AgentLogger.trace("Couldn't apply canary to " + c.getName() + "." + m.getName() + ": " + ex.getMessage());
-                        }
+                if ( type.equals(String.class) ) {
+                    String value = (String)objects[i];
+                    if ( currentCanary.contains(value) ) {
+                        return true;
+                    }
+                } else if ( type.equals(Short.class) ) {
+                    Short value = (Short)objects[i];
+                    if ( Short.valueOf(currentCanary).equals(value)) {
+                        return true;
+                    }
+                } else if ( type.equals(Integer.class) ) {
+                    Integer value = (Integer)objects[i];
+                    if ( Integer.valueOf(currentCanary).equals(value)) {
+                        return true;
+                    }
+                } else if ( type.equals(Long.class) ) {
+                    Long value = (Long)objects[i];
+                    if ( Long.valueOf(currentCanary).equals(value)) {
+                        return true;
+                    }
+                } else if ( type.equals(Double.class) ) {
+                    Double value = (Double)objects[i];
+                    if ( Double.valueOf(currentCanary).equals(value)) {
+                        return true;
+                    }
+                } else if ( type.equals(Float.class) ) {
+                    Float value = (Float)objects[i];
+                    if ( Float.valueOf(currentCanary).equals(value)) {
+                        return true;
                     }
                 }
             }
-
-            try {
-                manager.instrument(c, classChanges.toArray(new MethodChanges[]{}));
-                clsCount++;
-            } catch (InstrumentationException ex) {
-                AgentLogger.trace("Failed to apply canary to " + clsName + ": " + ex.getMessage());
-            }
-
         }
 
-        AgentLogger.info("Successfully canaried " + clsCount + " classes and " + mtdCount + " methods.");
+        return false;
     }
+
 }

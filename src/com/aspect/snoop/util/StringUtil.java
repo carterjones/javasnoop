@@ -1,3 +1,5 @@
+package com.aspect.snoop.util;
+
 /*
  * Copyright, Aspect Security, Inc.
  *
@@ -17,21 +19,32 @@
  * along with JavaSnoop.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.aspect.snoop.util;
+
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 public class StringUtil {
 
-    public static String join(String[] parts, String seperator) {
+    public static String join(Object[] parts, String seperator) {
         String s = "";
-        for( String part : parts ) {
-            s += part + ",";
-        }
-        if (s.length()>0) {
+        for( Object part : parts )
+            s += String.valueOf(part) + seperator;
+        
+        if (s.length()>0) 
             s = s.substring(0,s.length()-1);
-        }
+        
+        return s;
+    }
+
+    public static String join(Class[] parts, String seperator) {
+        String s = "";
+        for( Class part : parts )
+            s += part.getName() + seperator;
+        
+        if (s.length()>0) 
+            s = s.substring(0,s.length()-1);
+        
         return s;
     }
 
@@ -45,5 +58,13 @@ public class StringUtil {
         e.printStackTrace(pw);
         pw.flush();
         return sw.toString();
+    }
+
+    public static boolean isIn(String needle, String[] haystack) {
+        for(String hay : haystack) {
+            if (hay.equals(needle))
+                return true;
+        }
+        return false;
     }
 }

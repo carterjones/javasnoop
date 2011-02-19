@@ -19,15 +19,16 @@
 
 package com.aspect.snoop.ui.hook;
 
-import com.aspect.snoop.agent.manager.UniqueMethod;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Method;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
 public class MethodTableModel extends DefaultTableModel {
 
-    List<UniqueMethod> methods;
+    List<AccessibleObject> methods;
 
-    public MethodTableModel(List<UniqueMethod> methods) {
+    public MethodTableModel(List<AccessibleObject> methods) {
         this.methods = methods;
     }
 
@@ -69,11 +70,11 @@ public class MethodTableModel extends DefaultTableModel {
     @Override
     public Object getValueAt(int row, int col) {
 
-        UniqueMethod m = methods.get(row);
+        Method m = (Method)methods.get(row);
 
         switch(col) {
             case 0:
-                return m.getReturnTypeName();
+                return m.getReturnType().getName();
             case 1:
                 return m;
         }

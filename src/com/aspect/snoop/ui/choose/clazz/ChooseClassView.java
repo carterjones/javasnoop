@@ -19,22 +19,26 @@
 
 package com.aspect.snoop.ui.choose.clazz;
 
-import com.aspect.snoop.JavaSnoop;
 import com.aspect.snoop.util.ClasspathUtil;
 import com.aspect.snoop.util.ReflectionUtil;
-import com.aspect.snoop.util.SnoopClassLoader;
+import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
+import javax.swing.JList;
 
 public class ChooseClassView extends javax.swing.JDialog {
 
-    List<String> allClasses;
-    List<String> filteredClasses;
+    List<Class> allClasses;
+    List<Class> filteredClasses;
+    Class selectedClass;
 
     private String className;
 
@@ -42,36 +46,42 @@ public class ChooseClassView extends javax.swing.JDialog {
         return className;
     }
 
-    public ChooseClassView(JDialog parent, List<String> classes) {
+    public ChooseClassView(JDialog parent, List<Class> classes) {
         super(parent, true);
         initComponents();
         customInit(classes);
     }
 
-    public ChooseClassView(java.awt.Frame parent, List<String> classes, boolean showMainsByDefault) {
+    public ChooseClassView(java.awt.Frame parent, List<Class> classes, boolean showMainsByDefault) {
         super(parent, true);
         initComponents();
         chkOnlyMains.setSelected(showMainsByDefault);
         customInit(classes);
     }
 
-    public ChooseClassView(java.awt.Frame parent, List<String> classes) {
+    public ChooseClassView(java.awt.Frame parent, List<Class> classes) {
         this(parent,classes,false);
     }
 
-    private void customInit(List<String> classes) {
+    private void customInit(List<Class> classes) {
 
-        Collections.sort(classes);
+        setTitle("Choose class - " + classes.size() + " classes loaded");
+
+        Comparator c = new ClassComparator();
+        Collections.sort(classes, c);
 
         this.allClasses = classes;
         this.filteredClasses = classes;
+
+        lstClasses.setCellRenderer(new ClassListCellRenderer());
 
         lstClasses.addMouseListener(
                 new MouseListener() {
 
             public void mouseClicked(MouseEvent e) {
 
-                txtClass.setText( (String)lstClasses.getSelectedValue() );
+                selectedClass = (Class)lstClasses.getSelectedValue();
+                txtClass.setText( selectedClass.getName() );
 
                 if ( e.getClickCount() == 2 ) {
                     // user double clicked an item selection
@@ -103,9 +113,9 @@ public class ChooseClassView extends javax.swing.JDialog {
 
         String lowered = substring.toLowerCase();
 
-        for( String clazz : filteredClasses ) {
+        for( Class clazz : filteredClasses ) {
 
-            if ( clazz.toLowerCase().contains(lowered)) {
+            if ( clazz.getName().toLowerCase().contains(lowered)) {
                 list.addElement(clazz);
             }
             
@@ -117,7 +127,7 @@ public class ChooseClassView extends javax.swing.JDialog {
     private void listAllClasses() {
         DefaultListModel list = new DefaultListModel();
 
-        for( String clazz : allClasses ) {
+        for( Class clazz : allClasses ) {
             list.addElement(clazz);
         }
 
@@ -324,12 +334,13 @@ public class ChooseClassView extends javax.swing.JDialog {
 
     private void filterClasses() {
 
-        filteredClasses = new ArrayList<String>();
-        SnoopClassLoader loader = JavaSnoop.getClassLoader();
+        filteredClasses = new ArrayList<Class>();
 
         DefaultListModel list = new DefaultListModel();
 
-        for ( String cls : allClasses ) {
+        for ( Class clazz : allClasses ) {
+
+            String cls = clazz.getName();
 
             boolean shouldShow = true;
             boolean isJavaOrSunClass = ClasspathUtil.isJavaOrSunClass(cls);
@@ -343,43 +354,14 @@ public class ChooseClassView extends javax.swing.JDialog {
             }
 
             if ( shouldShow && ! isJavaOrSunClass && chkOnlyMains.isSelected() ) {
-
-                Class c = null;
-
-                // we can't load every class for analysis - there will
-                // be plenty of UnsatisfiedLinkErrors and NoClassDefFoundErrors
-                // and everything else that goes with trying to use reflection
-                // on previously unloaded classes with static blocks.
-
-                // whatever doesn't fail is good enough.
-
-                try {
-                    
-                    c = Class.forName(cls, true, loader);
-                    if ( ! ReflectionUtil.hasMainClass(c) ) {
-                        shouldShow = false;
-                    }
-                    
-                } catch (ClassNotFoundException e1) {
-                    shouldShow = false;
-                } catch (NoClassDefFoundError e1) {
-                    shouldShow = false;
-                } catch (UnsatisfiedLinkError e1) {
-                    shouldShow = false;
-                } catch (ExceptionInInitializerError e1) {
-                    shouldShow = false;
-                } catch (Exception e1) {
-                    // most of these exceptions/errors indicate the class's
-                    // static initializer threw some exception.
-                    // stupid, but we have to account for it. assume false.
+                if ( ! ReflectionUtil.hasMainClass(clazz) ) {
                     shouldShow = false;
                 }
-
             }
 
             if ( shouldShow ) {
-                filteredClasses.add(cls);
-                list.addElement(cls);
+                filteredClasses.add(clazz);
+                list.addElement(clazz);
             }
 
         }
@@ -388,4 +370,38 @@ public class ChooseClassView extends javax.swing.JDialog {
 
     }
 
+    public Class getChosenClass() {
+        return selectedClass;
+    }
+
+    class ClassListCellRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(
+            JList list,
+            Object value,   // value to display
+            int index,      // cell index
+            boolean iss,    // is the cell selected
+            boolean chf)    // the list and the cell have the focus
+        {
+                /* The DefaultListCellRenderer class will take care of
+             * the JLabels text property, it's foreground and background
+             * colors, and so on.
+             */
+            super.getListCellRendererComponent(list, value, index, iss, chf);
+
+            /*
+             * We additionally set the JLabels icon property here.
+             */
+             Class c = (Class)value;
+             String name = c.getName();
+
+             if (c.isInterface()) {
+                 name += " (interface)";
+             } else if (Modifier.isAbstract(c.getModifiers())) {
+                 name += " (abstract)";
+             }
+
+            return super.getListCellRendererComponent(list,name,index,iss,chf);
+        }
+    }
 }

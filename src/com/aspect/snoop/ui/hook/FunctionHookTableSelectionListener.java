@@ -21,7 +21,7 @@ package com.aspect.snoop.ui.hook;
 
 import com.aspect.snoop.Condition;
 import com.aspect.snoop.FunctionHook;
-import com.aspect.snoop.MethodInterceptor.Mode;
+import com.aspect.snoop.FunctionHook.Mode;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
@@ -165,8 +165,8 @@ public class FunctionHookTableSelectionListener implements ListSelectionListener
                 }
 
                 chkTamperReturnValue.setSelected(hook.shouldTamperReturnValue());
-
-                if ( hook.getReturnType().equalsIgnoreCase("void") ) {
+                
+                if ( hook.getReturnType().getName().equals("void") ) {
                     chkTamperReturnValue.setEnabled(false);
                 }
 

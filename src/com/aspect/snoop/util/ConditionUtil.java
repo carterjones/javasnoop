@@ -69,7 +69,7 @@ public class ConditionUtil {
             }
 
             if ( isLessThan ) {
-                return theValue.compareTo(theCondition) > 0;
+                return theValue.compareTo(theCondition) < 0;
             }
         }
 
@@ -93,7 +93,7 @@ public class ConditionUtil {
         }
 
         if ( isLessThan ) {
-            return theValue.compareTo(theCondition) > 0;
+            return theValue.compareTo(theCondition) < 0;
         }
 
         return false;
@@ -116,7 +116,7 @@ public class ConditionUtil {
         }
 
         if ( isLessThan ) {
-            return theValue.compareTo(theCondition) > 0;
+            return theValue.compareTo(theCondition) < 0;
         }
 
         return false;
@@ -139,7 +139,7 @@ public class ConditionUtil {
         }
 
         if ( isLessThan ) {
-            return theValue.compareTo(theCondition) > 0;
+            return theValue.compareTo(theCondition) < 0;
         }
 
         return false;
@@ -163,7 +163,7 @@ public class ConditionUtil {
         }
 
         if ( isLessThan ) {
-            return theValue.compareTo(theCondition) > 0;
+            return theValue.compareTo(theCondition) < 0;
         }
 
         return false;
@@ -187,7 +187,7 @@ public class ConditionUtil {
         }
 
         if ( isLessThan ) {
-            return theValue.compareTo(theCondition) > 0;
+            return theValue.compareTo(theCondition) < 0;
         }
 
         return false;
@@ -211,7 +211,7 @@ public class ConditionUtil {
         }
 
         if ( isLessThan ) {
-            return theValue.compareTo(theCondition) > 0;
+            return theValue.compareTo(theCondition) < 0;
         }
 
         return false;

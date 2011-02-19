@@ -19,37 +19,81 @@
 
 package com.aspect.snoop.agent;
 
+import com.aspect.snoop.agent.manager.InstrumentationManager;
+import com.aspect.snoop.ui.JavaSnoopView;
+import java.io.File;
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.util.Properties;
+import java.util.jar.JarFile;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 public class SnoopAgent {
 
-    private static AgentServerThread server = null;
+    private static Instrumentation inst;
+    private static InstrumentationManager manager;
 
-    public static void premain(String args, Instrumentation inst) {
+    private static final String AGENT_VIEW_THREAD_NAME = "JavaSnoop GUI";
 
-        final String fArgs = args;
-        final Instrumentation fInst = inst;
-
-        turnOffSecurity();
-
-        server = new AgentServerThread(fInst, fArgs);
-        server.setDaemon(true);
-        server.start();
+    private static JavaSnoopView mainView;
+    
+    public static JavaSnoopView getMainView() {
+        return mainView;
     }
 
-    public static void agentmain(String args, Instrumentation inst) {
+    public static void premain(String args, Instrumentation instrumentation) {
+        install(args,instrumentation);
+    }
 
-        if ( server == null ) {
-            final String fArgs = args;
-            final Instrumentation fInst = inst;
+    public static void agentmain(String args, Instrumentation instrumentation) {
+        turnOffSecurity();
+        install(args,instrumentation);
+    }
 
-            turnOffSecurity();
+    public static void install(String args, Instrumentation instrumentation) {
+        inst = instrumentation;
+        manager = new InstrumentationManager(inst);
+        turnOffSecurity();
 
-            server = new AgentServerThread(fInst, fArgs);
-            server.setDaemon(true);
-            server.start();
+        /*
+         * We need to add some of the libraries to be eventually
+         * loaded by the system class loader instead of the
+         * boostrap class loader, which is represented as null in
+         * Java land. This causes problems.
+         */
+        String javaSnoopDir = args;
+        String libDir = new File(javaSnoopDir).getAbsolutePath() + File.separator + "lib" + File.separator;
+
+        try {
+            inst.appendToSystemClassLoaderSearch(new JarFile(libDir + "rsyntaxtextarea.jar"));
+            inst.appendToSystemClassLoaderSearch(new JarFile(libDir + "swing-worker-1.1.jar"));
+            inst.appendToSystemClassLoaderSearch(new JarFile(libDir + "appframework-1.0.3.jar"));
+            inst.appendToSystemClassLoaderSearch(new JarFile(libDir + "bsh-2.0b4.jar"));
+            inst.appendToSystemClassLoaderSearch(new JarFile(libDir + "jython.jar"));
+            inst.appendToSystemClassLoaderSearch(new JarFile(libDir + "xom-1.1.jar"));
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
+
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                        if ("Nimbus".equals(info.getName())) {
+                            UIManager.setLookAndFeel(info.getClassName());
+                            break;
+                        }
+                    }
+                } catch (Throwable t){}
+                JFrame.setDefaultLookAndFeelDecorated(true);
+                JavaSnoopView view = new JavaSnoopView(manager);
+                mainView = view;
+                view.setVisible(true);
+            }
+        });
     }
 
     private static void turnOffSecurity() {
@@ -85,5 +129,13 @@ public class SnoopAgent {
          * Should be the final nail in (your) coffin.
          */
         System.setSecurityManager(null);
+    }
+
+    public static Instrumentation getInstrumentation() {
+        return inst;
+    }
+
+    public static InstrumentationManager getAgentManager() {
+        return manager;
     }
 }

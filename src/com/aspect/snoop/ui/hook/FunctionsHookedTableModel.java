@@ -19,17 +19,13 @@
 
 package com.aspect.snoop.ui.hook;
 
-import com.aspect.snoop.JavaSnoop;
 import com.aspect.snoop.FunctionHook;
 import com.aspect.snoop.util.ReflectionUtil;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
-import org.apache.log4j.Logger;
 
 public class FunctionsHookedTableModel extends AbstractTableModel {
-
-    private static Logger logger = Logger.getLogger(FunctionsHookedTableModel.class);
 
     private static String[] columnNames = {
         "Enabled",
@@ -81,18 +77,11 @@ public class FunctionsHookedTableModel extends AbstractTableModel {
             return true;
         } else if ( columnIndex == 2 ) {
             FunctionHook hook = getHookFromRow(rowIndex);
-            Class c;
-            try {
-                c = Class.forName(hook.getClassName(), true, JavaSnoop.getClassLoader());
-                if ( ReflectionUtil.isInterfaceOrAbstract(c) ) {
-                    return false;
-                } else {
-                    return true;
-                }
-            } catch (ClassNotFoundException ex) {
-                logger.error("Couldn't find class during table row editing: " + ex);
+            if ( ReflectionUtil.isInterfaceOrAbstract(hook.getClazz()) ) {
+                return false;
+            } else {
+                return true;
             }
-
         }
         return false;
     }
@@ -116,19 +105,14 @@ public class FunctionsHookedTableModel extends AbstractTableModel {
                 return hook.isEnabled();
 
             case 1:
-                String methodSignature = " " + hook.getClassName();
+                String methodSignature = " " + hook.getClazz().getName();
                 methodSignature += "." + hook.getMethodName() + "(";
 
-                for(String param : hook.getParameterTypes()) {
-                    
-                    String tmp = ReflectionUtil.getSimpleClassName(param);
-                    
-                    methodSignature += tmp + ", ";
-                }
+                for(Class param : hook.getParameterTypes())
+                    methodSignature += param.getSimpleName() + ", ";
 
-                if ( hook.getParameterTypes().length > 0 ) {
+                if ( hook.getParameterTypes().length > 0 )
                     methodSignature = methodSignature.substring(0,methodSignature.length()-2);
-                }
 
                 methodSignature += ")";
                 return methodSignature;
@@ -152,7 +136,7 @@ public class FunctionsHookedTableModel extends AbstractTableModel {
         
         if ( columnIndex == 0 ) {
             hook.setEnabled(((Boolean)aValue).booleanValue());
-            JavaSnoop.getMainForm().sendAgentNewRules();
+            //JavaSnoop.getMainForm().sendAgentNewRules();
 
         } else if ( columnIndex == 2 ) {
             hook.setApplyToSubtypes(((Boolean)aValue).booleanValue());
@@ -164,7 +148,7 @@ public class FunctionsHookedTableModel extends AbstractTableModel {
             FunctionHook hook = hooks.get(i);
             hook.setEnabled(false);
         }
-        JavaSnoop.getMainForm().sendAgentNewRules();
+        //JavaSnoop.getMainForm().sendAgentNewRules();
     }
 
     public void enableAll() {
@@ -172,7 +156,7 @@ public class FunctionsHookedTableModel extends AbstractTableModel {
             FunctionHook hook = hooks.get(i);
             hook.setEnabled(true);
         }
-        JavaSnoop.getMainForm().sendAgentNewRules();
+        //JavaSnoop.getMainForm().sendAgentNewRules();
     }
 
     public void removeHook(FunctionHook hook) {

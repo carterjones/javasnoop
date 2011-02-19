@@ -21,6 +21,7 @@ package com.aspect.snoop.agent;
 
 import com.aspect.snoop.util.IOUtil;
 import com.aspect.snoop.util.RandomUtil;
+import com.aspect.snoop.util.StringUtil;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -44,7 +45,10 @@ public class AgentJarCreator {
 
     private static final String[] jarsToNotBootClasspath = {
       "bsh-2.0b4.jar",
-      "jython.jar"
+      "jython.jar",
+      "appframework-1.0.3.jar",
+      "swing-worker-1.1.jar",
+      "xom-1.1.jar"
     };
 
     private static Logger logger = Logger.getLogger(AgentJarCreator.class);
@@ -84,7 +88,7 @@ public class AgentJarCreator {
 
         // step #1: create a Manifest that uses the Agent
 
-        StringBuffer sbuf = new StringBuffer();
+        StringBuilder sbuf = new StringBuilder();
 
         sbuf.append("Manifest-Version: 1.0" + nl);
 
@@ -256,7 +260,6 @@ public class AgentJarCreator {
                 Attributes attrs = m.getMainAttributes();
                 String cp = attrs.getValue("Class-Path");
                 cp = cp.replaceAll("lib/","../lib/");
-                //System.out.println("Classpath: " + cp);
 
                 String[] entries = cp.split("\\s");
                 StringBuilder cpBuff = new StringBuilder();
@@ -295,14 +298,13 @@ public class AgentJarCreator {
 
                 String dir = entry.substring(0, entry.indexOf("javassist.jar"));
                 File[] jars = new File(dir).listFiles( new FilenameFilter() {
-
                     public boolean accept(File dir, String name) {
-                        return name.endsWith(".jar");
+                        return name.endsWith(".jar") && ! StringUtil.isIn(name,jarsToNotBootClasspath);
                     }
 
                 });
 
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 for (int i=0;i<jars.length;i++) {
                     File jar = jars[i];
                     sb.append( jar.getAbsolutePath().replaceAll("\\\\", "/") );
