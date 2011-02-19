@@ -25,7 +25,6 @@ import com.aspect.snoop.agent.SnoopAgent;
 import com.aspect.snoop.agent.manager.InstrumentationException;
 import com.aspect.snoop.agent.manager.InstrumentationManager;
 import com.aspect.snoop.agent.manager.MethodChanges;
-import com.aspect.snoop.agent.manager.SessionManager;
 import com.aspect.snoop.util.CanaryUtil;
 import com.aspect.snoop.util.ClasspathUtil;
 import com.aspect.snoop.util.StringUtil;
@@ -69,7 +68,6 @@ public class StartCanaryModeView extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        lblDescription = new javax.swing.JLabel();
         btnStartCanaryMode = new javax.swing.JButton();
         txtCanary = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -81,14 +79,12 @@ public class StartCanaryModeView extends javax.swing.JDialog {
         jLabel3 = new javax.swing.JLabel();
         prgCanary = new javax.swing.JProgressBar();
         chkIncludeJava = new javax.swing.JCheckBox();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getResourceMap(StartCanaryModeView.class);
         setTitle(resourceMap.getString("Form.title")); // NOI18N
         setName("Form"); // NOI18N
-
-        lblDescription.setText(resourceMap.getString("lblDescription.text")); // NOI18N
-        lblDescription.setName("lblDescription"); // NOI18N
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getActionMap(StartCanaryModeView.class, this);
         btnStartCanaryMode.setAction(actionMap.get("beginCanaryMode")); // NOI18N
@@ -138,6 +134,9 @@ public class StartCanaryModeView extends javax.swing.JDialog {
         chkIncludeJava.setText(resourceMap.getString("chkIncludeJava.text")); // NOI18N
         chkIncludeJava.setName("chkIncludeJava"); // NOI18N
 
+        jLabel1.setText(resourceMap.getString("jLabel1.text")); // NOI18N
+        jLabel1.setName("jLabel1"); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -153,27 +152,28 @@ public class StartCanaryModeView extends javax.swing.JDialog {
                         .addComponent(chkIncludeJava))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 625, Short.MAX_VALUE)
                     .addComponent(prgCanary, javax.swing.GroupLayout.DEFAULT_SIZE, 625, Short.MAX_VALUE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(lblDescription, javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(txtCanary)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel2)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(lstDataTypes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(btnStartCanaryMode, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(btnStopCanaryMode))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(txtCanary)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(lstDataTypes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnStartCanaryMode, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnStopCanaryMode)))
                 .addContainerGap())
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 625, Short.MAX_VALUE)
+                    .addContainerGap()))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblDescription, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
+                .addContainerGap(208, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(txtCanary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -181,8 +181,9 @@ public class StartCanaryModeView extends javax.swing.JDialog {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2)
                             .addComponent(lstDataTypes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(btnStopCanaryMode, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnStartCanaryMode, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnStartCanaryMode, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnStopCanaryMode, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtPackage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -193,6 +194,11 @@ public class StartCanaryModeView extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(294, Short.MAX_VALUE)))
         );
 
         pack();
@@ -374,12 +380,12 @@ public class StartCanaryModeView extends javax.swing.JDialog {
                         } catch (InstrumentationException ex) {
                             AgentLogger.debug("Failed to apply canary to " + clsName + ": " + ex.getMessage());
                         }
-
                     }
+
+                    prgCanary.setValue(prgCanary.getMaximum());
 
                     finalMsg = "Successfully canaried " + clsCount + " classes and " + mtdCount + " methods.";
                     AgentLogger.info(finalMsg);
-
 
                     return null;
                 }
@@ -404,7 +410,11 @@ public class StartCanaryModeView extends javax.swing.JDialog {
 
         if ( canaryWorker != null ) {
             canaryWorker.cancel(true);
-            canaryWorker = null;
+            while(!canaryWorker.isDone()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) { }
+            }
         }
 
         txtCanary.setEnabled(true);
@@ -426,10 +436,10 @@ public class StartCanaryModeView extends javax.swing.JDialog {
     private javax.swing.JButton btnStartCanaryMode;
     private javax.swing.JButton btnStopCanaryMode;
     private javax.swing.JCheckBox chkIncludeJava;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JLabel lblDescription;
     private javax.swing.JComboBox lstDataTypes;
     private javax.swing.JProgressBar prgCanary;
     private javax.swing.JTable tblCanaries;
@@ -439,7 +449,6 @@ public class StartCanaryModeView extends javax.swing.JDialog {
 
     public void addChirp(Class c, AccessibleObject method) {
         model.addChirp(new Chirp(c, method));
-        tblCanaries.updateUI();
-        tblCanaries.repaint();
+        model.fireTableDataChanged();
     }
 }

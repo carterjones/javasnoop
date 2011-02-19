@@ -8,7 +8,6 @@
       <Value id="APPLICATION_MODAL"/>
     </Property>
     <Property name="name" type="java.lang.String" value="Form" noResource="true"/>
-    <Property name="resizable" type="boolean" value="false"/>
   </Properties>
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>

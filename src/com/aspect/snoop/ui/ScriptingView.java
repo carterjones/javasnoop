@@ -1,4 +1,4 @@
-/*/*
+/*
  * Copyright, Aspect Security, Inc.
  *
  * This file is part of JavaSnoop.

@@ -448,10 +448,11 @@ public class ClasspathUtil {
             "JDOMAbout",
             "javassist.",
             "net.sf.cgilib",
-            "nu.xom"
+            "nu.xom",
+            "org.python"
         };
 
-        for(String pkg : pkgs) {
+    for(String pkg : pkgs) {
             if ( cls.startsWith(pkg) ) {
                 return true;
             }

@@ -18,22 +18,8 @@
  */
 package com.aspect.snoop.util;
 
-import com.aspect.snoop.MethodWrapper;
 import com.aspect.snoop.agent.AgentLogger;
 import com.aspect.snoop.agent.SnoopAgent;
-import com.aspect.snoop.agent.manager.InstrumentationException;
-import com.aspect.snoop.agent.manager.InstrumentationManager;
-import com.aspect.snoop.agent.manager.MethodChanges;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class CanaryUtil {
 
@@ -87,7 +73,8 @@ public class CanaryUtil {
 
                 if ( type.equals(String.class) ) {
                     String value = (String)objects[i];
-                    if ( currentCanary.contains(value) ) {
+                    if ( value != null && value.contains(currentCanary) ) {
+                        AgentLogger.info("Reporting canary: found '" + value + "' which matches canary '" + currentCanary + "'");
                         return true;
                     }
                 } else if ( type.equals(Short.class) ) {
