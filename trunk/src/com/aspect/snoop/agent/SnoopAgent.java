@@ -36,8 +36,6 @@ public class SnoopAgent {
     private static Instrumentation inst;
     private static InstrumentationManager manager;
 
-    private static final String AGENT_VIEW_THREAD_NAME = "JavaSnoop GUI";
-
     private static JavaSnoopView mainView;
     
     public static JavaSnoopView getMainView() {

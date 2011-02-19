@@ -151,7 +151,6 @@ public class ChooseClassView extends javax.swing.JDialog {
         setTitle(resourceMap.getString("Form.title")); // NOI18N
         setModalityType(java.awt.Dialog.ModalityType.APPLICATION_MODAL);
         setName("Form"); // NOI18N
-        setResizable(false);
 
         txtClass.setText(resourceMap.getString("txtClass.text")); // NOI18N
         txtClass.setName("txtClass"); // NOI18N
