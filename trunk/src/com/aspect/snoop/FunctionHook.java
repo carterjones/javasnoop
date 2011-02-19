@@ -19,8 +19,7 @@
 
 package com.aspect.snoop;
 
-import com.aspect.snoop.agent.manager.UniqueMethod;
-import java.io.Serializable;
+import java.lang.reflect.AccessibleObject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +28,7 @@ import java.util.List;
  *
  * @author adabirsiaghi
  */
-public class FunctionHook extends MethodInterceptor implements Serializable, Cloneable {
+public class FunctionHook {
 
     private boolean shouldPause;
 
@@ -46,20 +45,29 @@ public class FunctionHook extends MethodInterceptor implements Serializable, Clo
     private boolean isOutputToFile;
     private String outputFile;
 
-
     private int id;
 
-    public FunctionHook(UniqueMethod m) {
-        super(Mode.AlwaysIntercept,false,m.getParentClassName(),m.getName(), m.getParameterTypes(), m.getReturnTypeName(), true, new ArrayList<Condition>());
-        setShouldPrintParameters(true);
-        setShouldPrintStackTrace(false);
-        setOutputToConsole(false);
-        setOutputToFile(false);
-        setShouldTamperParameters(false);
-        setShouldTamperReturnValue(false);
-        setStartScript("");
-        setEndScript("");
+    public FunctionHook(AccessibleObject m) {
 
+        MethodWrapper wrapper = MethodWrapper.getWrapper(m);
+        this.methodName = wrapper.getName();
+        this.clazz = wrapper.getDeclaringClass();
+        this.parameterTypes = wrapper.getParameterTypes();
+        this.returnType = wrapper.getReturnType();
+        this.applyToSubtypes = true;
+        
+        this.mode = Mode.AlwaysIntercept;
+        this.outputFile = "";
+        this.conditions = new ArrayList<Condition>();
+
+        this.shouldPrintParameters = true;
+        this.shouldPrintStackTrace = false;
+        this.isOutputToConsole = false;
+        this.isOutputToFile = false;
+        this.shouldTamperParameters = false;
+        this.shouldTamperReturnValue = false;
+        this.startScript = "";
+        this.endScript = "";
         this.id = hashCode();
     }
 
@@ -106,15 +114,16 @@ public class FunctionHook extends MethodInterceptor implements Serializable, Clo
     }
 
     public FunctionHook(boolean shouldTamperParameters, boolean shouldTamperReturnValue, boolean shouldRunScript,
-            String startScript, String endScript, boolean shouldPause, boolean enabled, String className,
-            String methodName, String[] parameterTypes, String returnType, boolean applyToSubTypes, Mode mode,
+            String startScript, String endScript, boolean shouldPause, boolean enabled, Class clazz,
+            String methodName, Class[] parameterTypes, Class returnType, boolean applyToSubTypes, Mode mode,
             boolean shouldPrintParameters,  boolean shouldPrintStackTrace, boolean isOutputToConsole,
             boolean isOutputToFile, String outputFile, List<Condition> conditions) {
 
-        super(mode, enabled, className, methodName, parameterTypes, returnType, applyToSubTypes, conditions);
-
         this.id = hashCode();
 
+        this.enabled = enabled;
+
+        this.mode = mode;
         this.startScript = startScript; // won't always be needed, but no harm
         this.endScript = endScript;
         
@@ -129,8 +138,16 @@ public class FunctionHook extends MethodInterceptor implements Serializable, Clo
         this.shouldRunScript = shouldRunScript;
         this.shouldTamperParameters = shouldTamperParameters;
         this.shouldTamperReturnValue = shouldTamperReturnValue;
-    }
 
+        this.clazz = clazz;
+        this.methodName = methodName;
+        this.parameterTypes = parameterTypes;
+        this.returnType = returnType;
+
+        this.applyToSubtypes = applyToSubTypes;
+
+        this.conditions = conditions;
+    }
 
     public void removeCondition(Condition c) {
         conditions.remove(c);
@@ -203,6 +220,131 @@ public class FunctionHook extends MethodInterceptor implements Serializable, Clo
         } catch (CloneNotSupportedException ex) {
             return null;
         }
+    }
+
+    public Class[] getParameterTypes() {
+        return parameterTypes;
+    }
+
+    /**
+     * @param parameterTypes the parameterTypes to set
+     */
+    public void setParameterTypes(Class[] parameterTypes) {
+        this.parameterTypes = parameterTypes;
+    }
+
+    public enum Mode {
+        AlwaysIntercept,
+        InterceptIf,
+        DontInterceptIf
+    };
+
+    private Mode mode;
+    private boolean enabled;
+    protected List<Condition> conditions;
+    private Class clazz;
+    private String methodName;
+    private Class[] parameterTypes;
+    private Class returnType;
+    private boolean applyToSubtypes;
+
+    /**
+     * @return the mode
+     */
+    public Mode getMode() {
+        return mode;
+    }
+
+    /**
+     * @param mode the mode to set
+     */
+    public void setMode(Mode mode) {
+        this.mode = mode;
+    }
+
+    /**
+     * @return whether or not this interception is currently enabled
+     */
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    /**
+     * @param enabled whether this interception should be enabled
+     */
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    /**
+     * @return the conditions for interception
+     */
+    public List<Condition> getConditions() {
+        return conditions;
+    }
+
+    /**
+     * @param conditions the conditions to set for interception
+     */
+    public void setConditions(List<Condition> conditions) {
+        this.conditions = conditions;
+    }
+
+    /**
+     * @return the class name pattern to determine if should be intercepted
+     */
+    public Class getClazz() {
+        return clazz;
+    }
+
+    /**
+     * @param className the class name pattern to determine if should be intercepted
+     */
+    public void setClazz(Class clazz) {
+        this.clazz = clazz;
+    }
+
+    /**
+     * @return the methodName
+     */
+    public String getMethodName() {
+        return methodName;
+    }
+
+    /**
+     * @param methodName the methodName to set
+     */
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
+    /**
+     * @return the applyToSubtypes
+     */
+    public boolean isAppliedToSubtypes() {
+        return applyToSubtypes;
+    }
+
+    /**
+     * @param applyToSubtypes the applyToSubtypes to set
+     */
+    public void setApplyToSubtypes(boolean applyToSubtypes) {
+        this.applyToSubtypes = applyToSubtypes;
+    }
+
+    public boolean isConstructor() {
+        if (methodName == null) {
+            return true;
+        }
+        return methodName.equals("<init>") || methodName.length() == 0;
+    }
+
+    public Class getReturnType() {
+        return returnType;
+    }
+
+    public void setReturnType(Class returnType) {
+        this.returnType = returnType;
     }
 
 }

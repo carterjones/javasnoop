@@ -11,6 +11,7 @@
 
 package com.aspect.snoop.ui.forceclass;
 
+import com.aspect.snoop.agent.AgentLogger;
 import com.aspect.snoop.util.UIUtil;
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import javax.swing.JFileChooser;
-import org.apache.log4j.Logger;
 import org.jdesktop.application.Action;
 
 /**
@@ -28,8 +28,6 @@ import org.jdesktop.application.Action;
  * @author adabirsiaghi
  */
 public class ForceLoadClassesView extends javax.swing.JDialog {
-
-    private static Logger logger = Logger.getLogger(ForceLoadClassesView.class);
 
     /** Creates new form ForceClassesLoadView */
     public ForceLoadClassesView(java.awt.Frame parent, boolean modal) {
@@ -208,7 +206,7 @@ public class ForceLoadClassesView extends javax.swing.JDialog {
                 }
             } catch(IOException ioe) {
                 UIUtil.showErrorMessage(this, "Couldn't load classes from jar: " + ioe.getMessage());
-                logger.error(ioe);
+                AgentLogger.error(ioe);
             }
 
         }

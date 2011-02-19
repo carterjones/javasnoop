@@ -1,3 +1,5 @@
+package com.aspect.snoop.util;
+
 /*
  * Copyright, Aspect Security, Inc.
  *
@@ -17,28 +19,19 @@
  * along with JavaSnoop.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.aspect.snoop.util;
-
-import com.aspect.snoop.JavaSnoop;
 import com.aspect.snoop.agent.AgentCommunicationException;
-import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
-import com.aspect.snoop.SnoopSession;
 import com.aspect.snoop.agent.AgentJarCreator;
-import com.aspect.snoop.agent.SnoopToAgentClient;
+import com.aspect.snoop.agent.AgentLogger;
 import com.sun.tools.attach.AgentInitializationException;
 import com.sun.tools.attach.AgentLoadException;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachine;
-import java.net.ServerSocket;
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import org.apache.log4j.Logger;
 
 /**
  * Utility methods for launching JVMs and using the Attach API.
@@ -47,52 +40,24 @@ import org.apache.log4j.Logger;
  */
 public class AttachUtil {
 
-    private static Logger logger = Logger.getLogger(AttachUtil.class);
-
-    public static SnoopToAgentClient attachToVM() throws AttachNotSupportedException, IOException, AgentLoadException, AgentInitializationException, AgentCommunicationException {
+    public static void attachToVM() throws AttachNotSupportedException, IOException, AgentLoadException, AgentInitializationException, AgentCommunicationException {
         // Use the process id of this VM
-        return attachToVM(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
+        String agentJarPath = AgentJarCreator.createAgentJar(false);
+        loadAgentInVM(agentJarPath, ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
     }
 
-    public static SnoopToAgentClient attachToVM(String pid) throws AttachNotSupportedException, IOException, AgentLoadException, AgentInitializationException, AgentCommunicationException {
+    public static void loadAgentInVM(String agentJarPath, String pid) throws AttachNotSupportedException, IOException, AgentLoadException, AgentInitializationException, AgentCommunicationException {
 
         VirtualMachine vm = VirtualMachine.attach(pid);
-        String agentJarPath = AgentJarCreator.createAgentJar(false);
-
-        logger.debug("Loading agent from " + agentJarPath);
         
-        int agentServerPort = getAnyAvailablePort();
-        int ourServerPort = getAnyAvailablePort();
-
-        vm.loadAgent(agentJarPath,  agentServerPort + "," + ourServerPort + ","+agentJarPath);
+        AgentLogger.debug("Loading agent from " + agentJarPath);
+        
+        vm.loadAgent(agentJarPath, new File(".").getAbsolutePath());
         vm.detach();
-        
-        return getClient("localhost", agentServerPort, ourServerPort, vm); //default port
     }
 
-    public static SnoopToAgentClient launchInThisVM(String mainClass) throws ClassNotFoundException, NoSuchMethodException, AttachNotSupportedException, IOException, AgentLoadException, AgentInitializationException, AgentCommunicationException {
-
-        Class targetClass = Class.forName(mainClass);
-        Class[] argTypes = {new String[0].getClass()};
-        Method m = targetClass.getMethod("main", argTypes);
-        Object[] targetArgs = {new String[0]};    // We will want to pass this as a parameter to this method
-
-        logger.debug("Invoking target method: " + m);
-
-        try {
-            m.invoke(null, targetArgs);
-        } catch (IllegalAccessException ex) {
-            logger.error(ex);
-        } catch (IllegalArgumentException ex) {
-            logger.error(ex);
-        } catch (InvocationTargetException ex) {
-            logger.error(ex);
-        }
-
-        return attachToVM();
-    }
-
-    public static SnoopToAgentClient launchInNewVM(SnoopSession session) throws AttachNotSupportedException, ClassNotFoundException, NoSuchMethodException, IOException, AttachNotSupportedException,AgentCommunicationException {
+    /*
+    public static void launchInNewVM(SnoopSession session) throws AttachNotSupportedException, ClassNotFoundException, NoSuchMethodException, IOException, AttachNotSupportedException,AgentCommunicationException {
 
         String agentJarPath = AgentJarCreator.createAgentJar(true);
         boolean isJar = session.getMainClass().trim().length() == 0 &&
@@ -108,11 +73,6 @@ public class AttachUtil {
 
         String agent = "-javaagent:" + agentJarPath;
         
-        int agentServerPort = getAnyAvailablePort();
-        int ourServerPort = getAnyAvailablePort();
-
-        agent += "=" + agentServerPort + "," + ourServerPort + "," + agentJarPath;
-
         arguments.add(agent);
 
         String javaArgs = session.getJavaArguments().trim();
@@ -146,7 +106,7 @@ public class AttachUtil {
 
         StringBuilder sb = new StringBuilder();
         for(String s : commandArgs) {
-            sb.append(s + " ");
+            sb.append(s).append(" ");
         }
         
         String workingDir = new File(".").getPath();
@@ -156,82 +116,8 @@ public class AttachUtil {
         }
 
         Runtime.getRuntime().exec(commandArgs, null, new File(workingDir));
-        
-        SnoopToAgentClient client = getClient("localhost", agentServerPort, ourServerPort, null);
-
-        String pid = client.queryPid();
-        VirtualMachine vm = VirtualMachine.attach(pid);
-
-        client.setVirtualMachine(vm);
-
-        vm.detach();
-        
-        return client;
-    }
-
-    /*
-    public static void testSnoopToAgentComms() {
-
-        // DEBUG: This method is just for testing snoop-to-agent comms
-        final SnoopToAgentClient client = new SnoopToAgentClient("localhost");
-        SwingWorker<String, Void> worker = new SwingWorker<String, Void>() {
-
-            protected String doInBackground() {
-                String pid = client.queryPid();
-                return pid;
-            }
-        };
-        String agentPid = null;
-        try {
-            agentPid = worker.get();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(JavaSnoopView.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ExecutionException ex) {
-            Logger.getLogger(JavaSnoopView.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        Logger.getLogger(SnoopServerThread.class.getName()).log(Level.SEVERE, "PID of agent: " + agentPid);
     }
     */
-
-    private static SnoopToAgentClient getClient(String host, int agentServerPort, int ourServerPort, VirtualMachine vm) throws AgentCommunicationException {
-        
-        int delay = JavaSnoop.getIntProperty(JavaSnoop.LOAD_WAIT);
-        
-        if ( delay == 0 ) {
-            // initialize to default value
-            delay = 3000; 
-        }
-
-        SnoopToAgentClient client = new SnoopToAgentClient(host, agentServerPort, ourServerPort, vm);
-        
-        try {
-            Thread.sleep(delay);
-        } catch (InterruptedException ex) { }
-
-        boolean b = client.isAgentAlive();
-        if ( b ) {
-            return client;
-        }
-
-        // server did not start up in 10 seconds - fail
-        return null;
-    }
-
-    private static int getAnyAvailablePort() throws IOException {
-        int portToUse;
-
-        ServerSocket testSocket = new ServerSocket(0);
-        portToUse = testSocket.getLocalPort();
-        testSocket.close();
-
-        // allow the OS to reclaim the socket
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException ex) { }
-
-        return portToUse;
-    }
     
     private static String[] parseArguments(String args) {
 

@@ -19,10 +19,10 @@
 
 package com.aspect.snoop.util;
 
-import com.aspect.snoop.agent.manager.UniqueMethod;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -64,7 +64,7 @@ public class ReflectionUtil {
             return true;
         }
 
-        String prims[] = { "char", "byte", "short", "int", "long", "double", "float" };
+        String prims[] = { "boolean", "char", "byte", "short", "int", "long", "double", "float" };
         for( String s : prims ) {
             if ( s.equals(cls) ) {
                 return true;
@@ -138,6 +138,7 @@ public class ReflectionUtil {
 
     }
 
+    /*
     public static String getMethodDescription(UniqueMethod m) {
         StringBuilder desc = new StringBuilder("");
 
@@ -156,8 +157,7 @@ public class ReflectionUtil {
         desc.append(")");
 
         return desc.toString();
-
-    }
+    }*/
 
     public static Field getAccessibleField(Object o, String s) throws Exception {
         Field f = o.getClass().getDeclaredField(s);
@@ -362,6 +362,46 @@ public class ReflectionUtil {
         int modifier = c.getModifiers();
 
         return Modifier.isAbstract(modifier) || Modifier.isInterface(modifier);
+    }
+
+    public static Class[] getParameterTypes(AccessibleObject method) {
+        if ( method instanceof Method )
+            return ((Method)method).getParameterTypes();
+        else if ( method instanceof Constructor )
+            return ((Constructor)method).getParameterTypes();
+        throw new IllegalArgumentException("Expected method or constructor");
+    }
+
+    public static Class getDeclaringClass(AccessibleObject method) {
+        if ( method instanceof Method )
+            return ((Method)method).getDeclaringClass();
+        else if ( method instanceof Constructor )
+            return ((Constructor)method).getDeclaringClass();
+        throw new IllegalArgumentException("Expected method or constructor");
+    }
+
+    public static String getMethodName(AccessibleObject method) {
+        if ( method instanceof Method )
+            return ((Method)method).getName();
+        else if ( method instanceof Constructor )
+            return ((Constructor)method).getName();
+        throw new IllegalArgumentException("Expected method or constructor");
+    }
+
+    public static boolean isInterfaceOrAbstract(AccessibleObject method) {
+        if ( method instanceof Method )
+            return Modifier.isAbstract(((Method)method).getModifiers());
+        else if ( method instanceof Constructor )
+            return Modifier.isAbstract(((Constructor)method).getModifiers());
+        throw new IllegalArgumentException("Expected method or constructor");
+    }
+
+    public static Class getReturnType(AccessibleObject method) {
+        if ( method instanceof Method )
+            return ((Method)method).getReturnType();
+        else if ( method instanceof Constructor )
+            return Void.class;
+        throw new IllegalArgumentException("Expected method or constructor");
     }
 
     public float getFloatValue(Object o, String fieldName) throws Exception {

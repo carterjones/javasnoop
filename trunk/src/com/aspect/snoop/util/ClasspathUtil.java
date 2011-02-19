@@ -20,7 +20,6 @@
 package com.aspect.snoop.util;
 
 import com.aspect.snoop.JavaSnoop;
-import com.aspect.snoop.agent.AgentLogger;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
@@ -199,14 +198,6 @@ public class ClasspathUtil {
                     classes.add ( clz );
 
                 }
-            }
-
-            SnoopClassLoader loader = JavaSnoop.getClassLoader();
-
-            Set<String> remoteAddedClasses = loader.getClassNames();
-
-            for( String s : remoteAddedClasses ) {
-                classes.add(s);
             }
 
         } catch (Exception e) {

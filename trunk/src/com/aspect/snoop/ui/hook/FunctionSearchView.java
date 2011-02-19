@@ -20,11 +20,11 @@
 package com.aspect.snoop.ui.hook;
 
 import com.aspect.snoop.JavaSnoop;
-import com.aspect.snoop.agent.manager.UniqueMethod;
 import com.aspect.snoop.util.ClasspathUtil;
 import com.aspect.snoop.util.UIUtil;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -33,14 +33,14 @@ import org.jdesktop.application.Action;
 
 public class FunctionSearchView extends javax.swing.JDialog {
 
-    List<String> classes;
-    UniqueMethod methodChosen;
+    List<Class> classes;
+    Method methodChosen;
 
-    public UniqueMethod getChosenMethod() {
+    public Method getChosenMethod() {
         return methodChosen;
     }
     
-    public FunctionSearchView(javax.swing.JDialog parent, boolean modal, List<String> classes) {
+    public FunctionSearchView(javax.swing.JDialog parent, boolean modal, List<Class> classes) {
 
         super(parent, modal);
 
@@ -49,7 +49,7 @@ public class FunctionSearchView extends javax.swing.JDialog {
         this.classes = classes;
         this.methodChosen = null;
 
-        List<UniqueMethod> empty = new ArrayList<UniqueMethod>();
+        List<AccessibleObject> empty = new ArrayList<AccessibleObject>();
 
         tblResults.setModel( new MethodTableModel(empty) );
         tblResults.setRowHeight(20);
@@ -66,7 +66,7 @@ public class FunctionSearchView extends javax.swing.JDialog {
                             // user double clicked an item selection
                             int sel = tblResults.getSelectedRow();
                             if ( sel != -1 ) {
-                                methodChosen = (UniqueMethod) tblResults.getModel().getValueAt(sel,1);
+                                methodChosen = (Method) tblResults.getModel().getValueAt(sel,1);
                                 dispose();
                             }
                         }
@@ -86,7 +86,7 @@ public class FunctionSearchView extends javax.swing.JDialog {
                 });
     }
 
-    public UniqueMethod getMethodChosen() {
+    public Method getMethodChosen() {
         return methodChosen;
     }
 
@@ -243,32 +243,23 @@ public class FunctionSearchView extends javax.swing.JDialog {
         String substring = txtMethod.getText();
         String loweredSubstring = substring.toLowerCase();
 
-        List<UniqueMethod> hits = new ArrayList<UniqueMethod>();
+        List<AccessibleObject> hits = new ArrayList<AccessibleObject>();
 
         for(int i = 0;i<classes.size(); i++) {
 
-            String cls = classes.get(i);
+            Class cls = classes.get(i);
 
-            if ( chkHideJavaClasses.isSelected() && ClasspathUtil.isJavaOrSunClass(cls) ) {
+            if ( chkHideJavaClasses.isSelected() && ClasspathUtil.isJavaOrSunClass(cls.getName()) ) {
                 continue;
             }
 
-            if ( chkHideJavaSnoopClasses.isSelected() && ClasspathUtil.isJavaSnoopClass(cls) ) {
+            if ( chkHideJavaSnoopClasses.isSelected() && ClasspathUtil.isJavaSnoopClass(cls.getName()) ) {
                 continue;
             }
 
             try {
-
-                Class c = null;
-                
-                try {
-                    c = Class.forName(cls, true, JavaSnoop.getClassLoader());
-                } catch (ClassNotFoundException cnfe) {
-                    c = Class.forName(cls);
-                }
-
-                Method[] methods = c.getDeclaredMethods();
-                Constructor[] constructors = c.getDeclaredConstructors();
+                Method[] methods = cls.getDeclaredMethods();
+                Constructor[] constructors = cls.getDeclaredConstructors();
 
                 for(int j=0;j<constructors.length;j++) {
                     Constructor constructor = constructors[j];
@@ -279,12 +270,10 @@ public class FunctionSearchView extends javax.swing.JDialog {
 
                         if ( chkReturnType.isSelected() ) {
                             if ( isReturnTypeMatch(Void.class,(String)lstReturnType.getSelectedItem()) ) {
-                                UniqueMethod method = new UniqueMethod(constructor);
-                                hits.add(method);
+                                hits.add(constructor);
                             }
                         } else {
-                            UniqueMethod method = new UniqueMethod(constructor);
-                            hits.add(method);
+                            hits.add(constructor);
                         }
                     }
                 }
@@ -298,24 +287,20 @@ public class FunctionSearchView extends javax.swing.JDialog {
 
                         if ( chkReturnType.isSelected() ) {
                             if ( isReturnTypeMatch(m.getReturnType(),(String)lstReturnType.getSelectedItem()) ) {
-                                UniqueMethod method = new UniqueMethod(m);
-                                hits.add(method);
+                                hits.add(m);
                             }
                         } else {
-                            UniqueMethod method = new UniqueMethod(m);
-                            hits.add(method);
+                            hits.add(m);
                         }
                     }
                 }
 
-            } catch (ClassNotFoundException cnfe3) {
-                
             } catch (NoClassDefFoundError ncde) {
-                
+                ncde.printStackTrace();
             } catch (Exception e) {
-                
+                e.printStackTrace();
             } catch (Error e) {
-                
+                e.printStackTrace();
             }
 
         }
@@ -329,7 +314,7 @@ public class FunctionSearchView extends javax.swing.JDialog {
         tblResults.repaint();
         tblResults.updateUI();
 
-        if ( hits.size() == 0 ) {
+        if ( hits.isEmpty() ) {
             UIUtil.showErrorMessage(this, "No methods found");
         }
     }

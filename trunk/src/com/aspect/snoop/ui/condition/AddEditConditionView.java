@@ -30,11 +30,11 @@ public class AddEditConditionView extends javax.swing.JDialog {
     private String operand;
     private Operator operator;
 
-    public AddEditConditionView(java.awt.Frame parent, boolean modal, String[] parameterTypes) {
+    public AddEditConditionView(java.awt.Frame parent, boolean modal, Class[] parameterTypes) {
         this(parent,modal,parameterTypes, null);
     }
 
-    public AddEditConditionView(java.awt.Frame parent, boolean modal, String[] parameterTypes, Condition condition) {
+    public AddEditConditionView(java.awt.Frame parent, boolean modal, Class[] parameterTypes, Condition condition) {
 
         super(parent, modal);
         initComponents();
@@ -42,11 +42,11 @@ public class AddEditConditionView extends javax.swing.JDialog {
         lstParameters.removeAllItems();
 
         for(int i=0;i<parameterTypes.length;i++) {
-            String type = parameterTypes[i];
-            String simple = type;
+            Class type = parameterTypes[i];
+            String simple = type.getSimpleName();
 
-            if ( ! type.startsWith("java.lang.") || type.indexOf(".") != -1 ) {
-                simple = ReflectionUtil.getSimpleClassName(type);
+            if ( ! type.getName().startsWith("java.lang.") || type.getName().indexOf(".") != -1 ) {
+                simple = ReflectionUtil.getSimpleClassName(type.getName());
             }
 
             lstParameters.insertItemAt("Parameter " + (i+1) + ": " + simple, i);

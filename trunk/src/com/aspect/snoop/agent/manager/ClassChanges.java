@@ -20,7 +20,10 @@
 package com.aspect.snoop.agent.manager;
 
 import com.aspect.snoop.FunctionHook;
+import com.aspect.snoop.MethodWrapper;
 import com.aspect.snoop.util.Hook2JavaUtil;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,45 +32,43 @@ public class ClassChanges {
 
     String className;
     Class clazz;
-    HashMap<UniqueMethod, MethodChanges> methodChanges;
+    HashMap<MethodWrapper, MethodChanges> methodChanges;
 
     public ClassChanges(Class clazz) {
         this.clazz = clazz;
-        this.methodChanges = new HashMap<UniqueMethod,MethodChanges>();
+        this.methodChanges = new HashMap<MethodWrapper,MethodChanges>();
     }
 
     public MethodChanges[] getAllMethodChanges() {
         
         List<MethodChanges> changes = new ArrayList<MethodChanges>();
         
-        for ( UniqueMethod method : methodChanges.keySet() ) {
+        for ( MethodWrapper method : methodChanges.keySet() ) {
             changes.add( methodChanges.get(method) );
         }
         
         return changes.toArray( new MethodChanges[]{} );
     }
 
-    public MethodChanges getMethodChanges(String methodName, String[] parameterTypes, String returnType) {
+    public MethodChanges getMethodChanges(Member m) {
+        MethodWrapper method = MethodWrapper.getWrapper(m);
+        return methodChanges.get(method);
+    }
 
-        UniqueMethod method = new UniqueMethod(clazz, methodName, parameterTypes, returnType);
-        
+    public MethodChanges getMethodChanges(AccessibleObject m) {
+        MethodWrapper method = MethodWrapper.getWrapper(m);
         return methodChanges.get(method);
     }
 
     public void registerHook(FunctionHook hook, InstrumentationManager manager) {
         
-        UniqueMethod method =
-                new UniqueMethod(
-                    clazz,
-                    hook.getMethodName(),
-                    hook.getParameterTypes(),
-                    hook.getReturnType());
+        MethodWrapper method = MethodWrapper.getWrapper(hook.getClazz(),hook.getMethodName(),hook.getParameterTypes());
 
         // #1: get the method changes we already have for this method
         MethodChanges changes = methodChanges.get(method);
 
         if ( changes == null ) {
-            changes = new MethodChanges(method);
+            changes = new MethodChanges(method.getActualMethod());
             methodChanges.put(method, changes);
         }
 

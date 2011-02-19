@@ -50,7 +50,7 @@ public class SnoopSession implements Serializable {
 
         //initialize and empty everything - serialization breaks if anything is
         //null.
-        
+
         snoopSessionFilename = "(not saved yet)";
         workingDir = "";
         classpathString = "";
@@ -58,9 +58,9 @@ public class SnoopSession implements Serializable {
         javaArguments = "";
         mainClass = "";
         output = "";
-        
+
         functionHooks = new ArrayList<FunctionHook>();
-       
+
     }
 
     public boolean alreadyBeenSaved() {
@@ -205,5 +205,5 @@ public class SnoopSession implements Serializable {
         this.mainClass = mainClass;
     }
 
-    
+
 }

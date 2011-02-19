@@ -19,42 +19,36 @@
 
 package com.aspect.snoop.ui.hook;
 
-import com.aspect.snoop.JavaSnoop;
-import com.aspect.snoop.agent.manager.UniqueMethod;
+import com.aspect.snoop.MethodWrapper;
+import com.aspect.snoop.agent.AgentLogger;
+import com.aspect.snoop.agent.SnoopAgent;
 import com.aspect.snoop.ui.choose.clazz.ChooseClassView;
-import com.aspect.snoop.util.ClasspathUtil;
 import com.aspect.snoop.util.ReflectionUtil;
 import com.aspect.snoop.util.UIUtil;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.ListCellRenderer;
-import org.apache.log4j.Logger;
 import org.jdesktop.application.Action;
 
 public class AddFunctionHookView extends javax.swing.JDialog {
 
-    private static Logger logger = Logger.getLogger(AddFunctionHookView.class);
-
-    private static String selectedMethod;
-    private static String selectedClass;
-    private static String[] parameterTypes;
-    private static String returnType;
+    private static AccessibleObject selectedMethod;
+    private static Class selectedClass;
+    private static Class[] parameterTypes;
+    private static Class returnType;
     
     private static boolean shouldInherit;
-    private String classpath;
-
+    
     private Class currentClass;
     private Method[] loadedMethods;
     private Constructor[] loadedConstructors;
@@ -63,15 +57,15 @@ public class AddFunctionHookView extends javax.swing.JDialog {
         return shouldInherit;
     }
 
-    public String getSelectedClass() {
+    public Class getSelectedClass() {
         return selectedClass;
     }
 
-    public String getSelectedMethod() {
+    public AccessibleObject getSelectedMethod() {
         return selectedMethod;
     }
 
-    public String[] getParameterTypes() {
+    public Class[] getParameterTypes() {
         return parameterTypes;
     }
 
@@ -84,26 +78,30 @@ public class AddFunctionHookView extends javax.swing.JDialog {
 
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 
-                JLabel lbl = new JLabel(" " + (String)value);
+                JLabel lbl = new JLabel();
                 if ( isSelected ) {
                     lbl.setForeground(Color.white);
                     lbl.setBackground(Color.blue);
                     lbl.setOpaque(true);
                 }
-
+                
+                Member m = (Member)value;
+                
+                String toShow = ReflectionUtil.getMethodDescription(m);
+                lbl.setText(" " + toShow);
+                
                 return lbl;
             }
             }
          );
 
-        lstMethods.setListData(new String[]{});
+        lstMethods.setListData(new Method[]{});
 
         selectedClass = null;
         selectedMethod = null;
         parameterTypes = null;
         returnType = null;
-        this.classpath = classpath;
-
+        
         lstMethods.addMouseListener(
                 new MouseListener() {
 
@@ -281,20 +279,15 @@ public class AddFunctionHookView extends javax.swing.JDialog {
 
     private void btnBrowseForClassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBrowseForClassActionPerformed
 
+        List<Class> classes = SnoopAgent.getAgentManager().getLoadedClasses();
 
-        String[] classNames = JavaSnoop.getClassLoader().getClassNames().toArray(new String[]{});
-
-        ChooseClassView view = new ChooseClassView(this, Arrays.asList(classNames));
+        ChooseClassView view = new ChooseClassView(this, classes);
         view.setVisible(true);
 
-        while (view.isShowing()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ex) { }
-        }
+        UIUtil.waitForInput(view);
 
-        if (view.getClassName() != null) {
-            loadClassMethods(view.getClassName(), true);
+        if (view.getChosenClass() != null) {
+            loadClassMethods(view.getChosenClass(), true);
         }
         
     }//GEN-LAST:event_btnBrowseForClassActionPerformed
@@ -320,20 +313,11 @@ public class AddFunctionHookView extends javax.swing.JDialog {
         
         try {
 
-            Class.forName(substring);
-            loadClassMethods(substring,false);
+            currentClass = SnoopAgent.getAgentManager().getFromAllClasses(substring);
+            loadClassMethods(currentClass,false);
             
         } catch (ClassNotFoundException ex) {
-
-            try {
-                Class.forName(substring, true, JavaSnoop.getClassLoader());
-                loadClassMethods(substring,false);
-            } catch (ClassNotFoundException ex2) {
-                //ex2.printStackTrace();
-                lstMethods.setListData(new String[0]);
-            } catch (Throwable t) {
-                t.printStackTrace();
-            }
+            lstMethods.setListData(new String[0]);
         }
         
     }//GEN-LAST:event_txtClassKeyTyped
@@ -368,112 +352,71 @@ public class AddFunctionHookView extends javax.swing.JDialog {
     // End of variables declaration//GEN-END:variables
 
     private void finalizeSelection() {
-        selectedClass = txtClass.getText();
-        parseMethodSignature();//(String) lstMethods.getSelectedValue()
+        selectedClass = currentClass;
+        selectedMethod = (AccessibleObject)lstMethods.getSelectedValue();
+        parameterTypes = ReflectionUtil.getParameterTypes(selectedMethod);
+        returnType = ReflectionUtil.getReturnType(selectedMethod);
         shouldInherit = chkShouldInherit.isSelected();
-    }
-
-    private void loadClassMethods(String className, boolean setClassName) {
-        try {
-
-            currentClass = null;
-
-            try  {
-                currentClass = Class.forName(className);
-            } catch (ClassNotFoundException e) { }
-
-            if ( currentClass == null ) {
-                currentClass = Class.forName(className, true, JavaSnoop.getClassLoader());
-            }
-            
-            loadedMethods = currentClass.getDeclaredMethods();
-            loadedConstructors = currentClass.getDeclaredConstructors();
-
-            String[] entries = new String[loadedMethods.length + loadedConstructors.length];
-
-            for (int i = 0; i < loadedMethods.length; i++) {
-                entries[i] = ReflectionUtil.getMethodDescription(loadedMethods[i]);
-            }
-
-            for(int i=loadedMethods.length;i<entries.length;i++) {
-                entries[i] = ReflectionUtil.getMethodDescription(loadedConstructors[i-loadedMethods.length]);
-            }
-
-            lstMethods.setListData(entries);
-
-            if ( setClassName ) {
-                txtClass.setText(className);
-            }
-
-            if ( ReflectionUtil.isInterfaceOrAbstract(currentClass)) {
-                chkShouldInherit.setSelected(true);
-                chkShouldInherit.setEnabled(false);
-            } else {
-                chkShouldInherit.setSelected(false);
-                chkShouldInherit.setEnabled(true);
-            }
-
-        } catch (ClassNotFoundException ex) {
-            logger.error(ex);
-        }
-
-    }
-
-    private void parseMethodSignature() {
-
-        Member m = null;
-        Class[] types = null;
-
-        if ( lstMethods.getSelectedIndex() < loadedMethods.length ) {
-            m = loadedMethods[lstMethods.getSelectedIndex()];
-            selectedMethod = m.getName();
-            returnType = ((Method)m).getReturnType().getName();
-            types = ((Method)m).getParameterTypes();
-        } else {
-            m = loadedConstructors[lstMethods.getSelectedIndex()-loadedMethods.length];
-            selectedMethod = "<init>";
-            returnType = "void";
-            types = ((Constructor)m).getParameterTypes();
-        }
         
-        String[] s = new String[types.length];
+    }
 
-        for ( int i=0; i<types.length; i++ ) {
-            s[i] = types[i].getName();
+    private void loadClassMethods(Class clazz, boolean setClassName) {
+
+        currentClass = clazz;
+
+        loadedMethods = currentClass.getDeclaredMethods();
+        loadedConstructors = currentClass.getDeclaredConstructors();
+
+        Member[] entries = new Member[loadedMethods.length + loadedConstructors.length];
+
+        System.arraycopy(loadedMethods, 0, entries, 0, loadedMethods.length);
+        System.arraycopy(loadedConstructors, 0, entries, loadedMethods.length, loadedConstructors.length);
+
+        lstMethods.setListData(entries);
+
+        if ( setClassName ) {
+            txtClass.setText(currentClass.getName());
         }
 
-        parameterTypes = s;
+        if ( ReflectionUtil.isInterfaceOrAbstract(currentClass)) {
+            chkShouldInherit.setSelected(true);
+            chkShouldInherit.setEnabled(false);
+        } else {
+            chkShouldInherit.setSelected(false);
+            chkShouldInherit.setEnabled(true);
+        }
+
+        
+
     }
 
     @Action
     public void searchForFunction() {
         
-        List<String> classes = ClasspathUtil.getClasses(classpath);
+        List<Class> classes = SnoopAgent.getAgentManager().getLoadedClasses();
 
         FunctionSearchView view = new FunctionSearchView(this, true, classes);
         view.setVisible(true);
         
         UIUtil.waitForInput(view);
 
-        UniqueMethod method = view.getMethodChosen();
+        AccessibleObject method = view.getMethodChosen();
 
-        if ( method == null ) {
+        if ( method == null ) // indicates the user cancelled
             return;
-        }
 
-        selectedClass = method.getParentClass().getName();
-        selectedMethod = method.getName();
-        parameterTypes = method.getParameterTypes();
-        shouldInherit = method.isInterfaceOrAbstract();
-        returnType = method.getReturnTypeName();
+        selectedClass = ReflectionUtil.getDeclaringClass(method);
+        selectedMethod = method;
+        parameterTypes = ReflectionUtil.getParameterTypes(method);
+        shouldInherit = ReflectionUtil.isInterfaceOrAbstract(method);
+        returnType = ReflectionUtil.getReturnType(method);
 
         dispose();
         
     }
 
-    public String getReturnType() {
+    public Class getReturnType() {
         return returnType;
     }
 
-   
 }

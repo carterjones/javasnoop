@@ -57,7 +57,7 @@ public class AgentLogger {
         nameMap.put("OFF", OFF);
     }
 
-    public static int level = INFO;
+    public static int level = DEBUG;
 
     public static String levelName(int l) {
         return levelMap.get(l);
@@ -83,9 +83,24 @@ public class AgentLogger {
         if ( level <= WARN ) System.out.println(getPrefix() + s);
     }
 
+    public static void error(Throwable t) {
+        if ( level <= ERROR ) {
+            System.out.println(getPrefix() + t.getMessage());
+            t.printStackTrace();
+        }
+    }
+
     public static void error(String s) {
         if ( level <= ERROR ) System.out.println(getPrefix() + s);
     }
+
+    public static void error(String s, Throwable t) {
+        if ( level <= ERROR ) {
+            System.out.println(getPrefix() + s);
+            t.printStackTrace();
+        }
+    }
+
 
     public static void fatal(String s) {
         if ( level <= FATAL ) System.out.println(getPrefix() + s);

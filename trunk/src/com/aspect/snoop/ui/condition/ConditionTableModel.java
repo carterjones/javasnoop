@@ -115,7 +115,7 @@ public class ConditionTableModel extends AbstractTableModel {
                                 new AddEditConditionView(
                                     mainFrame,
                                     true,
-                                    JavaSnoop.getMainForm().getCurrentHook().getParameterTypes(),
+                                    null,//JavaSnoop.getMainForm().getCurrentHook().getParameterTypes(),
                                     c2);
                         view.setVisible(true);
                         

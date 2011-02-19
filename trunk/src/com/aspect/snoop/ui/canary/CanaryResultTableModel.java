@@ -20,7 +20,7 @@ package com.aspect.snoop.ui.canary;
 
 import com.aspect.snoop.FunctionHook;
 import com.aspect.snoop.JavaSnoop;
-import com.aspect.snoop.agent.manager.UniqueMethod;
+import com.aspect.snoop.agent.SnoopAgent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class CanaryResultTableModel extends DefaultTableModel {
       JButton.class
     };
 
-    List<UniqueMethod> chirps;
+    List<Chirp> chirps;
 
     String[] columnNames = {
       "Function",
@@ -44,10 +44,10 @@ public class CanaryResultTableModel extends DefaultTableModel {
     };
 
     public CanaryResultTableModel() {
-        chirps = new ArrayList<UniqueMethod>();
+        chirps = new ArrayList<Chirp>();
     }
 
-    public void addChirp(UniqueMethod chirp) {
+    public void addChirp(Chirp chirp) {
         chirps.add(chirp);
     }
 
@@ -64,19 +64,19 @@ public class CanaryResultTableModel extends DefaultTableModel {
     @Override
     public Object getValueAt(int row, int column) {
 
-        UniqueMethod chirp = chirps.get(row);
+        Chirp chirp = chirps.get(row);
         if ( column == 0 ) {
-            return chirp.toString();
+            return chirp.getMethod().toString();
         }
 
         JButton btnAddHook = new JButton("Add hook");
         btnAddHook.setSize(40, 25);
-        final FunctionHook hook = new FunctionHook(chirp);
+        final FunctionHook hook = new FunctionHook(chirp.getMethod());
 
         btnAddHook.addActionListener( new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                JavaSnoop.getMainForm().addHook(hook);
-                JOptionPane.showMessageDialog(JavaSnoop.getMainForm().getFrame(), "Function hook added to " + hook.getClassName() + "." + hook.getMethodName() + "()");
+                SnoopAgent.getMainView().addHook(hook);
+                JOptionPane.showMessageDialog(JavaSnoop.getApplication().getMainView().getFrame(), "Function hook added to " + hook.getClazz().getName() + "." + hook.getMethodName() + "()");
             }
         });
 

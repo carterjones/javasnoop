@@ -1,3 +1,5 @@
+package com.aspect.snoop.util;
+
 /*
  * Copyright, Aspect Security, Inc.
  *
@@ -17,7 +19,7 @@
  * along with JavaSnoop.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.aspect.snoop.util;
+
 
 import java.util.Random;
 

@@ -19,13 +19,15 @@
 
 package com.aspect.snoop.ui.tamper.common;
 
-public class EditStringView extends javax.swing.JDialog {
+import javax.swing.JDialog;
+
+public class EditStringView extends JDialog {
 
     public String getText() {
         return txtBuffer.getText();
     }
 
-    public EditStringView(java.awt.Frame parent, boolean modal, String s) {
+    public EditStringView(JDialog parent, boolean modal, String s) {
         super(parent, modal);
         initComponents();
         txtBuffer.setText(s);
@@ -100,7 +102,7 @@ public class EditStringView extends javax.swing.JDialog {
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                EditStringView dialog = new EditStringView(new javax.swing.JFrame(), true, "test");
+                EditStringView dialog = new EditStringView(new JDialog(), true, "test");
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     public void windowClosing(java.awt.event.WindowEvent e) {
                         System.exit(0);

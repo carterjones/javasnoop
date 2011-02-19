@@ -19,16 +19,16 @@
 
 package com.aspect.snoop.ui.hook;
 
-import com.aspect.snoop.agent.manager.UniqueMethod;
+import java.lang.reflect.Method;
 import java.util.List;
 import javax.swing.ListModel;
 import javax.swing.event.ListDataListener;
 
 public class MethodListModel implements ListModel {
 
-    List<UniqueMethod> methods;
+    List<Method> methods;
 
-    public MethodListModel(List<UniqueMethod> methods) {
+    public MethodListModel(List<Method> methods) {
         this.methods = methods;
     }
 
@@ -37,8 +37,7 @@ public class MethodListModel implements ListModel {
     }
 
     public Object getElementAt(int index) {
-        UniqueMethod m = methods.get(index);
-
+        Method m = methods.get(index);
         return m;
     }
 

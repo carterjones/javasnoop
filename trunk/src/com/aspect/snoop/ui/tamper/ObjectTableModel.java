@@ -20,6 +20,7 @@
 package com.aspect.snoop.ui.tamper;
 
 import com.aspect.snoop.JavaSnoop;
+import com.aspect.snoop.agent.AgentLogger;
 import com.aspect.snoop.ui.tamper.array.EditArrayView;
 import com.aspect.snoop.ui.tamper.bytearray.EditByteArrayView;
 import com.aspect.snoop.ui.tamper.list.EditListView;
@@ -33,12 +34,9 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.table.AbstractTableModel;
-import org.apache.log4j.Logger;
 
 class ObjectTableModel extends AbstractTableModel {
 
-    private static Logger logger = Logger.getLogger(ObjectTableModel.class);
-    
     private List<Field> fields;
     private Object toEdit;
 
@@ -143,9 +141,9 @@ class ObjectTableModel extends AbstractTableModel {
                             try {
                                 accessibleField.set(toEdit, view.getBytes());
                             } catch (IllegalArgumentException ex) {
-                                logger.error(ex);
+                                AgentLogger.error(ex);
                             } catch (IllegalAccessException ex) {
-                                logger.error(ex);
+                                AgentLogger.error(ex);
                             }
                             fireTableStructureChanged();
                             
@@ -159,9 +157,9 @@ class ObjectTableModel extends AbstractTableModel {
                                 try {
                                     accessibleField.set(toEdit, view.getObjectReplacement());
                                 } catch (IllegalArgumentException ex) {
-                                    logger.error("Couldn't save edited object: " + ex.getMessage(), ex);
+                                    AgentLogger.error("Couldn't save edited object: " + ex.getMessage(), ex);
                                 } catch (IllegalAccessException ex) {
-                                    logger.error("Couldn't save edited object: " + ex.getMessage(), ex);
+                                    AgentLogger.error("Couldn't save edited object: " + ex.getMessage(), ex);
                                 }
                             }
                         }

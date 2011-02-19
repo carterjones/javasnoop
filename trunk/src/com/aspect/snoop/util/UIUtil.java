@@ -1,3 +1,5 @@
+package com.aspect.snoop.util;
+
 /*
  * Copyright, Aspect Security, Inc.
  *
@@ -17,11 +19,18 @@
  * along with JavaSnoop.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.aspect.snoop.util;
 
+
+import com.aspect.snoop.agent.AgentLogger;
+import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 public class UIUtil {
 
