@@ -22,6 +22,7 @@ import com.aspect.snoop.agent.AgentCommunicationException;
 import com.aspect.snoop.agent.AgentJarCreator;
 import com.aspect.snoop.ui.JavaSnoopAboutBox;
 import com.aspect.snoop.ui.choose.process.ChooseProcessView;
+import com.aspect.snoop.ui.choose.process.NewProcessInfoView;
 import com.aspect.snoop.util.AttachUtil;
 import com.aspect.snoop.util.UIUtil;
 import com.sun.tools.attach.AgentInitializationException;
@@ -36,9 +37,6 @@ import javax.swing.JFrame;
 import javax.swing.SwingWorker;
 import org.apache.log4j.Logger;
 
-/**
- * The application's main frame.
- */
 public class StartupView extends FrameView {
 
     private static final Logger logger = Logger.getLogger(StartupView.class);
@@ -92,6 +90,7 @@ public class StartupView extends FrameView {
         jLabel5.setText(resourceMap.getString("jLabel5.text")); // NOI18N
         jLabel5.setName("jLabel5"); // NOI18N
 
+        btnStart.setAction(actionMap.get("startNewProcess")); // NOI18N
         btnStart.setFont(resourceMap.getFont("btnStart.font")); // NOI18N
         btnStart.setText(resourceMap.getString("btnStart.text")); // NOI18N
         btnStart.setName("btnStart"); // NOI18N
@@ -220,7 +219,7 @@ public class StartupView extends FrameView {
                 try {
                     String agentJarPath = AgentJarCreator.createAgentJar(false);
                     progressBar.setString("Attaching agent...");
-                    AttachUtil.loadAgentInVM(agentJarPath, pid);
+                    AttachUtil.loadAgentInOtherVM(agentJarPath, pid);
                 } catch (AttachNotSupportedException ex) {
                     logger.error(ex);
                     UIUtil.showErrorMessage(getFrame(), "Targeted virtual machine does not support attaching: " + ex.getMessage());
@@ -233,6 +232,55 @@ public class StartupView extends FrameView {
                 } catch (AgentInitializationException ex) {
                     logger.error(ex);
                     UIUtil.showErrorMessage(getFrame(), "Could not initialize agent: " + ex.getMessage());
+                } catch (AgentCommunicationException ex) {
+                    logger.error(ex);
+                    UIUtil.showErrorMessage(getFrame(), "Could not communicate with agent. It's possible that this process has already been attached to once.");
+                }
+
+                return null;
+            }
+        };
+
+        worker.execute();
+    }
+
+    @Action
+    public void startNewProcess() {
+        //NewProcessView view = new NewProcessView(getFrame());
+        NewProcessInfoView view = new NewProcessInfoView(getFrame(),true);
+        view.setVisible(true);
+
+        UIUtil.waitForInput(view);
+
+        final SnoopSession session = view.getSnoopSession();
+
+        if (session == null) // indicates the user cancelled
+           return;
+
+        progressBar.setIndeterminate(true);
+
+        progressBar.setString("Building agent...");
+        progressBar.setStringPainted(true);
+
+        SwingWorker worker = new SwingWorker() {
+            @Override
+            protected void done() {
+                super.done();
+                progressBar.setString("Process started! UI should appear momentarily...");
+                progressBar.setIndeterminate(false);
+            }
+            @Override
+            protected Object doInBackground() throws Exception {
+                try {
+                    String agentJarPath = AgentJarCreator.createAgentJar(false);
+                    progressBar.setString("Starting process with agent...");
+                    AttachUtil.launchInNewVM(agentJarPath, session);
+                } catch (AttachNotSupportedException ex) {
+                    logger.error(ex);
+                    UIUtil.showErrorMessage(getFrame(), "Targeted virtual machine does not support attaching: " + ex.getMessage());
+                } catch (IOException ex) {
+                    logger.error(ex);
+                    UIUtil.showErrorMessage(getFrame(), "Could not attach to new virtual machine due to I/O error: " + ex.getMessage());
                 } catch (AgentCommunicationException ex) {
                     logger.error(ex);
                     UIUtil.showErrorMessage(getFrame(), "Could not communicate with agent. It's possible that this process has already been attached to once.");

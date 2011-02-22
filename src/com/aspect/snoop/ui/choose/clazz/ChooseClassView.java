@@ -52,6 +52,14 @@ public class ChooseClassView extends javax.swing.JDialog {
         customInit(classes);
     }
 
+    public ChooseClassView(JDialog parent, List<Class> classes, boolean showMainsByDefault) {
+        super(parent, true);
+        initComponents();
+        chkOnlyMains.setSelected(showMainsByDefault);
+        customInit(classes);
+    }
+
+
     public ChooseClassView(java.awt.Frame parent, List<Class> classes, boolean showMainsByDefault) {
         super(parent, true);
         initComponents();

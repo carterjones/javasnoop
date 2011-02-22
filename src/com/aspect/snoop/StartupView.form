@@ -95,6 +95,9 @@
         </Component>
         <Component class="javax.swing.JButton" name="btnStart">
           <Properties>
+            <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+              <action class="com.aspect.snoop.StartupView" id="startNewProcess" methodName="startNewProcess"/>
+            </Property>
             <Property name="font" type="java.awt.Font" resourceKey="btnStart.font"/>
             <Property name="text" type="java.lang.String" resourceKey="btnStart.text"/>
             <Property name="name" type="java.lang.String" value="btnStart" noResource="true"/>
