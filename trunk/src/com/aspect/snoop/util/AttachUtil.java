@@ -19,6 +19,7 @@ package com.aspect.snoop.util;
  * along with JavaSnoop.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import com.aspect.snoop.SnoopSession;
 import com.aspect.snoop.agent.AgentCommunicationException;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -31,6 +32,7 @@ import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachine;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -43,10 +45,10 @@ public class AttachUtil {
     public static void attachToVM() throws AttachNotSupportedException, IOException, AgentLoadException, AgentInitializationException, AgentCommunicationException {
         // Use the process id of this VM
         String agentJarPath = AgentJarCreator.createAgentJar(false);
-        loadAgentInVM(agentJarPath, ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
+        loadAgentInOtherVM(agentJarPath, ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
     }
 
-    public static void loadAgentInVM(String agentJarPath, String pid) throws AttachNotSupportedException, IOException, AgentLoadException, AgentInitializationException, AgentCommunicationException {
+    public static void loadAgentInOtherVM(String agentJarPath, String pid) throws AttachNotSupportedException, IOException, AgentLoadException, AgentInitializationException, AgentCommunicationException {
 
         VirtualMachine vm = VirtualMachine.attach(pid);
         
@@ -56,10 +58,8 @@ public class AttachUtil {
         vm.detach();
     }
 
-    /*
-    public static void launchInNewVM(SnoopSession session) throws AttachNotSupportedException, ClassNotFoundException, NoSuchMethodException, IOException, AttachNotSupportedException,AgentCommunicationException {
+    public static void launchInNewVM(String agentJarPath, SnoopSession session) throws AttachNotSupportedException, ClassNotFoundException, NoSuchMethodException, IOException, AttachNotSupportedException,AgentCommunicationException {
 
-        String agentJarPath = AgentJarCreator.createAgentJar(true);
         boolean isJar = session.getMainClass().trim().length() == 0 &&
                         session.getClasspathString().trim().length() > 0 &&
                         session.getClasspathString().trim().endsWith(".jar");
@@ -117,7 +117,6 @@ public class AttachUtil {
 
         Runtime.getRuntime().exec(commandArgs, null, new File(workingDir));
     }
-    */
     
     private static String[] parseArguments(String args) {
 
