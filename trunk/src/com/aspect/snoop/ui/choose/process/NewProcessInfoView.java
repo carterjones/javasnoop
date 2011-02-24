@@ -20,10 +20,12 @@
 package com.aspect.snoop.ui.choose.process;
 
 import com.aspect.snoop.SnoopSession;
+import com.aspect.snoop.util.SimpleFileFilter;
+import java.awt.FileDialog;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.JFileChooser;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -33,21 +35,30 @@ public class NewProcessInfoView extends javax.swing.JDialog {
 
     ClasspathTreeModel classpath;
 
+	private String userDir = System.getProperty("user.dir");
+
+	private SimpleFileFilter fileFilter = new SimpleFileFilter("jar", "JAR Java Archives");
+
+	public static boolean quitResolving;
+
     public NewProcessInfoView(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         classpath = new ClasspathTreeModel(new DefaultMutableTreeNode(null));
         treeClasspath.setCellRenderer(new ClasspathTreeCellRenderer());
         treeClasses.setCellRenderer(new ClasspathTreeCellRenderer());
+
+		initializeLoadDialogListeners();
     }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        pnlMainClass = new javax.swing.JPanel();
         txtMainClass = new javax.swing.JTextField();
+        pnlMainClass = new javax.swing.JPanel();
         btnSearch = new javax.swing.JButton();
+        jLabelMainClass = new javax.swing.JLabel();
         pnlClasspathView = new javax.swing.JPanel();
         tabClasspath = new javax.swing.JTabbedPane();
         pnlJarView = new javax.swing.JPanel();
@@ -68,18 +79,23 @@ public class NewProcessInfoView extends javax.swing.JDialog {
         btnStartProcess = new javax.swing.JButton();
         btnCancel = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setName("Form"); // NOI18N
-
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getResourceMap(NewProcessInfoView.class);
-        pnlMainClass.setBorder(javax.swing.BorderFactory.createTitledBorder(resourceMap.getString("pnlMainClass.border.title"))); // NOI18N
-        pnlMainClass.setName("pnlMainClass"); // NOI18N
-
         txtMainClass.setText(resourceMap.getString("txtMainClass.text")); // NOI18N
         txtMainClass.setName("txtMainClass"); // NOI18N
 
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setName("Form"); // NOI18N
+
+        pnlMainClass.setBorder(javax.swing.BorderFactory.createTitledBorder(resourceMap.getString("pnlMainClass.border.title"))); // NOI18N
+        pnlMainClass.setName("pnlMainClass"); // NOI18N
+
+        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getActionMap(NewProcessInfoView.class, this);
+        btnSearch.setAction(actionMap.get("searchForMainClasses")); // NOI18N
         btnSearch.setText(resourceMap.getString("btnSearch.text")); // NOI18N
         btnSearch.setName("btnSearch"); // NOI18N
+
+        jLabelMainClass.setText(resourceMap.getString("jLabelMainClass.text")); // NOI18N
+        jLabelMainClass.setName("jLabelMainClass"); // NOI18N
 
         javax.swing.GroupLayout pnlMainClassLayout = new javax.swing.GroupLayout(pnlMainClass);
         pnlMainClass.setLayout(pnlMainClassLayout);
@@ -87,8 +103,8 @@ public class NewProcessInfoView extends javax.swing.JDialog {
             pnlMainClassLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlMainClassLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(txtMainClass, javax.swing.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabelMainClass, javax.swing.GroupLayout.DEFAULT_SIZE, 314, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnSearch)
                 .addContainerGap())
         );
@@ -97,7 +113,7 @@ public class NewProcessInfoView extends javax.swing.JDialog {
             .addGroup(pnlMainClassLayout.createSequentialGroup()
                 .addGroup(pnlMainClassLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnSearch)
-                    .addComponent(txtMainClass, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabelMainClass, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -108,7 +124,6 @@ public class NewProcessInfoView extends javax.swing.JDialog {
 
         pnlJarView.setName("pnlJars"); // NOI18N
 
-        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getActionMap(NewProcessInfoView.class, this);
         btnRemoveEntry.setAction(actionMap.get("removeClasspathEntry")); // NOI18N
         btnRemoveEntry.setText(resourceMap.getString("btnRemoveEntry.text")); // NOI18N
         btnRemoveEntry.setName("btnRemoveEntry"); // NOI18N
@@ -318,7 +333,7 @@ public class NewProcessInfoView extends javax.swing.JDialog {
     }
 
     @Action
-    public void addClasspathEntry() {
+    public void addClasspathEntryOld() {
 
         JFileChooser fc;
 
@@ -360,7 +375,50 @@ public class NewProcessInfoView extends javax.swing.JDialog {
     }
 
     @Action
-    public void removeClasspathEntry() {
+    public void addClasspathEntry() {
+
+		if (System.getProperty("os.name").toLowerCase().indexOf("mac") != -1) {
+			FileDialog fileDialog = new FileDialog((java.awt.Frame)getParent(), "Select root folders or JAR files", FileDialog.LOAD);
+			fileDialog.setDirectory(userDir);
+			// FIXME: Native FileDialog does not support multi-select, but JFileChooser is so 1980's
+			fileDialog.setVisible(true);
+			if (fileDialog.getFile() != null) {
+				File selectedFile = new File(fileDialog.getFile());
+
+				// Append the selected paths to our list of source roots
+				classpath.addEntry(selectedFile.getAbsolutePath());
+			}
+		}
+		else {
+			JFileChooser fc = new JFileChooser(new File(userDir));
+			fc.setApproveButtonText("Select");
+			fc.setDialogTitle("Select root folders or JAR files");
+			fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+			fc.setFileFilter(fileFilter);
+			fc.setMultiSelectionEnabled(true);
+			int rc = fc.showOpenDialog(getParent());
+			if (rc == JFileChooser.APPROVE_OPTION) {
+				StringBuffer root = new StringBuffer();
+				File[] selectedFiles = fc.getSelectedFiles();
+				for (int i = 0; i < selectedFiles.length - 1; i++) {
+					root.append(selectedFiles[i].getAbsoluteFile());
+					root.append(';');
+				}
+				root.append(selectedFiles[selectedFiles.length - 1].getAbsoluteFile());
+
+				// Append the selected paths to our list of source roots
+				for (File selectedFile : selectedFiles) {
+					classpath.addEntry(selectedFile.getAbsolutePath());
+				}
+			}
+		}
+		if (classpath.getSize() != 0) {
+			new LoadDialog(NewProcessInfoView.this.pnlMainClass, classpath.getEntries(), classpathTreeChangeListener, statusListener);
+		}
+	}
+
+    @Action
+    public void removeClasspathEntryOld() {
 
         for(TreePath path : treeClasspath.getSelectionPaths()) {
             System.out.println("Gonna delete: " + path);
@@ -368,6 +426,58 @@ public class NewProcessInfoView extends javax.swing.JDialog {
         }
 
     }
+
+    @Action
+    public void removeClasspathEntry() {
+		// Remove the paths selected in the treeClasspath from sourceRoots
+		TreePath[] paths = treeClasspath.getSelectionPaths();
+		for (TreePath path : paths) {
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) (path.getLastPathComponent());
+			if (node.getLevel() == 1) {
+				classpath.removeEntry((String)node.getUserObject());
+//						((DefaultTreeModel)classpath.getModel()).removeNodeFromParent(node);
+//						((DefaultTreeModel)classpath.getModel()).reload(parentNode);
+			}
+		}
+
+		if (classpath.getSize() != 0) {
+			new LoadDialog(NewProcessInfoView.this.pnlMainClass, classpath.getEntries(), classpathTreeChangeListener, statusListener);
+		}
+	}
+
+    @Action
+	public void searchForMainClasses() {
+		final SearchMainMethodsView searchMainMethodsView = new SearchMainMethodsView(
+				new javax.swing.JFrame(), true, classpath.getEntries());
+		searchMainMethodsView.addChangeListener( new ChangeListener() {
+
+			public void stateChanged(ChangeEvent e) {
+				String selectedClass = (String) e.getSource();
+				System.out.println( "Setting program's main class to: " + selectedClass );
+				jLabelMainClass.setText( selectedClass );
+			}
+
+		});
+		searchMainMethodsView.setVisible( true );
+	}
+
+	ClasspathTreeChangeListener classpathTreeChangeListener;
+	ChangeListener statusListener;
+	private void initializeLoadDialogListeners() {
+		classpathTreeChangeListener = new ClasspathTreeChangeListener(){
+
+				public void stateChanged(ClasspathTreeChangeEvent e) {
+					treeClasspath.setModel(e.getJarsTreeModel());
+					treeClasses.setModel(e.getClassesTreeModel());
+			}
+		};
+		statusListener = new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				System.out.println("Somebody add a status JLabel to this view so the scanner can update it here.");
+				//statusLabel.setText(e.getSource());
+			}
+		};
+	}
 
     @Action
     public void close() {
@@ -395,6 +505,7 @@ public class NewProcessInfoView extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabelMainClass;
     private javax.swing.JPanel pnlClassesView;
     private javax.swing.JScrollPane pnlClasspath;
     private javax.swing.JScrollPane pnlClasspath1;
