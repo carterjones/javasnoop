@@ -7,8 +7,8 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="JavaSnoop2" default="default" basedir=".">
-    <description>Builds, tests, and runs the project JavaSnoop2.</description>
+<project name="JavaSnoop" default="default" basedir=".">
+    <description>Builds, tests, and runs the project JavaSnoop.</description>
     <import file="nbproject/build-impl.xml"/>
     <!--
 
@@ -59,7 +59,7 @@
 
     An example of overriding the target for project execution could look like this:
 
-        <target name="run" depends="JavaSnoop2-impl.jar">
+        <target name="run" depends="JavaSnoop-impl.jar">
             <exec dir="bin" executable="launcher.exe">
                 <arg file="${dist.jar}"/>
             </exec>
@@ -71,4 +71,34 @@
     nbproject/build-impl.xml file. 
 
     -->
+
+    <property name="dist.name" value="JavaSnoop"/>
+    <property name="version.major" value="1"/>
+    <property name="version.minor" value="1"/>
+
+    <target name="-post-jar">
+        <mkdir dir="${dist.dir}/resources"/>
+        <copy todir="${dist.dir}/resources">
+            <fileset dir="resources"/>
+        </copy>
+
+        <move file="${dist.dir}/resources/startup.bat" todir="${dist.dir}"/>
+        <move file="${dist.dir}/resources/startup.sh" todir="${dist.dir}"/>
+        <move file="${dist.dir}/resources/startup.ps1" todir="${dist.dir}"/>
+        <move file="${dist.dir}/resources/README.txt" todir="${dist.dir}"/>
+
+        <!-- create the deliverable zip -->
+        <copy todir="${dist.name}">
+            <fileset dir="${dist.dir}"/>
+        </copy>
+
+        <zip
+            basedir="."
+            includes="${dist.name}/"
+            zipfile="${dist.dir}/${dist.name}-${version.major}.${version.minor}.zip"/>
+
+        <delete dir="${dist.name}"/>
+
+    </target>
+    
 </project>

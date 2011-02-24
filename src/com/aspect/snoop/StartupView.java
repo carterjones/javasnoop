@@ -219,6 +219,7 @@ public class StartupView extends FrameView {
                 try {
                     String agentJarPath = AgentJarCreator.createAgentJar(false);
                     progressBar.setString("Attaching agent...");
+                    logger.info("Attaching to process ID " + pid + " with generated agent at " + agentJarPath);
                     AttachUtil.loadAgentInOtherVM(agentJarPath, pid);
                 } catch (AttachNotSupportedException ex) {
                     logger.error(ex);
@@ -246,7 +247,6 @@ public class StartupView extends FrameView {
 
     @Action
     public void startNewProcess() {
-        //NewProcessView view = new NewProcessView(getFrame());
         NewProcessInfoView view = new NewProcessInfoView(getFrame(),true);
         view.setVisible(true);
 
@@ -274,6 +274,7 @@ public class StartupView extends FrameView {
                 try {
                     String agentJarPath = AgentJarCreator.createAgentJar(false);
                     progressBar.setString("Starting process with agent...");
+                    logger.info("Starting new process with generated agent at " + agentJarPath);
                     AttachUtil.launchInNewVM(agentJarPath, session);
                 } catch (AttachNotSupportedException ex) {
                     logger.error(ex);

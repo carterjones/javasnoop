@@ -125,7 +125,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
 
         chkShowMethodCode.setSelected( JavaSnoop.getBooleanProperty(JavaSnoop.USE_JAD,false) );
 
-        setResizable(false);
+        //setResizable(false);
 
         String icon = "/META-INF/about.png";
 
@@ -1554,7 +1554,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
 
         FunctionHook hook = getHookById(hookId);
 
-        if (!hook.isEnabled() || ! hook.shouldPrintParameters() || !areConditionsMet(hook.getMode(), hook.getConditions(), parameters)) {
+        if (!hook.isEnabled() || ! hook.shouldPrintStackTrace() || !areConditionsMet(hook.getMode(), hook.getConditions(), parameters)) {
             return;
         }
 
@@ -2226,8 +2226,6 @@ public class JavaSnoopView extends javax.swing.JFrame {
 
             if ( hook.getReturnType().getName().equals("void") ) {
                 chkTamperReturnValue.setEnabled(false);
-            } else {
-                chkTamperReturnValue.setEnabled(true);
             }
 
             chkRunScript.setSelected(hook.shouldRunScript());
