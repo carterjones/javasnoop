@@ -162,6 +162,7 @@ public class FunctionHookTableSelectionListener implements ListSelectionListener
 
                 if ( hook.getParameterTypes().length == 0 ) {
                     chkTamperParameters.setEnabled(false);
+                    chkPrintParameters.setEnabled(false);
                 }
 
                 chkTamperReturnValue.setSelected(hook.shouldTamperReturnValue());
