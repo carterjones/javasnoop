@@ -76,90 +76,90 @@ public class DroppableTabbedPane extends JTabbedPane implements DropTargetListen
 			System.out.println( "All flavors: " + Arrays.asList( flavors ) );
 			System.out.println( "Selected flavor is " + flavor );
 
-			if ( flavor.equals( FLAVOR_URILIST_READER ) )
-			{
-				dtde.acceptDrop( DnDConstants.ACTION_COPY_OR_MOVE );
-
-				BufferedReader reader = new BufferedReader( flavor.getReaderForText( tr ) );
-				// Remove 'file://' from file name
-				String line = null;
-				while ( ( line = reader.readLine() ) != null )
-				{
-					System.out.println( "Line for file Dragged:" + line );
-
-					String fileName = line.substring( 7 ).replace( "%20", " " );
-
-					// Remove 'localhost' from OS X file names
-					if ( fileName.substring( 0, 9 ).equals( "localhost" ) )
-					{
-						fileName = fileName.substring( 9 );
-					}
-					System.out.println( "File Dragged:" + fileName );
-					if ( fileName.length() != 0 )
-					{
-//						fileNames.add( fileName );
-						parent.addSourceRoot( fileName );
-					}
-					// mainWindow.openFile(fileName);
-				}
-				reader.close();
-				dtde.dropComplete( true );
-			}
-			// Check for file lists specifically
-			else if ( flavor.isFlavorJavaFileListType() )
-			{
-				// Great! Accept copy drops...
-				dtde.acceptDrop( DnDConstants.ACTION_COPY_OR_MOVE );
-				System.out.println( "Successful file list drop.\n\n" );
-
-				// And add the list of file names to our text area
-				List<File> list = (List<File>) tr.getTransferData( flavor );
-				for ( int j = 0; j < list.size(); j++ )
-				{
-					System.out.print( list.get( j ) + "\n" );
-					// FIXME: We need to append to the current
-					// JavaMethodBrowser.sourceRoots
-					// I think we recursively call JTree.getNextMatch() for the
-					// node value to be inserted, removing an
-					// element from the path each time. Then, call
-					// Model.insertNodeInto(newNode, matcheNode,
-					// matcheNode.getChildCount()).
-
-					parent.addSourceRoot( list.get( j ).getAbsolutePath() );
-				}
-				// If we made it this far, everything worked.
-				dtde.dropComplete( true );
-			}
-			// Ok, is it another Java object?
-			else if ( flavor.isFlavorSerializedObjectType() )
-			{
-				dtde.acceptDrop( DnDConstants.ACTION_COPY_OR_MOVE );
-				System.out.println( "Successful text drop.\n\n" );
-				Object o = tr.getTransferData( flavor );
-				System.out.print( "Object: " + o );
-				dtde.dropComplete( true );
-			}
-			// How about an input stream?
-			else if ( flavor.isRepresentationClassInputStream() )
-			{
-				dtde.acceptDrop( DnDConstants.ACTION_COPY_OR_MOVE );
-				System.out.println( "Successful text drop.\n\n" );
-				// ta.read( new InputStreamReader( (InputStream)
-				// tr.getTransferData( flavors[i] ) ),
-				// "from system clipboard" );
-				dtde.dropComplete( true );
-			}
-			else
-			{
-				// Hmm, the user must not have dropped a file list
-				System.out.println( "Drop failed: " + dtde );
-				dtde.rejectDrop();
-			}
-
-			if ( parent.getSourceRoots().size() > 0 )
-			{
-				new LoadDialog( parent, parent.getSourceRoots(), null, null );
-			}
+//			if ( flavor.equals( FLAVOR_URILIST_READER ) )
+//			{
+//				dtde.acceptDrop( DnDConstants.ACTION_COPY_OR_MOVE );
+//
+//				BufferedReader reader = new BufferedReader( flavor.getReaderForText( tr ) );
+//				// Remove 'file://' from file name
+//				String line = null;
+//				while ( ( line = reader.readLine() ) != null )
+//				{
+//					System.out.println( "Line for file Dragged:" + line );
+//
+//					String fileName = line.substring( 7 ).replace( "%20", " " );
+//
+//					// Remove 'localhost' from OS X file names
+//					if ( fileName.substring( 0, 9 ).equals( "localhost" ) )
+//					{
+//						fileName = fileName.substring( 9 );
+//					}
+//					System.out.println( "File Dragged:" + fileName );
+//					if ( fileName.length() != 0 )
+//					{
+////						fileNames.add( fileName );
+//						parent.addSourceRoot( fileName );
+//					}
+//					// mainWindow.openFile(fileName);
+//				}
+//				reader.close();
+//				dtde.dropComplete( true );
+//			}
+//			// Check for file lists specifically
+//			else if ( flavor.isFlavorJavaFileListType() )
+//			{
+//				// Great! Accept copy drops...
+//				dtde.acceptDrop( DnDConstants.ACTION_COPY_OR_MOVE );
+//				System.out.println( "Successful file list drop.\n\n" );
+//
+//				// And add the list of file names to our text area
+//				List<File> list = (List<File>) tr.getTransferData( flavor );
+//				for ( int j = 0; j < list.size(); j++ )
+//				{
+//					System.out.print( list.get( j ) + "\n" );
+//					// FIXME: We need to append to the current
+//					// JavaMethodBrowser.sourceRoots
+//					// I think we recursively call JTree.getNextMatch() for the
+//					// node value to be inserted, removing an
+//					// element from the path each time. Then, call
+//					// Model.insertNodeInto(newNode, matcheNode,
+//					// matcheNode.getChildCount()).
+//
+//					parent.addSourceRoot( list.get( j ).getAbsolutePath() );
+//				}
+//				// If we made it this far, everything worked.
+//				dtde.dropComplete( true );
+//			}
+//			// Ok, is it another Java object?
+//			else if ( flavor.isFlavorSerializedObjectType() )
+//			{
+//				dtde.acceptDrop( DnDConstants.ACTION_COPY_OR_MOVE );
+//				System.out.println( "Successful text drop.\n\n" );
+//				Object o = tr.getTransferData( flavor );
+//				System.out.print( "Object: " + o );
+//				dtde.dropComplete( true );
+//			}
+//			// How about an input stream?
+//			else if ( flavor.isRepresentationClassInputStream() )
+//			{
+//				dtde.acceptDrop( DnDConstants.ACTION_COPY_OR_MOVE );
+//				System.out.println( "Successful text drop.\n\n" );
+//				// ta.read( new InputStreamReader( (InputStream)
+//				// tr.getTransferData( flavors[i] ) ),
+//				// "from system clipboard" );
+//				dtde.dropComplete( true );
+//			}
+//			else
+//			{
+//				// Hmm, the user must not have dropped a file list
+//				System.out.println( "Drop failed: " + dtde );
+//				dtde.rejectDrop();
+//			}
+//
+//			if ( parent.getSourceRoots().size() > 0 )
+//			{
+//				new LoadDialog( parent, parent.getSourceRoots(), null, null );
+//			}
 
 		}
 		catch (Exception e)
