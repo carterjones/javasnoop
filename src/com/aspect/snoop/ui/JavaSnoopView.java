@@ -83,6 +83,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.SimpleAttributeSet;
@@ -120,6 +121,8 @@ public class JavaSnoopView extends javax.swing.JFrame {
 
         this.manager = manager;
         initializeSession();
+
+		beMacFriendly();
 
         updateTitle();
 
@@ -168,6 +171,29 @@ public class JavaSnoopView extends javax.swing.JFrame {
         PopupListener popupListener = new PopupListener();
         tblConditions.addMouseListener( popupListener );
     }
+
+	private void beMacFriendly() {
+		if (isMac())
+		{
+			System.setProperty("apple.laf.useScreenMenuBar", "true");
+			System.setProperty("com.apple.mrj.application.apple.menu.about.name", "JavaSnoop");
+			try
+			{
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	private boolean isMac()
+	{
+    	return System.getProperty("os.name").toLowerCase().indexOf("mac") != -1;
+	}
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

@@ -80,6 +80,10 @@ public class ClasspathTreeModel extends DefaultTreeModel {
         return entries;
     }
 
+    public int getSize() {
+        return entries.size();
+    }
+
     @Override
     public void reload() {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode();
