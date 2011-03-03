@@ -43,9 +43,9 @@ public class ParameterTamperingView extends javax.swing.JDialog {
         return method;
     }
 
-    public ParameterTamperingView(java.awt.Frame parent, boolean modal, 
+    public ParameterTamperingView(java.awt.Frame parent, boolean modal,
             String clazz, String method, List<Parameter> parameters, boolean isReturnValue) {
-       
+
         super(parent, modal);
         initComponents();
 
@@ -58,7 +58,7 @@ public class ParameterTamperingView extends javax.swing.JDialog {
 
         this.parameters = parameters;
         tblParameters.setModel( new ParameterTableModel(tblParameters,parameters) );
-        
+
         ParameterTableCellRenderer renderer =
                 new ParameterTableCellRenderer();
         tblParameters.setDefaultEditor(JButton.class, renderer);
@@ -219,13 +219,13 @@ public class ParameterTamperingView extends javax.swing.JDialog {
                 params.add ( new Parameter(3, 3L) );
                 params.add ( new Parameter(4, true) );
                 params.add ( new Parameter(5,new SnoopSession()));
-                
+
                 ParameterTamperingView dialog = new ParameterTamperingView(
                         new javax.swing.JFrame(), true,
                         "com.foo.bar.service.eating.spoop.Fooclass",
                         "EatSteak",
                         params,true);
-                
+
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

@@ -46,9 +46,9 @@ public class AddFunctionHookView extends javax.swing.JDialog {
     private static Class selectedClass;
     private static Class[] parameterTypes;
     private static Class returnType;
-    
+
     private static boolean shouldInherit;
-    
+
     private Class currentClass;
     private Method[] loadedMethods;
     private Constructor[] loadedConstructors;
@@ -84,12 +84,12 @@ public class AddFunctionHookView extends javax.swing.JDialog {
                     lbl.setBackground(Color.blue);
                     lbl.setOpaque(true);
                 }
-                
+
                 Member m = (Member)value;
-                
+
                 String toShow = ReflectionUtil.getMethodDescription(m);
                 lbl.setText(" " + toShow);
-                
+
                 return lbl;
             }
             }
@@ -101,7 +101,7 @@ public class AddFunctionHookView extends javax.swing.JDialog {
         selectedMethod = null;
         parameterTypes = null;
         returnType = null;
-        
+
         lstMethods.addMouseListener(
                 new MouseListener() {
 
@@ -156,6 +156,7 @@ public class AddFunctionHookView extends javax.swing.JDialog {
         jLabel1.setName("jLabel1"); // NOI18N
 
         txtClass.setText(resourceMap.getString("txtClass.text")); // NOI18N
+        txtClass.setToolTipText(resourceMap.getString("txtClass.toolTipText")); // NOI18N
         txtClass.setName("txtClass"); // NOI18N
         txtClass.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -171,6 +172,7 @@ public class AddFunctionHookView extends javax.swing.JDialog {
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getActionMap(AddFunctionHookView.class, this);
         btnBrowseForClass.setAction(actionMap.get("showChooseClassForm")); // NOI18N
         btnBrowseForClass.setText(resourceMap.getString("btnBrowseForClass.text")); // NOI18N
+        btnBrowseForClass.setToolTipText(resourceMap.getString("btnBrowseForClass.toolTipText")); // NOI18N
         btnBrowseForClass.setFocusable(false);
         btnBrowseForClass.setName("btnBrowseForClass"); // NOI18N
         btnBrowseForClass.addActionListener(new java.awt.event.ActionListener() {
@@ -199,6 +201,7 @@ public class AddFunctionHookView extends javax.swing.JDialog {
 
         btnAddWatch.setFont(resourceMap.getFont("btnAddWatch.font")); // NOI18N
         btnAddWatch.setText(resourceMap.getString("btnAddWatch.text")); // NOI18N
+        btnAddWatch.setToolTipText(resourceMap.getString("btnAddWatch.toolTipText")); // NOI18N
         btnAddWatch.setFocusable(false);
         btnAddWatch.setName("btnAddWatch"); // NOI18N
         btnAddWatch.addActionListener(new java.awt.event.ActionListener() {
@@ -208,11 +211,13 @@ public class AddFunctionHookView extends javax.swing.JDialog {
         });
 
         chkShouldInherit.setText(resourceMap.getString("chkShouldInherit.text")); // NOI18N
+        chkShouldInherit.setToolTipText(resourceMap.getString("chkShouldInherit.toolTipText")); // NOI18N
         chkShouldInherit.setFocusable(false);
         chkShouldInherit.setName("chkShouldInherit"); // NOI18N
 
         btnSearchForFunction.setAction(actionMap.get("searchForFunction")); // NOI18N
         btnSearchForFunction.setText(resourceMap.getString("btnSearchForFunction.text")); // NOI18N
+        btnSearchForFunction.setToolTipText(resourceMap.getString("btnSearchForFunction.toolTipText")); // NOI18N
         btnSearchForFunction.setFocusable(false);
         btnSearchForFunction.setName("btnSearchForFunction"); // NOI18N
 
@@ -290,11 +295,11 @@ public class AddFunctionHookView extends javax.swing.JDialog {
         if (view.getChosenClass() != null) {
             loadClassMethods(view.getChosenClass(), true);
         }
-        
+
     }//GEN-LAST:event_btnBrowseForClassActionPerformed
 
     private void txtClassKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtClassKeyTyped
-        
+
         String substring = txtClass.getText();
 
         if ( evt.getKeyChar() != java.awt.event.KeyEvent.VK_ENTER &&
@@ -311,16 +316,16 @@ public class AddFunctionHookView extends javax.swing.JDialog {
                 substring += evt.getKeyChar();
             }
         }
-        
+
         try {
 
             currentClass = SnoopAgent.getAgentManager().getFromAllClasses(substring);
             loadClassMethods(currentClass,false);
-            
+
         } catch (ClassNotFoundException ex) {
             lstMethods.setListData(new String[0]);
         }
-        
+
     }//GEN-LAST:event_txtClassKeyTyped
 
     private void txtClassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtClassActionPerformed
@@ -358,7 +363,7 @@ public class AddFunctionHookView extends javax.swing.JDialog {
         parameterTypes = ReflectionUtil.getParameterTypes(selectedMethod);
         returnType = ReflectionUtil.getReturnType(selectedMethod);
         shouldInherit = chkShouldInherit.isSelected();
-        
+
     }
 
     private void loadClassMethods(Class clazz, boolean setClassName) {
@@ -387,18 +392,18 @@ public class AddFunctionHookView extends javax.swing.JDialog {
             chkShouldInherit.setEnabled(true);
         }
 
-        
+
 
     }
 
     @Action
     public void searchForFunction() {
-        
+
         List<Class> classes = SnoopAgent.getAgentManager().getLoadedClasses();
 
         FunctionSearchView view = new FunctionSearchView(this, true, classes);
         view.setVisible(true);
-        
+
         UIUtil.waitForInput(view);
 
         AccessibleObject method = view.getMethodChosen();
@@ -413,7 +418,7 @@ public class AddFunctionHookView extends javax.swing.JDialog {
         returnType = ReflectionUtil.getReturnType(method);
 
         dispose();
-        
+
     }
 
     public Class getReturnType() {

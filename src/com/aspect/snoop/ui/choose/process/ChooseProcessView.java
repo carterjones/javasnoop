@@ -49,8 +49,11 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.event.ListSelectionListener;
+import org.apache.log4j.Logger;
 
 public class ChooseProcessView extends javax.swing.JDialog {
+
+    private static final Logger logger = Logger.getLogger(ChooseProcessView.class);
 
     private String pid;
     SnoopSession session;
@@ -58,7 +61,7 @@ public class ChooseProcessView extends javax.swing.JDialog {
     public ChooseProcessView(JFrame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        
+
         lstJavaProcesses.setListData(new String[0]);
 
         lstJavaProcesses.setCellRenderer(new DefaultListCellRenderer() {
@@ -127,7 +130,7 @@ public class ChooseProcessView extends javax.swing.JDialog {
 
                 }
             }
-            
+
         });
 
         lstJavaProcesses.addMouseListener(
@@ -143,7 +146,7 @@ public class ChooseProcessView extends javax.swing.JDialog {
                         UIUtil.showErrorMessage(p, "Sorry, can't attach to that VM. It's probably running on an old version of Java.");
                         return;
                     }
-                    
+
                     finalizeSelection();
                     dispose();
                 }
@@ -188,10 +191,14 @@ public class ChooseProcessView extends javax.swing.JDialog {
         btnCopyToClipboard = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
         lblJar = new javax.swing.JLabel();
+        btnUseAndAttachAndClobber = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getResourceMap(ChooseProcessView.class);
+        setTitle(resourceMap.getString("Form.title")); // NOI18N
         setModalityType(java.awt.Dialog.ModalityType.APPLICATION_MODAL);
         setName("Form"); // NOI18N
+        setResizable(false);
 
         jScrollPane1.setName("jScrollPane1"); // NOI18N
 
@@ -203,7 +210,6 @@ public class ChooseProcessView extends javax.swing.JDialog {
         lstJavaProcesses.setName("lstJavaProcesses"); // NOI18N
         jScrollPane1.setViewportView(lstJavaProcesses);
 
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getResourceMap(ChooseProcessView.class);
         jLabel1.setText(resourceMap.getString("jLabel1.text")); // NOI18N
         jLabel1.setName("jLabel1"); // NOI18N
 
@@ -237,10 +243,12 @@ public class ChooseProcessView extends javax.swing.JDialog {
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getActionMap(ChooseProcessView.class, this);
         btnUseAndAttach.setAction(actionMap.get("useAndAttach")); // NOI18N
         btnUseAndAttach.setText(resourceMap.getString("btnUseAndAttach.text")); // NOI18N
+        btnUseAndAttach.setToolTipText(resourceMap.getString("btnUseAndAttach.toolTipText")); // NOI18N
         btnUseAndAttach.setName("btnUseAndAttach"); // NOI18N
 
         btnCopyToClipboard.setAction(actionMap.get("copyToClipboard")); // NOI18N
         btnCopyToClipboard.setText(resourceMap.getString("btnCopyToClipboard.text")); // NOI18N
+        btnCopyToClipboard.setToolTipText(resourceMap.getString("btnCopyToClipboard.toolTipText")); // NOI18N
         btnCopyToClipboard.setName("btnCopyToClipboard"); // NOI18N
 
         jLabel6.setText(resourceMap.getString("jLabel6.text")); // NOI18N
@@ -249,36 +257,46 @@ public class ChooseProcessView extends javax.swing.JDialog {
         lblJar.setText(resourceMap.getString("lblJar.text")); // NOI18N
         lblJar.setName("lblJar"); // NOI18N
 
+        btnUseAndAttachAndClobber.setAction(actionMap.get("useAndAttachWithClobbering")); // NOI18N
+        btnUseAndAttachAndClobber.setText(resourceMap.getString("btnUseAndAttachAndClobber.text")); // NOI18N
+        btnUseAndAttachAndClobber.setToolTipText(resourceMap.getString("btnUseAndAttachAndClobber.toolTipText")); // NOI18N
+        btnUseAndAttachAndClobber.setName("btnUseAndAttachAndClobber"); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 584, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 598, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
+                            .addComponent(jLabel3)
                             .addComponent(jLabel5)
-                            .addComponent(jLabel2)
                             .addComponent(jLabel4)
-                            .addComponent(jLabel6)
-                            .addComponent(jLabel3))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel6))
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblPid, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(lblVmVersion, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(lblJar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 357, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(lblMainClass, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 357, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(lblVmArgs, javax.swing.GroupLayout.PREFERRED_SIZE, 357, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblMainArgs, javax.swing.GroupLayout.PREFERRED_SIZE, 357, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(btnUseAndAttach, javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(btnCopyToClipboard)))
-                            .addComponent(lblVmArgs, javax.swing.GroupLayout.PREFERRED_SIZE, 498, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lblMainArgs, javax.swing.GroupLayout.PREFERRED_SIZE, 498, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                    .addComponent(lblVmVersion, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(lblJar, javax.swing.GroupLayout.PREFERRED_SIZE, 357, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(lblMainClass, javax.swing.GroupLayout.PREFERRED_SIZE, 346, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(6, 6, 6)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(btnUseAndAttach)
+                                    .addComponent(btnCopyToClipboard)))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap(421, Short.MAX_VALUE)
+                        .addComponent(btnUseAndAttachAndClobber)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -287,36 +305,41 @@ public class ChooseProcessView extends javax.swing.JDialog {
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(lblPid, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lblVmArgs, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel5)
-                            .addComponent(lblMainArgs, javax.swing.GroupLayout.DEFAULT_SIZE, 16, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(lblMainClass, javax.swing.GroupLayout.DEFAULT_SIZE, 14, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(lblVmVersion, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lblJar, javax.swing.GroupLayout.DEFAULT_SIZE, 14, Short.MAX_VALUE)
-                            .addComponent(jLabel6)))
+                        .addComponent(jLabel1)
+                        .addGap(6, 6, 6)
+                        .addComponent(jLabel3)
+                        .addGap(7, 7, 7)
+                        .addComponent(jLabel5)
+                        .addGap(7, 7, 7)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addGap(6, 6, 6)
+                                .addComponent(jLabel2)
+                                .addGap(7, 7, 7)
+                                .addComponent(jLabel6))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(3, 3, 3)
+                                .addComponent(btnCopyToClipboard)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnUseAndAttach))))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnCopyToClipboard)
+                        .addComponent(lblPid)
+                        .addGap(6, 6, 6)
+                        .addComponent(lblVmArgs)
+                        .addGap(6, 6, 6)
+                        .addComponent(lblMainArgs, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(lblMainClass)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnUseAndAttach)))
-                .addGap(19, 19, 19))
+                        .addComponent(lblVmVersion, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(lblJar)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnUseAndAttachAndClobber)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -325,6 +348,7 @@ public class ChooseProcessView extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCopyToClipboard;
     private javax.swing.JButton btnUseAndAttach;
+    private javax.swing.JButton btnUseAndAttachAndClobber;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -340,13 +364,13 @@ public class ChooseProcessView extends javax.swing.JDialog {
     private javax.swing.JLabel lblVmVersion;
     private javax.swing.JList lstJavaProcesses;
     // End of variables declaration//GEN-END:variables
-    
+
     private final static boolean JPS_SHOW_JVM_ARGS = false;
     private final static boolean JPS_SHOW_LONG_PATHS = true;
     private final static boolean JPS_DEBUG = true;
 
     private void loadProcesses() {
-    	
+
     	// Get descriptors for all JVM processes (JDK 1.6+)
         // List<VirtualMachineDescriptor> list = VirtualMachine.list();
         // lstJavaProcesses.setListData(new Vector<VirtualMachineDescriptor>(list));
@@ -409,7 +433,7 @@ public class ChooseProcessView extends javax.swing.JDialog {
                 String mainClassName = MonitoredVmUtil.mainClass(vm, true);
 
                 boolean isAttachable = isAttachable(jvmIdString);
-                
+
                 JVMDescriptor desc = new JVMDescriptor(jvmIdString, mainClassName, isAttachable);
                 desc.setJVMArguments(MonitoredVmUtil.jvmArgs(vm));
                 desc.setMainArguments(MonitoredVmUtil.mainArgs(vm));
@@ -418,7 +442,7 @@ public class ChooseProcessView extends javax.swing.JDialog {
 
                 if ( mainClassName.length() == 0 ) {
                     mainClassName = desc.getCommandLine();
-                    
+
                 } else if ( mainClassName.endsWith(".jar") ) {
                     desc.setJar(mainClassName);
                     try {
@@ -430,9 +454,9 @@ public class ChooseProcessView extends javax.swing.JDialog {
                     desc.setMainClass(mainClassName);
                     desc.setJar("");
                 }
-                
+
                 desc.setMainClass(MonitoredVmUtil.mainClass(vm, true));
-                
+
                 String currentPid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
 
                 if ( ! currentPid.equals(desc.getId()) ) {
@@ -442,24 +466,15 @@ public class ChooseProcessView extends javax.swing.JDialog {
                 monitoredHost.detach(vm);
             }
         } catch (MonitorException e) {
-            if (e.getMessage() != null) {
-                System.err.println(e.getMessage());
-            } else {
-                Throwable cause = e.getCause();
-                if ((cause != null) && (cause.getMessage() != null)) {
-                    System.err.println(cause.getMessage());
-                } else {
-                    e.printStackTrace();
-                }
-            }
+            logger.error(e);
         }
       lstJavaProcesses.setListData(vmds);
     }
 
     private boolean isAttachable(String id) {
-    	
+
     	boolean attachable = false;
-    	
+
 	    MonitoredVm mvm = null;
 	    try {
 		    VmIdentifier vmid = new VmIdentifier(id);
@@ -469,10 +484,10 @@ public class ChooseProcessView extends javax.swing.JDialog {
 		    	attachable = true;
 		    } else {
 		    	if (MonitoredVmUtil.isKernelVM(mvm)) {
-        	                System.err.println("Kernel VM does not support the attach mechanism");
+        	            logger.trace("Kernel VM does not support the attach mechanism");
 		    	}
 		    	else {
-                            System.err.println("The VM does not support the attach mechanism for pid " + id);
+                            logger.trace("The VM does not support the attach mechanism for pid " + id);
             	    	}
 		    }
 	    } catch (Throwable t) {
@@ -505,11 +520,11 @@ public class ChooseProcessView extends javax.swing.JDialog {
         if ( lstJavaProcesses.isSelectionEmpty() ) {
             return;
         }
-        
+
         JVMDescriptor jvm = (JVMDescriptor)lstJavaProcesses.getSelectedValue();
 
         this.session = toSession(jvm);
-        
+
         finalizeSelection();
         dispose();
     }
@@ -520,7 +535,7 @@ public class ChooseProcessView extends javax.swing.JDialog {
         if ( lstJavaProcesses.isSelectionEmpty() ) {
             return;
         }
-        
+
         JVMDescriptor jvm = (JVMDescriptor)lstJavaProcesses.getSelectedValue();
 
         session = toSession(jvm);
@@ -533,15 +548,15 @@ public class ChooseProcessView extends javax.swing.JDialog {
 
     private SnoopSession toSession(JVMDescriptor jvm) {
 
-        SnoopSession session = new SnoopSession();
-        
-        session.setArguments(jvm.getMainArguments());
-        session.setJavaArguments(jvm.getJVMArguments());
-        session.setProcessId(Integer.parseInt(jvm.getId()));
-        session.setClasspathString(jvm.getJar());
-        session.setMainClass(jvm.getMainClass());
+        SnoopSession sess = new SnoopSession();
 
-        return session;
+        sess.setArguments(jvm.getMainArguments());
+        sess.setJavaArguments(jvm.getJVMArguments());
+        sess.setProcessId(Integer.parseInt(jvm.getId()));
+        sess.setClasspathString(jvm.getJar());
+        sess.setMainClass(jvm.getMainClass());
+
+        return sess;
     }
 
     @Action
@@ -571,7 +586,21 @@ public class ChooseProcessView extends javax.swing.JDialog {
         StringSelection buffer = new StringSelection(sb.toString());
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(buffer, buffer);
-        
+
+    }
+
+    @Action
+    public void useAndAttachWithClobbering() {
+    if ( lstJavaProcesses.isSelectionEmpty() ) {
+            return;
+        }
+
+        JVMDescriptor jvm = (JVMDescriptor)lstJavaProcesses.getSelectedValue();
+
+        this.session = toSession(jvm);
+        session.setCloberLookAndFeel(true);
+        finalizeSelection();
+        dispose();
     }
 
 }

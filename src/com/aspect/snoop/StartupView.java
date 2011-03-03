@@ -84,6 +84,7 @@ public class StartupView extends FrameView {
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getResourceMap(StartupView.class);
         btnAttach.setFont(resourceMap.getFont("btnAttach.font")); // NOI18N
         btnAttach.setText(resourceMap.getString("btnAttach.text")); // NOI18N
+        btnAttach.setToolTipText(resourceMap.getString("btnAttach.toolTipText")); // NOI18N
         btnAttach.setName("btnAttach"); // NOI18N
 
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -93,6 +94,7 @@ public class StartupView extends FrameView {
         btnStart.setAction(actionMap.get("startNewProcess")); // NOI18N
         btnStart.setFont(resourceMap.getFont("btnStart.font")); // NOI18N
         btnStart.setText(resourceMap.getString("btnStart.text")); // NOI18N
+        btnStart.setToolTipText(resourceMap.getString("btnStart.toolTipText")); // NOI18N
         btnStart.setName("btnStart"); // NOI18N
 
         jLabel2.setFont(resourceMap.getFont("jLabel2.font")); // NOI18N
@@ -210,7 +212,6 @@ public class StartupView extends FrameView {
         SwingWorker worker = new SwingWorker() {
             @Override
             protected void done() {
-                super.done();
                 progressBar.setString("Agent attached! UI should appear momentarily...");
                 progressBar.setIndeterminate(false);
             }
@@ -265,8 +266,8 @@ public class StartupView extends FrameView {
         SwingWorker worker = new SwingWorker() {
             @Override
             protected void done() {
-                super.done();
                 progressBar.setString("Process started! UI should appear momentarily...");
+                progressBar.setValue(0);
                 progressBar.setIndeterminate(false);
             }
             @Override

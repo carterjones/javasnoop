@@ -33,13 +33,14 @@ public class JavaSnoop extends SingleFrameApplication {
 
     public static final String VERSION = "version";
     public static final String SEPARATE_VM = "exec_separate_vm";
+    public static final String LAST_SELECTED_DIR = "last_classpath_dir";
     public static final String USE_JAD = "use_jad";
     public static final String JAD_PATH = "jad_path";
     public static final String LOAD_WAIT = "load_wait";
 
     private static Properties props;
     private static String propFile;
-   
+
     private StartupView mainForm;
 
     static {
@@ -114,6 +115,8 @@ public class JavaSnoop extends SingleFrameApplication {
             props.store(new FileWriter(new File(propFile)), null);
         } catch (Exception e) {
             e.printStackTrace();
+            // can't use log4j or the AgentLogger here because this class is
+            // used in both the agent/GUI and the startup screen
         }
     }
 
@@ -127,6 +130,7 @@ public class JavaSnoop extends SingleFrameApplication {
         p.setProperty(SEPARATE_VM, "true");
         p.setProperty(LOAD_WAIT, "3000");
         p.setProperty(USE_JAD,"false");
+        p.setProperty(LAST_SELECTED_DIR,new File(System.getProperty("user.home")).getAbsolutePath());
         return p;
     }
 

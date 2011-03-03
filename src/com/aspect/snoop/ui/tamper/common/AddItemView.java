@@ -26,10 +26,10 @@ public class AddItemView extends javax.swing.JDialog {
     /** Creates new form AddItemView */
 
     Object toReturn;
-    
-    private void initialize() { 
+
+    private void initialize() {
         initComponents();
-        toReturn = null;        
+        toReturn = null;
     }
 
     public AddItemView(javax.swing.JDialog parent, boolean modal, Class itemClass) {
@@ -166,9 +166,9 @@ public class AddItemView extends javax.swing.JDialog {
             } else if ( "Byte".equals(dataType) ) {
                 toReturn = Byte.parseByte(txtValue.getText());
             }
-            
+
             dispose();
-            
+
         } catch (Exception e) {
             toReturn = null;
         }

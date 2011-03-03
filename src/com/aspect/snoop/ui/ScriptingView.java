@@ -192,19 +192,19 @@ public class ScriptingView extends javax.swing.JDialog {
     }
 
     public void showPrompt() {
-        
+
         SimpleAttributeSet attributes = new SimpleAttributeSet();
         attributes.addAttribute(StyleConstants.CharacterConstants.Bold, Boolean.FALSE);
         attributes.addAttribute(StyleConstants.CharacterConstants.Italic, Boolean.FALSE);
         attributes.addAttribute(StyleConstants.CharacterConstants.Foreground, Color.black);
-        
+
         try {
             console.insertString(console.getLength(), prompt, attributes);
             txtConsole.setCaretPosition( console.getLength() );
         } catch (BadLocationException ex) {
             AgentLogger.error(ex);
         }
-        
+
     }
 
     public void showErr(String message) {
@@ -265,7 +265,7 @@ public class ScriptingView extends javax.swing.JDialog {
 
                     showOut(out);
                     showErr(err);
-                    
+
                 } catch (Exception ex) {
                     AgentLogger.error("Error evaluating expression: " + ex.getMessage());
                     showErr(StringUtil.exception2string(ex));

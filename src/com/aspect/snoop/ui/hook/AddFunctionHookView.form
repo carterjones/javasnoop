@@ -94,6 +94,7 @@
     <Component class="javax.swing.JTextField" name="txtClass">
       <Properties>
         <Property name="text" type="java.lang.String" resourceKey="txtClass.text"/>
+        <Property name="toolTipText" type="java.lang.String" resourceKey="txtClass.toolTipText"/>
         <Property name="name" type="java.lang.String" value="txtClass" noResource="true"/>
       </Properties>
       <Events>
@@ -107,6 +108,7 @@
           <action class="com.aspect.snoop.ui.JavaSpyView" id="showChooseClassForm" methodName="showChooseClassForm"/>
         </Property>
         <Property name="text" type="java.lang.String" resourceKey="btnBrowseForClass.text"/>
+        <Property name="toolTipText" type="java.lang.String" resourceKey="btnBrowseForClass.toolTipText"/>
         <Property name="focusable" type="boolean" value="false"/>
         <Property name="name" type="java.lang.String" value="btnBrowseForClass" noResource="true"/>
       </Properties>
@@ -153,6 +155,7 @@
       <Properties>
         <Property name="font" type="java.awt.Font" resourceKey="btnAddWatch.font"/>
         <Property name="text" type="java.lang.String" resourceKey="btnAddWatch.text"/>
+        <Property name="toolTipText" type="java.lang.String" resourceKey="btnAddWatch.toolTipText"/>
         <Property name="focusable" type="boolean" value="false"/>
         <Property name="name" type="java.lang.String" value="btnAddWatch" noResource="true"/>
       </Properties>
@@ -163,6 +166,7 @@
     <Component class="javax.swing.JCheckBox" name="chkShouldInherit">
       <Properties>
         <Property name="text" type="java.lang.String" resourceKey="chkShouldInherit.text"/>
+        <Property name="toolTipText" type="java.lang.String" resourceKey="chkShouldInherit.toolTipText"/>
         <Property name="focusable" type="boolean" value="false"/>
         <Property name="name" type="java.lang.String" value="chkShouldInherit" noResource="true"/>
       </Properties>
@@ -173,6 +177,7 @@
           <action class="com.aspect.snoop.ui.hook.AddFunctionHookView" id="searchForFunction" methodName="searchForFunction"/>
         </Property>
         <Property name="text" type="java.lang.String" resourceKey="btnSearchForFunction.text"/>
+        <Property name="toolTipText" type="java.lang.String" resourceKey="btnSearchForFunction.toolTipText"/>
         <Property name="focusable" type="boolean" value="false"/>
         <Property name="name" type="java.lang.String" value="btnSearchForFunction" noResource="true"/>
       </Properties>

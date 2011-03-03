@@ -43,7 +43,7 @@ public class EditMapView extends javax.swing.JDialog {
 
         tblMapItems.setRowHeight(25);
     }
-    
+
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -198,7 +198,7 @@ public class EditMapView extends javax.swing.JDialog {
         if ( idx == -1 ) {
             return;
         }
-        
+
         MapTableModel model = (MapTableModel)tblMapItems.getModel();
         Object key = model.getValueAt(idx, 0);
         map.remove(key);

@@ -223,11 +223,11 @@ public class EditArrayView extends javax.swing.JDialog {
 
         try {
             int idx = tblListItems.getSelectedRow();
-            
+
             if ( idx == -1 ) {
                 return;
             }
-            
+
             Object[] newArray = new Object[array.length-1];
             int j = 0;
 
@@ -240,7 +240,7 @@ public class EditArrayView extends javax.swing.JDialog {
             }
 
             array = newArray;
-            
+
         } catch(Exception e) { }
 
         tblListItems.updateUI();
@@ -294,7 +294,7 @@ public class EditArrayView extends javax.swing.JDialog {
         } else {
             JOptionPane.showMessageDialog(this, "Can't add custom item class: "+array.getClass(),"Error adding new item",JOptionPane.ERROR_MESSAGE);
         }
- 
+
     }//GEN-LAST:event_btnAddItemActionPerformed
 
     private void btnAcceptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAcceptActionPerformed

@@ -46,7 +46,7 @@ public class EditByteArrayView extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         this.bytes = bytes;
-        
+
         lblByteCount.setText(""+bytes.length);
 
         tblOriginalBytes.setCellSelectionEnabled(true);
@@ -76,8 +76,8 @@ public class EditByteArrayView extends javax.swing.JDialog {
             tblAsciiBytes.getColumnModel().getColumn(i).setResizable(false);
         }
 
-        
-        
+
+
     }
 
     /** This method is called from within the constructor to
@@ -370,7 +370,7 @@ public class EditByteArrayView extends javax.swing.JDialog {
 
         EditStringView view = new EditStringView(this, true, "");
         view.setVisible(true);
-        
+
         UIUtil.waitForInput(view);
 
         bytes = view.getText().getBytes();
@@ -385,7 +385,7 @@ public class EditByteArrayView extends javax.swing.JDialog {
 
         EditStringView view = new EditStringView(this, true, s);
         view.setVisible(true);
-        
+
         UIUtil.waitForInput(view);
 
         bytes = view.getText().getBytes();
@@ -425,27 +425,27 @@ public class EditByteArrayView extends javax.swing.JDialog {
             return;
 
         if ( evt.getActionCommand().equals("short") ) {
-            
+
             Short s = Short.parseShort(num);
             bytes = shortToByteArray(s);
 
         } else if ( evt.getActionCommand().equals("int") ) {
-            
+
             Integer s = Integer.parseInt(num);
             bytes = intToByteArray(s);
 
         } else if ( evt.getActionCommand().equals("long") ) {
-            
+
             Long s = Long.parseLong(num);
             bytes = longToByteArray(s);
 
         } else if ( evt.getActionCommand().equals("double") ) {
-            
+
             Double s = Double.parseDouble(num);
             bytes = doubleToByteArray(s);
 
         } else if ( evt.getActionCommand().equals("float") ) {
-            
+
             Float s = Float.parseFloat(num);
             bytes = floatToByteArray(s);
 
@@ -521,7 +521,7 @@ public class EditByteArrayView extends javax.swing.JDialog {
             lastFile = fc.getSelectedFile();
 
             try {
-                
+
                 bytes = IOUtil.getBytesFromFile(lastFile);
                 updateTable();
 
@@ -530,8 +530,8 @@ public class EditByteArrayView extends javax.swing.JDialog {
             }
         }
 
-        
-        
+
+
     }
 
     private void updateTable() {
@@ -563,7 +563,7 @@ public class EditByteArrayView extends javax.swing.JDialog {
         }
 
         tblOriginalBytes.repaint();
-        
+
 
     }
 

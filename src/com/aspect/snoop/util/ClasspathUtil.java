@@ -431,7 +431,7 @@ public class ClasspathUtil {
             "org.jaxen",
             "org.jcp",
             "org.joda",
-            "org.jdesktop",
+            "com.aspect.org.jdesktop",
             "org.jdom",
             "org.ietf",
             "org.omg",

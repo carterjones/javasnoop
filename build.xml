@@ -75,6 +75,9 @@
     <property name="dist.name" value="JavaSnoop"/>
     <property name="version.major" value="1"/>
     <property name="version.minor" value="1"/>
+    <property name="main.class" value="com.aspect.snoop.JavaSnoop"/>
+
+    <property name="dist.finaljar" value="${dist.name}.jar"/>
 
     <target name="-post-jar">
         <mkdir dir="${dist.dir}/resources"/>
@@ -82,10 +85,59 @@
             <fileset dir="resources"/>
         </copy>
 
+        <copy todir="${dist.dir}/lib">
+            <fileset dir="${basedir}/lib">
+                <include name="aspect-*.jar"></include>
+            </fileset>
+        </copy>
+
+        <delete file="${dist.dir}/lib/swing-worker-1.1.jar"/>
+        <delete file="${dist.dir}/lib/appframework-1.0.3.jar"/>
+        <delete file="${dist.dir}/lib/javaws.jar"/>
+
         <move file="${dist.dir}/resources/startup.bat" todir="${dist.dir}"/>
         <move file="${dist.dir}/resources/startup.sh" todir="${dist.dir}"/>
         <move file="${dist.dir}/resources/startup.ps1" todir="${dist.dir}"/>
         <move file="${dist.dir}/resources/README.txt" todir="${dist.dir}"/>
+
+        <!-- 
+        We need to JarJar JavaSnoop.jar to update references to org.jdesktop to
+        com.aspect.org.jdesktop to avoid jar hell when attaching JavaSnoop to
+        other apps that use these libraries.
+        -->
+
+        <taskdef    name="jarjar"
+                    classname="com.tonicsystems.jarjar.JarJarTask"
+                    classpath="${basedir}/lib/jarjar-1.1.jar"/>
+
+        <!-- we have to build javasnoop's runtime classpath because it's different from our current due to jarjaring some libs -->
+        <path id="snoop.build.classpath">
+            <fileset dir="${basedir}">
+                <include name="${dist.dir}/lib/*.jar"/>
+            </fileset>
+        </path>
+
+        <pathconvert property="snoop.manifest.classpath" pathsep=" ">
+            <path refid="snoop.build.classpath"/>
+            <mapper>
+                <chainedmapper>
+                    <flattenmapper/>
+                    <globmapper from="*.jar" to="lib/*.jar"/>
+                </chainedmapper>
+            </mapper>
+        </pathconvert>
+
+        <jarjar jarfile="${dist.dir}/JarJar-${dist.finaljar}" >
+            <manifest>
+                <attribute name="Main-Class" value="${main.class}"/>
+                <attribute name="Class-Path" value="${snoop.manifest.classpath}"/>
+            </manifest>
+            <zipfileset src="${dist.dir}/${dist.finaljar}"/>
+            <rule pattern="org.jdesktop.**" result="com.aspect.@0"/>
+        </jarjar>
+
+        <delete file="${dist.dir}/${dist.finaljar}"/>
+        <move file="${dist.dir}/JarJar-${dist.finaljar}" tofile="${dist.dir}/${dist.finaljar}"/>
 
         <!-- create the deliverable zip -->
         <copy todir="${dist.name}">
@@ -99,6 +151,14 @@
 
         <delete dir="${dist.name}"/>
 
+        <delete file="C:/Tools/JavaSnoop-1.1.zip" failonerror="false"/>
+        <delete dir="C:/Tools/JavaSnoop" failonerror="false"/>
+        <copy
+        file="${dist.dir}/JavaSnoop-1.1.zip"
+        todir="C:/Tools"/>
+        
+        <unzip src="C:/Tools/JavaSnoop-1.1.zip" dest="C:/Tools"/>
+
     </target>
-    
+
 </project>

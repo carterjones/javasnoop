@@ -25,15 +25,16 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 
 import com.aspect.snoop.agent.AgentJarCreator;
-import com.aspect.snoop.agent.AgentLogger;
 import com.sun.tools.attach.AgentInitializationException;
 import com.sun.tools.attach.AgentLoadException;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachine;
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.log4j.Logger;
 
 /**
  * Utility methods for launching JVMs and using the Attach API.
@@ -41,6 +42,8 @@ import java.util.List;
  * @author David Anderson
  */
 public class AttachUtil {
+
+    private static Logger logger = Logger.getLogger(AttachUtil.class);
 
     public static void attachToVM() throws AttachNotSupportedException, IOException, AgentLoadException, AgentInitializationException, AgentCommunicationException {
         // Use the process id of this VM
@@ -51,10 +54,15 @@ public class AttachUtil {
     public static void loadAgentInOtherVM(String agentJarPath, String pid) throws AttachNotSupportedException, IOException, AgentLoadException, AgentInitializationException, AgentCommunicationException {
 
         VirtualMachine vm = VirtualMachine.attach(pid);
-        
-        AgentLogger.debug("Loading agent from " + agentJarPath);
-        
-        vm.loadAgent(agentJarPath, new File(".").getAbsolutePath());
+
+        /*
+         * Agent is expecting arguments in the form of:
+         * <javasnoop install dir>|number|[LookAndFeelClass]
+         * Where number represents the number of seconds to wait before
+         * loading the JavaSnoop GUI. Attaching to an existing process
+         * requires no waiting, so we hardcode to 0.
+         */
+        vm.loadAgent(agentJarPath, new File(".").getAbsolutePath() + "|0|");
         vm.detach();
     }
 
@@ -71,7 +79,19 @@ public class AttachUtil {
 
         arguments.add(command);
 
-        String agent = "-javaagent:" + agentJarPath;
+        /*
+         * Agent is expecting arguments in the form of:
+         * <javasnoop install dir>|number
+         * Where number represents the number of seconds to wait before
+         * loading the JavaSnoop GUI. Starting up a new process requires
+         * to wait for the application to initialize its own GUI. The user
+         * specified this value in the NewProcessInfoView form.
+         */
+        String agent =
+                "-javaagent:" + agentJarPath +
+                "=" + new File(".").getAbsolutePath() + 
+                "|" + session.getGuiDelay()  +
+                "|" + session.getLookAndFeel();
         
         arguments.add(agent);
 
@@ -115,6 +135,13 @@ public class AttachUtil {
             workingDir = session.getWorkingDir().trim();
         }
 
+        sb = new StringBuilder();
+        for(String arg : commandArgs) {
+            sb.append(arg);
+            sb.append(" ");
+        }
+        logger.debug(sb.toString());
+        
         Runtime.getRuntime().exec(commandArgs, null, new File(workingDir));
     }
     

@@ -10,7 +10,7 @@ if ( $java_home.Contains("1.6") -or $java_home.Contains("1.7") ) {
 
    Write-Host "[1] Found 1.6+ Java in JAVA_HOME variable!"
    Copy-Item -Path "$java_home\lib\tools.jar" -Destination .\lib\tools.jar -Force   
-   $jdk_exec = "$java_home\bin\java.exe"
+   $jdk_exec = "$java_home\bin\javaw.exe"
 
 } else {
 
@@ -25,7 +25,7 @@ if ( $java_home.Contains("1.6") -or $java_home.Contains("1.7") ) {
    }
 
    Copy-Item -Path "$java_home\lib\tools.jar" -Destination .\lib\tools.jar -Force
-   $jdk_exec = "$java_home\bin\java.exe"
+   $jdk_exec = "$java_home\bin\javaw.exe"
 }
 
 Write-Host "[2] Turning off Java security for JavaSnoop usage."

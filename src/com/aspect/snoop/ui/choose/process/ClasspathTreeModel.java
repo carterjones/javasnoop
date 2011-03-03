@@ -19,24 +19,41 @@
 
 package com.aspect.snoop.ui.choose.process;
 
+import com.aspect.snoop.util.IOUtil;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javassist.ByteArrayClassPath;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.NotFoundException;
+import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 
 public class ClasspathTreeModel extends DefaultTreeModel {
 
-    List<String> entries = new ArrayList<String>();
+    List<ClasspathEntry> entries = new ArrayList<ClasspathEntry>();
+
+    List<String> classesSeen;
 
     private static Comparator alphabeticComparator = new Comparator() {
 
         public int compare(Object o1, Object o2) {
-            String s1 = (String) o1;
-            String s2 = (String) o2;
+            String s1 = ((ClasspathEntry)o1).getStringEntry();
+            String s2 = ((ClasspathEntry)o2).getStringEntry();
             return s1.toLowerCase().compareTo(s2.toLowerCase());
         }
     };
@@ -45,38 +62,53 @@ public class ClasspathTreeModel extends DefaultTreeModel {
         super(root);
     }
 
-    public void addEntry(String file) {
+    @Override
+    public boolean isLeaf(Object node) {
+        return node instanceof CtMethod;
+    }
 
-        File entry = new File(file);
+    private boolean hasEntry(String file) {
+        for(ClasspathEntry entry : entries) {
+            if ( entry.getStringEntry().equals(file) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void addEntry(ClasspathEntry entry) {
+
+        String file = entry.getStringEntry();
+        File f = new File(file);
 
         /*
          * If it's a dupe of an existing jar, throw it out.
          */
-        if ( entry.isFile() && entries.contains(file) )
+        if ( f.isFile() && hasEntry(file) )
             return;
 
         /*
          * If it's a directory that is beneath an already-listed directory
          * then throw it out.
          */
-        else if(entry.isDirectory()) {
-            for(String existingEntry : entries) {
-                File existing = new File(existingEntry);
-                if ( entry.getAbsolutePath().startsWith(existing.getAbsolutePath()))
+        else if(f.isDirectory()) {
+            for(ClasspathEntry existingEntry : entries) {
+                File existing = new File(existingEntry.getStringEntry());
+                if ( f.getAbsolutePath().startsWith(existing.getAbsolutePath()))
                     return;
             }
         }
 
-        entries.add(file);
+        entries.add(entry);
         Collections.sort(entries,alphabeticComparator);
     }
 
-    public void removeEntry(String entry) {
+    public void removeEntry(ClasspathEntry entry) {
         entries.remove(entry);
         Collections.sort(entries,alphabeticComparator);
     }
 
-    public List<String> getEntries() {
+    public List<ClasspathEntry> getEntries() {
         return entries;
     }
 
@@ -86,14 +118,67 @@ public class ClasspathTreeModel extends DefaultTreeModel {
 
     @Override
     public void reload() {
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode();
+        DefaultMutableTreeNode top = (DefaultMutableTreeNode)root;
+        top.removeAllChildren();
 
-        for(String entry : entries) {
-            JarFileEntry jar = new JarFileEntry(entry);
-            DefaultMutableTreeNode node = new DefaultMutableTreeNode(jar);
-            root.add(node);
+        classesSeen = new ArrayList<String>();
+
+        ClassPool pool = new ClassPool();
+
+        for(ClasspathEntry entry : entries) {
+            DefaultMutableTreeNode jarNode = new DefaultMutableTreeNode(entry);
+            pool.insertClassPath(entry.getEntry());
+
+            if ( entry.isJar() ) {
+                try {
+                    JarFile jar = new JarFile(entry.getStringEntry());
+                    Enumeration<JarEntry> jarEntries = jar.entries();
+                    while(jarEntries.hasMoreElements()) {
+                        JarEntry jarEntry = (JarEntry)jarEntries.nextElement();
+                        if ( jarEntry.isDirectory() )
+                            continue;
+
+                        String entryName = jarEntry.getName();
+                        
+                        if ( entryName.endsWith(".class") ) {
+
+                            try {
+
+                                String cls = jarEntry.getName().replaceAll("/", "\\.");
+                                String shortendCls = cls.substring(0,cls.length()-6);
+                                classesSeen.add(shortendCls);
+                                byte[] bytecode = IOUtil.getBytesFromStream(jar.getInputStream(jarEntry));
+                                
+                                pool.insertClassPath(new ByteArrayClassPath(shortendCls,bytecode));
+                                CtClass clazz = pool.get(shortendCls);
+                                DefaultMutableTreeNode classNode = new DefaultMutableTreeNode(clazz);
+
+                                for(CtMethod method : clazz.getDeclaredMethods()) {
+                                    DefaultMutableTreeNode methodNode = new DefaultMutableTreeNode(method);
+                                    classNode.add(methodNode);
+                                }
+
+                                jarNode.add(classNode);
+                            } catch(NotFoundException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            DefaultMutableTreeNode resourceNode = new DefaultMutableTreeNode(entryName);
+                            jarNode.add(resourceNode);
+                        }
+                    }
+
+                    top.add(jarNode);
+                    
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            
         }
+    }
 
-        super.reload();
+    List<String> getClassesSeen() {
+        return classesSeen;
     }
 }

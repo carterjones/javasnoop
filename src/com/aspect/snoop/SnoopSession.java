@@ -22,8 +22,13 @@ package com.aspect.snoop;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.plaf.metal.MetalTheme;
 
 public class SnoopSession implements Serializable {
+
+    private static final int defaultGuiDelay = 5;
 
     /*
      * Stuff for persistence.
@@ -41,10 +46,12 @@ public class SnoopSession implements Serializable {
     String arguments;
     String javaArguments;
     String mainClass;
+    int guiDelay;
 
     List<FunctionHook> functionHooks;
 
     String output;
+    boolean clobberLookAndFeel;
 
     public SnoopSession() {
 
@@ -58,7 +65,8 @@ public class SnoopSession implements Serializable {
         javaArguments = "";
         mainClass = "";
         output = "";
-
+        guiDelay = defaultGuiDelay;
+        clobberLookAndFeel = false;
         functionHooks = new ArrayList<FunctionHook>();
 
     }
@@ -205,5 +213,29 @@ public class SnoopSession implements Serializable {
         this.mainClass = mainClass;
     }
 
+    public int getGuiDelay() {
+        return guiDelay;
+    }
+
+    public void setGuiDelay(int guiDelay) {
+        this.guiDelay = guiDelay;
+    }
+
+    public String getLookAndFeel() {
+        if ( ! clobberLookAndFeel )
+            return "";
+
+        for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+            if ("Nimbus".equals(info.getName())) {
+                return info.getClassName();
+            }
+        }
+
+        return UIManager.getSystemLookAndFeelClassName();
+    }
+
+    public void setCloberLookAndFeel(boolean b) {
+        this.clobberLookAndFeel = b;
+    }
 
 }

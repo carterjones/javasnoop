@@ -124,6 +124,7 @@
           <action class="com.aspect.snoop.ui.forceclass.ForceLoadClassesView" id="addFromJar" methodName="addFromJar"/>
         </Property>
         <Property name="text" type="java.lang.String" resourceKey="btnAddFromJar.text"/>
+        <Property name="toolTipText" type="java.lang.String" resourceKey="btnAddFromJar.toolTipText"/>
         <Property name="name" type="java.lang.String" value="btnAddFromJar" noResource="true"/>
       </Properties>
     </Component>
@@ -142,6 +143,7 @@
           <action class="com.aspect.snoop.ui.forceclass.ForceLoadClassesView" id="done" methodName="done"/>
         </Property>
         <Property name="text" type="java.lang.String" resourceKey="btnLoad.text"/>
+        <Property name="toolTipText" type="java.lang.String" resourceKey="btnLoad.toolTipText"/>
         <Property name="name" type="java.lang.String" value="btnLoad" noResource="true"/>
       </Properties>
     </Component>
