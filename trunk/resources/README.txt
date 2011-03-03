@@ -188,6 +188,10 @@ the JVM needs it. JavaSnoop can only hook methods from classes that have been
 loaded already. This means that you may have to cause your target application to
 load the class you want to hook before you attach to it with JavaSnoop.
 
+Since version 1.0 final, there are also UI options for asking the target process
+to load classes by name. You can also point it to a JAR and say, "Hey. Load all
+those classes now."
+
 =======================
 Is it free? What's the license?
 =======================
