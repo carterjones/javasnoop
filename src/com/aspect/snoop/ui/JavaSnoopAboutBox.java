@@ -138,7 +138,7 @@ public class JavaSnoopAboutBox extends javax.swing.JDialog {
                     .addComponent(imageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(btnClose)
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
 
         appTitleLabel.getAccessibleContext().setAccessibleName(resourceMap.getString("appTitleLabel.AccessibleContext.accessibleName")); // NOI18N
