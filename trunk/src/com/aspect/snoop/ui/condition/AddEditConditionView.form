@@ -116,6 +116,7 @@
       <Properties>
         <Property name="font" type="java.awt.Font" resourceKey="btnAddCondition.font"/>
         <Property name="text" type="java.lang.String" resourceKey="btnAddCondition.text"/>
+        <Property name="toolTipText" type="java.lang.String" resourceKey="btnAddCondition.toolTipText"/>
         <Property name="name" type="java.lang.String" value="btnAddCondition" noResource="true"/>
       </Properties>
       <Events>

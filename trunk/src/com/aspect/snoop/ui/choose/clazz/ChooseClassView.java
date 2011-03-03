@@ -126,9 +126,9 @@ public class ChooseClassView extends javax.swing.JDialog {
             if ( clazz.getName().toLowerCase().contains(lowered)) {
                 list.addElement(clazz);
             }
-            
+
         }
-        
+
         lstClasses.setModel(list);
     }
 
@@ -267,7 +267,7 @@ public class ChooseClassView extends javax.swing.JDialog {
 
         /*
         String substring  = txtClass.getText();
-        
+
         if (    evt.getKeyChar() != java.awt.event.KeyEvent.VK_ENTER &&
                 evt.getKeyChar() != java.awt.event.KeyEvent.VK_BACK_SPACE ) { // backspace
 
@@ -297,13 +297,13 @@ public class ChooseClassView extends javax.swing.JDialog {
     }//GEN-LAST:event_txtClassActionPerformed
 
     private void chkOnlyMainsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkOnlyMainsActionPerformed
-        
+
         filterClasses();
 
     }//GEN-LAST:event_chkOnlyMainsActionPerformed
 
     private void chkHideJavaClassesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkHideJavaClassesActionPerformed
-        
+
         filterClasses();
 
     }//GEN-LAST:event_chkHideJavaClassesActionPerformed
@@ -311,7 +311,7 @@ public class ChooseClassView extends javax.swing.JDialog {
     private void chkHideJavaSnoopClassesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkHideJavaSnoopClassesActionPerformed
 
         filterClasses();
-        
+
     }//GEN-LAST:event_chkHideJavaSnoopClassesActionPerformed
 
     private void txtClassKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtClassKeyReleased
@@ -323,7 +323,7 @@ public class ChooseClassView extends javax.swing.JDialog {
             listSomeClasses(substring);
         }
     }//GEN-LAST:event_txtClassKeyReleased
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox chkHideJavaClasses;
     private javax.swing.JCheckBox chkHideJavaSnoopClasses;
@@ -334,7 +334,7 @@ public class ChooseClassView extends javax.swing.JDialog {
     private javax.swing.JTextField txtClass;
     // End of variables declaration//GEN-END:variables
 
-    
+
     private void finalizeSelection() {
         className = txtClass.getText();
     }

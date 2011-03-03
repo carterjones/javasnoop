@@ -38,7 +38,7 @@ public class AddEditConditionView extends javax.swing.JDialog {
 
         super(parent, modal);
         initComponents();
-        
+
         lstParameters.removeAllItems();
 
         for(int i=0;i<parameterTypes.length;i++) {
@@ -109,6 +109,7 @@ public class AddEditConditionView extends javax.swing.JDialog {
 
         btnAddCondition.setFont(resourceMap.getFont("btnAddCondition.font")); // NOI18N
         btnAddCondition.setText(resourceMap.getString("btnAddCondition.text")); // NOI18N
+        btnAddCondition.setToolTipText(resourceMap.getString("btnAddCondition.toolTipText")); // NOI18N
         btnAddCondition.setName("btnAddCondition"); // NOI18N
         btnAddCondition.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -171,9 +172,9 @@ public class AddEditConditionView extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAddConditionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddConditionActionPerformed
-        
+
         if ( lstParameters.getSelectedIndex() != -1 && ! "".equals(txtOperand.getText()) ) { // make sure entry isn't blank
-            
+
             operator = ModelUIUtil.getOperatorByDescription((String)lstOperator.getSelectedItem());
             if ( operator.equals(Operator.GreaterThan) || operator.equals(Operator.LessThan) ) {
                 if ( ! isInt(operand) && ! isFloat(operand) && ! isDouble(operand) ) {

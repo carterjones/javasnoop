@@ -43,9 +43,9 @@ public class EditListView extends javax.swing.JDialog {
         ListItemCellRenderer renderer = new ListItemCellRenderer();
         tblListItems.setDefaultEditor(JButton.class, renderer);
         tblListItems.setDefaultRenderer(JButton.class, renderer);
-        
+
         tblListItems.setRowHeight(25);
-        
+
     }
 
     public List getList() {
@@ -203,7 +203,7 @@ public class EditListView extends javax.swing.JDialog {
         AddItemView view = new AddItemView(this, true);
 
         view.setVisible(true);
-        
+
         while(view.isShowing()) {
             try {
                 Thread.sleep(150);
@@ -270,7 +270,7 @@ public class EditListView extends javax.swing.JDialog {
         tblListItems.changeSelection(idx+1, 0, false, false);
 
         tblListItems.updateUI();
-        
+
     }//GEN-LAST:event_btnMoveDownActionPerformed
 
     private void btnAcceptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAcceptActionPerformed
@@ -314,7 +314,7 @@ public class EditListView extends javax.swing.JDialog {
     /*
     private List getPrimitiveItems(List list) {
 
-        
+
     }
     */
 

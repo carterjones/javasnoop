@@ -39,7 +39,7 @@ public class FunctionSearchView extends javax.swing.JDialog {
     public Method getChosenMethod() {
         return methodChosen;
     }
-    
+
     public FunctionSearchView(javax.swing.JDialog parent, boolean modal, List<Class> classes) {
 
         super(parent, modal);
@@ -57,7 +57,7 @@ public class FunctionSearchView extends javax.swing.JDialog {
         tblResults.getColumnModel().getColumn(0).setPreferredWidth(75);
         tblResults.getColumnModel().getColumn(1).setPreferredWidth(575);
 
-        
+
         tblResults.addMouseListener(
                 new MouseListener() {
 
@@ -357,7 +357,7 @@ public class FunctionSearchView extends javax.swing.JDialog {
         } else if ( "void".equals(ret) && (c.equals(void.class) || c.equals(Void.class)) ) {
             result = true;
         }
-            
+
         return result;
     }
 

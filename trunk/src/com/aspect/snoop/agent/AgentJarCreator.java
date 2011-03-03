@@ -48,7 +48,9 @@ public class AgentJarCreator {
       "jython.jar",
       "appframework-1.0.3.jar",
       "swing-worker-1.1.jar",
-      "xom-1.1.jar"
+      "xom-1.1.jar",
+      "rsyntaxtextarea.jar",
+      "xstream-1.3.1.jar"
     };
 
     private static Logger logger = Logger.getLogger(AgentJarCreator.class);
@@ -92,12 +94,12 @@ public class AgentJarCreator {
 
         sbuf.append("Manifest-Version: 1.0" + nl);
 
-        if ( attachingOnStartup ) {
-            sbuf.append( "Premain-Class: " + SnoopAgent.class.getName() + nl);
-        } else {
-            sbuf.append( "Agent-Class: " + SnoopAgent.class.getName() + nl);
-        }
-
+        /*
+         * Doesn't hurt to add both.
+         */
+        sbuf.append( "Premain-Class: " + SnoopAgent.class.getName() + nl);
+        sbuf.append( "Agent-Class: " + SnoopAgent.class.getName() + nl);
+        
         sbuf.append("Can-Redefine-Classes: true" + nl);
         sbuf.append("Can-Retransform-Classes: true" + nl);
 

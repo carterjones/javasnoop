@@ -171,7 +171,7 @@ public class AddMapItemView extends javax.swing.JDialog {
 }//GEN-LAST:event_txtValueActionPerformed
 
     private void btnAddItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddItemActionPerformed
-        
+
         String dataType = (String)lstValueDataType.getSelectedItem();
 
         try {

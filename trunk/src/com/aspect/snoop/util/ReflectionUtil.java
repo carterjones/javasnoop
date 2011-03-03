@@ -33,6 +33,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.NotFoundException;
 
 public class ReflectionUtil {
 
@@ -355,6 +359,28 @@ public class ReflectionUtil {
             return true;
         } catch (NoSuchMethodException e) {
         }
+        return false;
+    }
+
+    public static boolean hasMainClass(CtClass c) {
+
+        try {
+            CtClass[] params = new CtClass[1];
+            params[0] = ClassPool.getDefault().get(new String[]{}.getClass().getName());
+            CtMethod m = c.getDeclaredMethod("main", params);
+            return true;
+        } catch (NotFoundException e) { }
+        return false;
+    }
+
+    public static boolean hasMainClass(CtClass c, ClassPool cp) {
+
+        try {
+            CtClass[] params = new CtClass[1];
+            params[0] = cp.get(new String[]{}.getClass().getName());
+            CtMethod m = c.getDeclaredMethod("main", params);
+            return true;
+        } catch (NotFoundException e) { }
         return false;
     }
 

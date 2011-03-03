@@ -90,6 +90,7 @@ public class ForceLoadClassesView extends javax.swing.JDialog {
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getActionMap(ForceLoadClassesView.class, this);
         btnAddFromJar.setAction(actionMap.get("addFromJar")); // NOI18N
         btnAddFromJar.setText(resourceMap.getString("btnAddFromJar.text")); // NOI18N
+        btnAddFromJar.setToolTipText(resourceMap.getString("btnAddFromJar.toolTipText")); // NOI18N
         btnAddFromJar.setName("btnAddFromJar"); // NOI18N
 
         btnClear.setAction(actionMap.get("clear")); // NOI18N
@@ -98,6 +99,7 @@ public class ForceLoadClassesView extends javax.swing.JDialog {
 
         btnLoad.setAction(actionMap.get("done")); // NOI18N
         btnLoad.setText(resourceMap.getString("btnLoad.text")); // NOI18N
+        btnLoad.setToolTipText(resourceMap.getString("btnLoad.toolTipText")); // NOI18N
         btnLoad.setName("btnLoad"); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -201,11 +203,11 @@ public class ForceLoadClassesView extends javax.swing.JDialog {
 
         fc.setMultiSelectionEnabled(true);
         int rc = fc.showOpenDialog(this);
-        
+
         if (rc == JFileChooser.APPROVE_OPTION) {
             File[] of = fc.getSelectedFiles();
-            
-            
+
+
             try {
                 for(File f : of) {
                     lastJarFile = f.getAbsolutePath();

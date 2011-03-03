@@ -22,6 +22,7 @@
             <MenuItem class="javax.swing.JMenuItem" name="mnuNewSession">
               <Properties>
                 <Property name="text" type="java.lang.String" resourceKey="mnuNewSession.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuNewSession.toolTipText"/>
                 <Property name="name" type="java.lang.String" value="mnuNewSession" noResource="true"/>
               </Properties>
               <Events>
@@ -35,10 +36,8 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="mnuLoadSession">
               <Properties>
-                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
-                  <KeyStroke key="Ctrl+L"/>
-                </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuLoadSession.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuLoadSession.toolTipText"/>
                 <Property name="name" type="java.lang.String" value="mnuLoadSession" noResource="true"/>
               </Properties>
               <Events>
@@ -47,9 +46,6 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="mnuSaveSession">
               <Properties>
-                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
-                  <KeyStroke key="Ctrl+S"/>
-                </Property>
                 <Property name="text" type="java.lang.String" resourceKey="mnuSaveSession.text"/>
                 <Property name="enabled" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="mnuSaveSession" noResource="true"/>
@@ -61,6 +57,7 @@
             <MenuItem class="javax.swing.JMenuItem" name="mnuSaveSessionAs">
               <Properties>
                 <Property name="text" type="java.lang.String" resourceKey="mnuSaveSessionAs.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuSaveSessionAs.toolTipText"/>
                 <Property name="name" type="java.lang.String" value="mnuSaveSessionAs" noResource="true"/>
               </Properties>
               <Events>
@@ -75,6 +72,7 @@
             <MenuItem class="javax.swing.JMenuItem" name="mnuExit">
               <Properties>
                 <Property name="text" type="java.lang.String" resourceKey="mnuExit.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuExit.toolTipText"/>
                 <Property name="name" type="java.lang.String" value="mnuExit" noResource="true"/>
               </Properties>
               <Events>
@@ -88,6 +86,7 @@
             <MenuItem class="javax.swing.JMenuItem" name="mnuExitAndKill">
               <Properties>
                 <Property name="text" type="java.lang.String" resourceKey="mnuExitAndKill.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuExitAndKill.toolTipText"/>
                 <Property name="name" type="java.lang.String" value="mnuExitAndKill" noResource="true"/>
               </Properties>
               <Events>
@@ -96,10 +95,10 @@
             </MenuItem>
           </SubComponents>
         </Menu>
-        <Menu class="javax.swing.JMenu" name="classesMenu">
+        <Menu class="javax.swing.JMenu" name="jvmMenu">
           <Properties>
-            <Property name="text" type="java.lang.String" resourceKey="classesMenu.text"/>
-            <Property name="name" type="java.lang.String" value="classesMenu" noResource="true"/>
+            <Property name="text" type="java.lang.String" resourceKey="jvmMenu.text"/>
+            <Property name="name" type="java.lang.String" value="jvmMenu" noResource="true"/>
           </Properties>
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="mnuGetProcessInfo">
@@ -115,6 +114,50 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mnuGetProcessInfoActionPerformed"/>
               </Events>
             </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="mnuDumpThreads">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="com.aspect.snoop.ui.JavaSnoopView" id="dumpThreads" methodName="dumpThreads"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="mnuDumpThreads.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuDumpThreads.toolTipText"/>
+                <Property name="name" type="java.lang.String" value="mnuDumpThreads" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="mnuOpenScriptingConsole">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="com.aspect.snoop.ui.JavaSnoopView" id="openScriptingConsole" methodName="openScriptingConsole"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="mnuOpenScriptingConsole.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuOpenScriptingConsole.toolTipText"/>
+                <Property name="name" type="java.lang.String" value="mnuOpenScriptingConsole" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mnuOpenScriptingConsoleActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="mnuStartCanaryMode">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="com.aspect.snoop.ui.JavaSnoopView" id="enterCanaryMode" methodName="enterCanaryMode"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="mnuStartCanaryMode.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuStartCanaryMode.toolTipText"/>
+                <Property name="name" type="java.lang.String" value="mnuStartCanaryMode" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mnuStartCanaryModeActionPerformed"/>
+              </Events>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
+        <Menu class="javax.swing.JMenu" name="classesMenu">
+          <Properties>
+            <Property name="text" type="java.lang.String" resourceKey="classesMenu.text"/>
+            <Property name="name" type="java.lang.String" value="classesMenu" noResource="true"/>
+          </Properties>
+          <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="mnuBrowseRemoteClasses">
               <Properties>
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
@@ -141,19 +184,6 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mnuForceLoadClassesActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="mnuStartCanaryMode">
-              <Properties>
-                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
-                  <action class="com.aspect.snoop.ui.JavaSnoopView" id="enterCanaryMode" methodName="enterCanaryMode"/>
-                </Property>
-                <Property name="text" type="java.lang.String" resourceKey="mnuStartCanaryMode.text"/>
-                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuStartCanaryMode.toolTipText"/>
-                <Property name="name" type="java.lang.String" value="mnuStartCanaryMode" noResource="true"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mnuStartCanaryModeActionPerformed"/>
-              </Events>
-            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="mnuDecompileClass">
               <Properties>
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
@@ -169,26 +199,6 @@
             </MenuItem>
           </SubComponents>
         </Menu>
-        <Menu class="javax.swing.JMenu" name="scriptingMenu">
-          <Properties>
-            <Property name="text" type="java.lang.String" resourceKey="scriptingMenu.text"/>
-            <Property name="name" type="java.lang.String" value="scriptingMenu" noResource="true"/>
-          </Properties>
-          <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="mnuOpenScriptingConsole">
-              <Properties>
-                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
-                  <action class="com.aspect.snoop.ui.JavaSnoopView" id="openScriptingConsole" methodName="openScriptingConsole"/>
-                </Property>
-                <Property name="text" type="java.lang.String" resourceKey="mnuOpenScriptingConsole.text"/>
-                <Property name="name" type="java.lang.String" value="mnuOpenScriptingConsole" noResource="true"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mnuOpenScriptingConsoleActionPerformed"/>
-              </Events>
-            </MenuItem>
-          </SubComponents>
-        </Menu>
         <Menu class="javax.swing.JMenu" name="settingsMenu">
           <Properties>
             <Property name="text" type="java.lang.String" resourceKey="settingsMenu.text"/>
@@ -198,6 +208,7 @@
             <Menu class="javax.swing.JMenu" name="mnuAgentLogSetting">
               <Properties>
                 <Property name="text" type="java.lang.String" resourceKey="mnuAgentLogSetting.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="mnuAgentLogSetting.toolTipText"/>
                 <Property name="name" type="java.lang.String" value="mnuAgentLogSetting" noResource="true"/>
               </Properties>
               <SubComponents>
@@ -622,6 +633,7 @@
                   <action class="com.aspect.snoop.ui.JavaSnoopView" id="browseToOutputFile" methodName="browseToOutputFile"/>
                 </Property>
                 <Property name="text" type="java.lang.String" resourceKey="btnBrowseForOutputFile.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="btnBrowseForOutputFile.toolTipText"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="btnBrowseForOutputFile" noResource="true"/>
               </Properties>
@@ -638,6 +650,7 @@
             <Component class="javax.swing.JButton" name="btnEditScript">
               <Properties>
                 <Property name="text" type="java.lang.String" resourceKey="btnEditScript.text"/>
+                <Property name="toolTipText" type="java.lang.String" resourceKey="btnEditScript.toolTipText"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="btnEditScript" noResource="true"/>
               </Properties>
@@ -800,6 +813,7 @@
     <Component class="javax.swing.JButton" name="btnAddHook">
       <Properties>
         <Property name="text" type="java.lang.String" resourceKey="btnAddHook.text"/>
+        <Property name="toolTipText" type="java.lang.String" resourceKey="btnAddHook.toolTipText"/>
         <Property name="actionCommand" type="java.lang.String" resourceKey="btnAddHook.actionCommand"/>
         <Property name="focusable" type="boolean" value="false"/>
         <Property name="name" type="java.lang.String" value="btnAddHook" noResource="true"/>
@@ -814,6 +828,7 @@
           <action class="com.aspect.snoop.ui.AspectSpyView" id="deleteHook" methodName="deleteHook"/>
         </Property>
         <Property name="text" type="java.lang.String" resourceKey="btnDeleteHook.text"/>
+        <Property name="toolTipText" type="java.lang.String" resourceKey="btnDeleteHook.toolTipText"/>
         <Property name="actionCommand" type="java.lang.String" resourceKey="btnDeleteHook.actionCommand"/>
         <Property name="focusable" type="boolean" value="false"/>
         <Property name="name" type="java.lang.String" value="btnDeleteHook" noResource="true"/>

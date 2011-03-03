@@ -20,8 +20,12 @@ package com.aspect.snoop.ui.choose.process;
 
 import java.awt.Color;
 import java.awt.Component;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.Modifier;
 import javax.swing.Icon;
 import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 public class ClasspathTreeCellRenderer extends DefaultTreeCellRenderer {
@@ -38,39 +42,58 @@ public class ClasspathTreeCellRenderer extends DefaultTreeCellRenderer {
     private Icon methodPrivateIcon = Util.createImageIcon("/gfx/methpri_obj.gif");
     private Color gray2 = new Color(0x666666);
 
-    public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-        if (value != null) {
-            String val = value.toString();
-            if (val != null) {
-                if (val.endsWith(".jar")) {
-                    this.setIcon(jarIcon);
-                } else if (val.endsWith(".class")) {
-                    Icon ico = classIcon;
-                    if ((leaf == true) && (value instanceof DoubleStringTreeNode)) {
-                        DoubleStringTreeNode n = (DoubleStringTreeNode) value;
-                        if (n.isDuplicate() == true) {
-                            ico = class2Icon;
-                            this.setForeground(gray2);
-                        }
-                    }
-                    this.setIcon(ico);
-                } else if (val.contains("public")) {		// FIXME: Would be faster if val.getIcon() and val.getValue()
-                    this.setIcon(methodPublicIcon);
-                } else if (val.contains("protected")) {
-                    this.setIcon(methodProtectedIcon);
-                } else if (val.contains("private")) {
-                    this.setIcon(methodPrivateIcon);
-                } else if (val.contains("(")) {		// HACK!
-                    this.setIcon(methodDefaultIcon);
-                } else if ((leaf == true) && (value instanceof DoubleStringTreeNode)) {
-                    DoubleStringTreeNode n = (DoubleStringTreeNode) value;
-                    if (n.isDuplicate() == true) {
-                        this.setForeground(gray2);
-                    }
-                }
+    @Override
+    public Component getTreeCellRendererComponent(JTree tree, Object val, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+        super.getTreeCellRendererComponent(tree, val, sel, expanded, leaf, row, hasFocus);
+
+        if (val == null)
+            return this;
+
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode)val;
+
+        Object value = node.getUserObject();
+
+        /*
+         * Handle creating method icons/layouts.
+         */
+        if (value instanceof CtMethod ) {
+            CtMethod method = (CtMethod)value;
+            if (Modifier.isPublic(method.getModifiers()))  {
+                this.setIcon(methodPublicIcon);
+            } else if (Modifier.isProtected(method.getModifiers())) {
+                this.setIcon(methodProtectedIcon);
+            } else if (Modifier.isPrivate(method.getModifiers())) {
+                this.setIcon(methodPrivateIcon);
+            } else {
+                this.setIcon(methodDefaultIcon);
             }
+           
+            setText(method.getLongName());
+            
+
+        /*
+         * Handle creating class icons/layouts.
+         */
+        } else if ( value instanceof CtClass ) {
+            CtClass clazz = (CtClass)value;
+            this.setIcon(classIcon);
+            this.setText(clazz.getName());
+
+        /*
+         * Handle creating jar icons/layouts.
+         */
+        } else if ( value instanceof ClasspathEntry ) {
+            ClasspathEntry entry = (ClasspathEntry)value;
+            this.setIcon(jarIcon);
+            this.setText(entry.getStringEntry());
+        
+        /*
+         * Handle creating jar resource icons/layouts.
+         */
+        } else {
+            this.setIcon(leafIcon);
         }
+        
         return this;
     }
 }

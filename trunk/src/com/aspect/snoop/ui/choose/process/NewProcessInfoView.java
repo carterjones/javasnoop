@@ -16,39 +16,56 @@
  * You should have received a copy of the GNU General Public License
  * along with JavaSnoop.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.aspect.snoop.ui.choose.process;
 
+import com.aspect.snoop.JavaSnoop;
 import com.aspect.snoop.SnoopSession;
+import com.aspect.snoop.agent.manager.SmartURLClassPath;
 import com.aspect.snoop.util.SimpleFileFilter;
+import com.aspect.snoop.util.UIUtil;
 import java.awt.FileDialog;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.util.List;
+import javassist.ClassPath;
+import javassist.ClassPool;
 import javax.swing.JFileChooser;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
+import org.apache.log4j.Logger;
 import org.jdesktop.application.Action;
 
 public class NewProcessInfoView extends javax.swing.JDialog {
 
+    private static final Logger logger = Logger.getLogger(NewProcessInfoView.class);
+
+    public static boolean quitResolving;
+
     ClasspathTreeModel classpath;
+    ClassPool cp = new ClassPool();
+    String userDir = System.getProperty("user.dir");
+    SimpleFileFilter fileFilter = new SimpleFileFilter("jar", "JAR Java Archives");
 
-	private String userDir = System.getProperty("user.dir");
-
-	private SimpleFileFilter fileFilter = new SimpleFileFilter("jar", "JAR Java Archives");
-
-	public static boolean quitResolving;
+    File lastSelectedDir;
+    SnoopSession model;
 
     public NewProcessInfoView(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         classpath = new ClasspathTreeModel(new DefaultMutableTreeNode(null));
         treeClasspath.setCellRenderer(new ClasspathTreeCellRenderer());
-        treeClasses.setCellRenderer(new ClasspathTreeCellRenderer());
+        treeClasses.setCellRenderer(new ClassesTreeCellRenderer());
 
-		initializeLoadDialogListeners();
+        //initializeLoadDialogListeners();
+
+        String lastCpDir = JavaSnoop.getProperty(JavaSnoop.LAST_SELECTED_DIR);
+        if ( lastCpDir != null ) {
+            File dir = new File(lastCpDir);
+            if ( dir.exists() && dir.isDirectory() )
+                lastSelectedDir = dir;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -66,6 +83,7 @@ public class NewProcessInfoView extends javax.swing.JDialog {
         btnAddEntry = new javax.swing.JButton();
         pnlClasspath = new javax.swing.JScrollPane();
         treeClasspath = new javax.swing.JTree();
+        jLabel4 = new javax.swing.JLabel();
         pnlClassesView = new javax.swing.JPanel();
         pnlClasspath1 = new javax.swing.JScrollPane();
         treeClasses = new javax.swing.JTree();
@@ -78,12 +96,17 @@ public class NewProcessInfoView extends javax.swing.JDialog {
         txtJvmArguments = new javax.swing.JTextField();
         btnStartProcess = new javax.swing.JButton();
         btnCancel = new javax.swing.JButton();
+        pnlGui = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        txtGuiDelay = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
 
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getResourceMap(NewProcessInfoView.class);
         txtMainClass.setText(resourceMap.getString("txtMainClass.text")); // NOI18N
         txtMainClass.setName("txtMainClass"); // NOI18N
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle(resourceMap.getString("Form.title")); // NOI18N
         setName("Form"); // NOI18N
 
         pnlMainClass.setBorder(javax.swing.BorderFactory.createTitledBorder(resourceMap.getString("pnlMainClass.border.title"))); // NOI18N
@@ -92,6 +115,7 @@ public class NewProcessInfoView extends javax.swing.JDialog {
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getActionMap(NewProcessInfoView.class, this);
         btnSearch.setAction(actionMap.get("searchForMainClasses")); // NOI18N
         btnSearch.setText(resourceMap.getString("btnSearch.text")); // NOI18N
+        btnSearch.setToolTipText(resourceMap.getString("btnSearch.toolTipText")); // NOI18N
         btnSearch.setName("btnSearch"); // NOI18N
 
         jLabelMainClass.setText(resourceMap.getString("jLabelMainClass.text")); // NOI18N
@@ -103,7 +127,7 @@ public class NewProcessInfoView extends javax.swing.JDialog {
             pnlMainClassLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlMainClassLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabelMainClass, javax.swing.GroupLayout.DEFAULT_SIZE, 314, Short.MAX_VALUE)
+                .addComponent(jLabelMainClass, javax.swing.GroupLayout.DEFAULT_SIZE, 524, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnSearch)
                 .addContainerGap())
@@ -126,19 +150,25 @@ public class NewProcessInfoView extends javax.swing.JDialog {
 
         btnRemoveEntry.setAction(actionMap.get("removeClasspathEntry")); // NOI18N
         btnRemoveEntry.setText(resourceMap.getString("btnRemoveEntry.text")); // NOI18N
+        btnRemoveEntry.setToolTipText(resourceMap.getString("btnRemoveEntry.toolTipText")); // NOI18N
         btnRemoveEntry.setName("btnRemoveEntry"); // NOI18N
 
         btnAddEntry.setAction(actionMap.get("addClasspathEntry")); // NOI18N
         btnAddEntry.setText(resourceMap.getString("btnAddEntry.text")); // NOI18N
+        btnAddEntry.setToolTipText(resourceMap.getString("btnAddEntry.toolTipText")); // NOI18N
         btnAddEntry.setName("btnAddEntry"); // NOI18N
 
         pnlClasspath.setName("pnlClasspath"); // NOI18N
 
         javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("root");
         treeClasspath.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
+        treeClasspath.setToolTipText(resourceMap.getString("treeClasspath.toolTipText")); // NOI18N
         treeClasspath.setName("treeClasspath"); // NOI18N
         treeClasspath.setRootVisible(false);
         pnlClasspath.setViewportView(treeClasspath);
+
+        jLabel4.setText(resourceMap.getString("jLabel4.text")); // NOI18N
+        jLabel4.setName("jLabel4"); // NOI18N
 
         javax.swing.GroupLayout pnlJarViewLayout = new javax.swing.GroupLayout(pnlJarView);
         pnlJarView.setLayout(pnlJarViewLayout);
@@ -147,11 +177,13 @@ public class NewProcessInfoView extends javax.swing.JDialog {
             .addGroup(pnlJarViewLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(pnlJarViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(pnlClasspath, javax.swing.GroupLayout.DEFAULT_SIZE, 364, Short.MAX_VALUE)
+                    .addComponent(pnlClasspath, javax.swing.GroupLayout.DEFAULT_SIZE, 574, Short.MAX_VALUE)
                     .addGroup(pnlJarViewLayout.createSequentialGroup()
                         .addComponent(btnAddEntry, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnRemoveEntry)))
+                        .addComponent(btnRemoveEntry)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         pnlJarViewLayout.setVerticalGroup(
@@ -162,7 +194,8 @@ public class NewProcessInfoView extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pnlJarViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAddEntry, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnRemoveEntry))
+                    .addComponent(btnRemoveEntry)
+                    .addComponent(jLabel4))
                 .addGap(47, 47, 47))
         );
 
@@ -182,11 +215,11 @@ public class NewProcessInfoView extends javax.swing.JDialog {
         pnlClassesView.setLayout(pnlClassesViewLayout);
         pnlClassesViewLayout.setHorizontalGroup(
             pnlClassesViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 384, Short.MAX_VALUE)
+            .addGap(0, 594, Short.MAX_VALUE)
             .addGroup(pnlClassesViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(pnlClassesViewLayout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(pnlClasspath1, javax.swing.GroupLayout.DEFAULT_SIZE, 364, Short.MAX_VALUE)
+                    .addComponent(pnlClasspath1, javax.swing.GroupLayout.DEFAULT_SIZE, 574, Short.MAX_VALUE)
                     .addContainerGap()))
         );
         pnlClassesViewLayout.setVerticalGroup(
@@ -207,7 +240,7 @@ public class NewProcessInfoView extends javax.swing.JDialog {
             pnlClasspathViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlClasspathViewLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(tabClasspath, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
+                .addComponent(tabClasspath, javax.swing.GroupLayout.DEFAULT_SIZE, 599, Short.MAX_VALUE)
                 .addContainerGap())
         );
         pnlClasspathViewLayout.setVerticalGroup(
@@ -243,12 +276,12 @@ public class NewProcessInfoView extends javax.swing.JDialog {
             .addGroup(pnlExecutionInfoLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(pnlExecutionInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtWorkingDir, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
+                    .addComponent(txtWorkingDir, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 599, Short.MAX_VALUE)
                     .addComponent(jLabel3)
                     .addComponent(jLabel1)
-                    .addComponent(txtArguments, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
+                    .addComponent(txtArguments, javax.swing.GroupLayout.DEFAULT_SIZE, 599, Short.MAX_VALUE)
                     .addComponent(jLabel2)
-                    .addComponent(txtJvmArguments, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE))
+                    .addComponent(txtJvmArguments, javax.swing.GroupLayout.DEFAULT_SIZE, 599, Short.MAX_VALUE))
                 .addContainerGap())
         );
         pnlExecutionInfoLayout.setVerticalGroup(
@@ -270,11 +303,51 @@ public class NewProcessInfoView extends javax.swing.JDialog {
 
         btnStartProcess.setAction(actionMap.get("startProcess")); // NOI18N
         btnStartProcess.setText(resourceMap.getString("btnStartProcess.text")); // NOI18N
+        btnStartProcess.setToolTipText(resourceMap.getString("btnStartProcess.toolTipText")); // NOI18N
         btnStartProcess.setName("btnStartProcess"); // NOI18N
 
         btnCancel.setAction(actionMap.get("close")); // NOI18N
         btnCancel.setText(resourceMap.getString("btnCancel.text")); // NOI18N
+        btnCancel.setToolTipText(resourceMap.getString("btnCancel.toolTipText")); // NOI18N
         btnCancel.setName("btnCancel"); // NOI18N
+
+        pnlGui.setBorder(javax.swing.BorderFactory.createTitledBorder(resourceMap.getString("pnlGui.border.title"))); // NOI18N
+        pnlGui.setName("pnlGui"); // NOI18N
+
+        jLabel5.setText(resourceMap.getString("jLabel5.text")); // NOI18N
+        jLabel5.setName("jLabel5"); // NOI18N
+
+        txtGuiDelay.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        txtGuiDelay.setText(resourceMap.getString("txtGuiDelay.text")); // NOI18N
+        txtGuiDelay.setName("txtGuiDelay"); // NOI18N
+
+        jLabel6.setText(resourceMap.getString("jLabel6.text")); // NOI18N
+        jLabel6.setName("jLabel6"); // NOI18N
+
+        javax.swing.GroupLayout pnlGuiLayout = new javax.swing.GroupLayout(pnlGui);
+        pnlGui.setLayout(pnlGuiLayout);
+        pnlGuiLayout.setHorizontalGroup(
+            pnlGuiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlGuiLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnlGuiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel6)
+                    .addGroup(pnlGuiLayout.createSequentialGroup()
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtGuiDelay, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(32, Short.MAX_VALUE))
+        );
+        pnlGuiLayout.setVerticalGroup(
+            pnlGuiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlGuiLayout.createSequentialGroup()
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnlGuiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(txtGuiDelay, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(4, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -283,12 +356,13 @@ public class NewProcessInfoView extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(pnlGui, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(pnlClasspathView, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(pnlMainClass, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(pnlExecutionInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(pnlMainClass, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(btnStartProcess)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(5, 5, 5)
                         .addComponent(btnCancel)))
                 .addContainerGap())
         );
@@ -302,10 +376,12 @@ public class NewProcessInfoView extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(pnlExecutionInfo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pnlGui, javax.swing.GroupLayout.DEFAULT_SIZE, 71, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnStartProcess)
                     .addComponent(btnCancel))
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
@@ -313,9 +389,11 @@ public class NewProcessInfoView extends javax.swing.JDialog {
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
+
             public void run() {
                 NewProcessInfoView dialog = new NewProcessInfoView(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+
                     public void windowClosing(java.awt.event.WindowEvent e) {
                         System.exit(0);
                     }
@@ -325,159 +403,179 @@ public class NewProcessInfoView extends javax.swing.JDialog {
         });
     }
 
-    File lastSelectedDir;
-    SnoopSession model;
-
     public SnoopSession getSnoopSession() {
         return model;
     }
 
     @Action
-    public void addClasspathEntryOld() {
-
-        JFileChooser fc;
-
-        if ( lastSelectedDir == null ) {
-            fc = new JFileChooser(new File(System.getProperty("user.dir")));
-        } else {
-            fc = new JFileChooser(lastSelectedDir);
-        }
-
-        fc.setApproveButtonText("Select");
-        fc.setDialogTitle("Select root folders or JAR files");
-        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        fc.setFileFilter(new FileFilter(){
-            @Override
-            public boolean accept(File f) {
-                return
-                        f.isDirectory() ||
-                        f.getName().endsWith(".jar") ||
-                        f.getName().endsWith(".class");
-            }
-
-            @Override
-            public String getDescription() {
-                return "Directories and JAR files";
-            }
-        });
-
-        fc.setMultiSelectionEnabled(true);
-        int rc = fc.showOpenDialog(this);
-        if (rc == JFileChooser.APPROVE_OPTION) {
-            File[] selectedFiles = fc.getSelectedFiles();
-            lastSelectedDir = selectedFiles[0];
-            
-            for(File f : selectedFiles) {
-                classpath.addEntry(f.getAbsolutePath());
-            }
-            classpath.reload();
-        }
-    }
-
-    @Action
     public void addClasspathEntry() {
 
-		if (System.getProperty("os.name").toLowerCase().indexOf("mac") != -1) {
-			FileDialog fileDialog = new FileDialog((java.awt.Frame)getParent(), "Select root folders or JAR files", FileDialog.LOAD);
-			fileDialog.setDirectory(userDir);
-			// FIXME: Native FileDialog does not support multi-select, but JFileChooser is so 1980's
-			fileDialog.setVisible(true);
-			if (fileDialog.getFile() != null) {
-				File selectedFile = new File(fileDialog.getFile());
+        if (System.getProperty("os.name").toLowerCase().indexOf("mac") != -1) {
+            FileDialog fileDialog = new FileDialog((java.awt.Frame) getParent(), "Select root folders or JAR files", FileDialog.LOAD);
+            if ( lastSelectedDir != null )
+                fileDialog.setDirectory(lastSelectedDir.getAbsolutePath());
+            else
+                fileDialog.setDirectory(userDir);
 
-				// Append the selected paths to our list of source roots
-				classpath.addEntry(selectedFile.getAbsolutePath());
-			}
-		}
-		else {
-			JFileChooser fc = new JFileChooser(new File(userDir));
-			fc.setApproveButtonText("Select");
-			fc.setDialogTitle("Select root folders or JAR files");
-			fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-			fc.setFileFilter(fileFilter);
-			fc.setMultiSelectionEnabled(true);
-			int rc = fc.showOpenDialog(getParent());
-			if (rc == JFileChooser.APPROVE_OPTION) {
-				StringBuffer root = new StringBuffer();
-				File[] selectedFiles = fc.getSelectedFiles();
-				for (int i = 0; i < selectedFiles.length - 1; i++) {
-					root.append(selectedFiles[i].getAbsoluteFile());
-					root.append(';');
-				}
-				root.append(selectedFiles[selectedFiles.length - 1].getAbsoluteFile());
+            // FIXME: Native FileDialog does not support multi-select, but JFileChooser is so 1980's
+            fileDialog.setVisible(true);
+            if (fileDialog.getFile() != null) {
+                File selectedFile = new File(fileDialog.getFile());
 
-				// Append the selected paths to our list of source roots
-				for (File selectedFile : selectedFiles) {
-					classpath.addEntry(selectedFile.getAbsolutePath());
-				}
-			}
-		}
-		if (classpath.getSize() != 0) {
-			new LoadDialog(NewProcessInfoView.this.pnlMainClass, classpath.getEntries(), classpathTreeChangeListener, statusListener);
-		}
-	}
+                // Append the selected paths to our list of source roots
+                try {
+                    ClassPath entry = new SmartURLClassPath(selectedFile.toURL());
+                    cp.appendClassPath(entry);
+                    classpath.addEntry(new ClasspathEntry( selectedFile.getAbsolutePath(),entry));
 
-    @Action
-    public void removeClasspathEntryOld() {
+                    if ( selectedFile.isDirectory() ) {
+                        lastSelectedDir = selectedFile;
+                    } else {
+                        lastSelectedDir = selectedFile.getParentFile();
+                    }
+                } catch (MalformedURLException ex) {
+                    UIUtil.showErrorMessage(this, "Failed to add classpath entry: " + cp);
+                    logger.error("Error adding to classpath: " + cp, ex);
+                }
 
-        for(TreePath path : treeClasspath.getSelectionPaths()) {
-            System.out.println("Gonna delete: " + path);
-            
+                JavaSnoop.setProperty(JavaSnoop.LAST_SELECTED_DIR, lastSelectedDir.getAbsolutePath());
+                JavaSnoop.saveProperties();
+            }
+        } else {
+            JFileChooser fc = new JFileChooser();
+
+            if ( lastSelectedDir != null )
+                fc.setCurrentDirectory(lastSelectedDir);
+            else
+                fc.setCurrentDirectory(new File(userDir));
+
+            fc.setApproveButtonText("Select");
+            fc.setDialogTitle("Select root folders or JAR files");
+            fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+            fc.setFileFilter(fileFilter);
+            fc.setMultiSelectionEnabled(true);
+            int rc = fc.showOpenDialog(getParent());
+            if (rc == JFileChooser.APPROVE_OPTION) {
+                StringBuilder root = new StringBuilder();
+                File[] selectedFiles = fc.getSelectedFiles();
+                for (int i = 0; i < selectedFiles.length - 1; i++) {
+                    root.append(selectedFiles[i].getAbsoluteFile());
+                    root.append(';');
+                }
+                root.append(selectedFiles[selectedFiles.length - 1].getAbsoluteFile());
+
+                // Append the selected paths to our list of source roots
+                for (File selectedFile : selectedFiles) {
+
+                    try {
+                        ClassPath entry = new SmartURLClassPath(selectedFile.toURL());
+                        cp.appendClassPath(entry);
+                        classpath.addEntry(new ClasspathEntry(selectedFile.getAbsolutePath(),entry));
+                    } catch (MalformedURLException ex) {
+                        UIUtil.showErrorMessage(this, "Failed to add classpath entry: " + cp);
+                        logger.error("Error adding to classpath: " + cp, ex);
+                    }
+                }
+
+                if ( selectedFiles[0].isDirectory() ) {
+                    lastSelectedDir = selectedFiles[0];
+                } else {
+                    lastSelectedDir = selectedFiles[0].getParentFile();
+                }
+
+                JavaSnoop.setProperty(JavaSnoop.LAST_SELECTED_DIR, lastSelectedDir.getAbsolutePath());
+                JavaSnoop.saveProperties();
+
+                classpath.reload();
+            }
         }
 
+        if (classpath.getSize() != 0) {
+            classpath.reload();
+
+            treeClasspath.setModel(null);
+            treeClasspath.setModel(classpath);
+
+            List<String> classes = classpath.getClassesSeen();
+
+            ClassesTreeModel classModel = new ClassesTreeModel(new DefaultMutableTreeNode(null));
+            classModel.setClasses(classes);
+            classModel.reload();
+
+            treeClasses.setModel(null);
+            treeClasses.setModel(classModel);
+        }
     }
 
     @Action
     public void removeClasspathEntry() {
-		// Remove the paths selected in the treeClasspath from sourceRoots
-		TreePath[] paths = treeClasspath.getSelectionPaths();
-		for (TreePath path : paths) {
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode) (path.getLastPathComponent());
-			if (node.getLevel() == 1) {
-				classpath.removeEntry((String)node.getUserObject());
-//						((DefaultTreeModel)classpath.getModel()).removeNodeFromParent(node);
-//						((DefaultTreeModel)classpath.getModel()).reload(parentNode);
-			}
-		}
+        // Remove the paths selected in the treeClasspath from sourceRoots
+        TreePath[] paths = treeClasspath.getSelectionPaths();
 
-		if (classpath.getSize() != 0) {
-			new LoadDialog(NewProcessInfoView.this.pnlMainClass, classpath.getEntries(), classpathTreeChangeListener, statusListener);
-		}
-	}
+        if ( paths.length == 0 )
+            return;
+
+        boolean changed = false;
+
+        for (TreePath path : paths) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) (path.getLastPathComponent());
+            if (node.getLevel() == 1) {
+                ClasspathEntry entry = (ClasspathEntry)node.getUserObject();
+                cp.removeClassPath(entry.getEntry());
+                classpath.removeEntry(entry);
+                changed = true;
+            }
+        }
+
+        if ( changed ) {
+            classpath.reload();
+            treeClasspath.setModel(null);
+            treeClasspath.setModel(classpath);
+
+            List<String> classes = classpath.getClassesSeen();
+
+            ClassesTreeModel classModel = new ClassesTreeModel(new DefaultMutableTreeNode(null));
+            classModel.setClasses(classes);
+            classModel.reload();
+
+            treeClasses.setModel(null);
+            treeClasses.setModel(classModel);
+        }
+
+    }
 
     @Action
-	public void searchForMainClasses() {
-		final SearchMainMethodsView searchMainMethodsView = new SearchMainMethodsView(
-				new javax.swing.JFrame(), true, classpath.getEntries());
-		searchMainMethodsView.addChangeListener( new ChangeListener() {
+    public void searchForMainClasses() {
 
-			public void stateChanged(ChangeEvent e) {
-				String selectedClass = (String) e.getSource();
-				System.out.println( "Setting program's main class to: " + selectedClass );
-				jLabelMainClass.setText( selectedClass );
-			}
+        if ( classpath.getEntries().isEmpty() ) {
+            UIUtil.showErrorMessage(
+                this,
+                "Please add classpath entries before searching for a main class");
+            return;
+        }
 
-		});
-		searchMainMethodsView.setVisible( true );
-	}
+        ClassPool pool = new ClassPool(true);
+        for(ClasspathEntry entry : classpath.getEntries()) {
+            try {
+                pool.appendClassPath(entry.getStringEntry());
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
 
-	ClasspathTreeChangeListener classpathTreeChangeListener;
-	ChangeListener statusListener;
-	private void initializeLoadDialogListeners() {
-		classpathTreeChangeListener = new ClasspathTreeChangeListener(){
+        final SearchMainMethodsView searchMainMethodsView = new SearchMainMethodsView(
+                new javax.swing.JFrame(), true, pool, classpath.getClassesSeen());
 
-				public void stateChanged(ClasspathTreeChangeEvent e) {
-					treeClasspath.setModel(e.getJarsTreeModel());
-					treeClasses.setModel(e.getClassesTreeModel());
-			}
-		};
-		statusListener = new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				System.out.println("Somebody add a status JLabel to this view so the scanner can update it here.");
-				//statusLabel.setText(e.getSource());
-			}
-		};
-	}
+        searchMainMethodsView.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                String selectedClass = (String) e.getSource();
+                logger.trace("Setting program's main class to: " + selectedClass);
+                jLabelMainClass.setText(selectedClass);
+            }
+        });
+
+        searchMainMethodsView.setVisible(true);
+    }
 
     @Action
     public void close() {
@@ -487,15 +585,34 @@ public class NewProcessInfoView extends javax.swing.JDialog {
 
     @Action
     public void startProcess() {
+
+        String mainClass = jLabelMainClass.getText();
+
+        if ( mainClass.length() == 0 ) {
+            if ( classpath.getEntries().size() != 1 ) {
+                UIUtil.showErrorMessage(this,
+                        "Please select a main class or " +
+                        "a single jar");
+                return;
+            }
+        }
+
         model = new SnoopSession();
-        model.setMainClass(txtMainClass.getText());
+        model.setMainClass(mainClass);
         model.setArguments(txtArguments.getText());
         model.setJavaArguments(txtJvmArguments.getText());
         model.setWorkingDir(txtWorkingDir.getText());
-        model.setClasspathString( Util.convertListToString(classpath.getEntries(), ";") );
+        model.setClasspathString(Util.convertListToString(classpath.getEntries(), ";"));
+        try {
+            model.setGuiDelay(Integer.parseInt(txtGuiDelay.getText()));
+        } catch (Exception e) {
+            UIUtil.showErrorMessage(this,
+                        "Please enter an integer value for the GUI delay");
+            return;
+        }
+
         dispose();
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddEntry;
     private javax.swing.JButton btnCancel;
@@ -505,21 +622,25 @@ public class NewProcessInfoView extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabelMainClass;
     private javax.swing.JPanel pnlClassesView;
     private javax.swing.JScrollPane pnlClasspath;
     private javax.swing.JScrollPane pnlClasspath1;
     private javax.swing.JPanel pnlClasspathView;
     private javax.swing.JPanel pnlExecutionInfo;
+    private javax.swing.JPanel pnlGui;
     private javax.swing.JPanel pnlJarView;
     private javax.swing.JPanel pnlMainClass;
     private javax.swing.JTabbedPane tabClasspath;
     private javax.swing.JTree treeClasses;
     private javax.swing.JTree treeClasspath;
     private javax.swing.JTextField txtArguments;
+    private javax.swing.JTextField txtGuiDelay;
     private javax.swing.JTextField txtJvmArguments;
     private javax.swing.JTextField txtMainClass;
     private javax.swing.JTextField txtWorkingDir;
     // End of variables declaration//GEN-END:variables
-
 }

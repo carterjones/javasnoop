@@ -71,6 +71,14 @@ public class AgentLogger {
         if ( level <= TRACE ) System.out.println(getPrefix() + s);
     }
 
+
+    public static void debug(String s, Throwable t) {
+        if ( level <= DEBUG ) {
+            System.out.println(getPrefix() + s);
+            t.printStackTrace();
+        }
+    }
+
     public static void debug(String s) {
         if ( level <= DEBUG ) System.out.println(getPrefix() + s);
     }
@@ -101,9 +109,22 @@ public class AgentLogger {
         }
     }
 
-
     public static void fatal(String s) {
         if ( level <= FATAL ) System.out.println(getPrefix() + s);
+    }
+
+    public static void fatal(Throwable t) {
+        if ( level <= FATAL ) {
+            System.out.println(getPrefix() + t.getMessage());
+            t.printStackTrace();
+        }
+    }
+
+    public static void fatal(String s, Throwable t) {
+        if ( level <= FATAL ) {
+            System.out.println(getPrefix() + s);
+            t.printStackTrace();
+        }
     }
 
     private static String getPrefix() {
@@ -113,4 +134,5 @@ public class AgentLogger {
     private static String getTime() {
         return new SimpleDateFormat().format(new Date());
     }
+
 }

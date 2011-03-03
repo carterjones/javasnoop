@@ -83,6 +83,7 @@
             </Property>
             <Property name="font" type="java.awt.Font" resourceKey="btnAttach.font"/>
             <Property name="text" type="java.lang.String" resourceKey="btnAttach.text"/>
+            <Property name="toolTipText" type="java.lang.String" resourceKey="btnAttach.toolTipText"/>
             <Property name="name" type="java.lang.String" value="btnAttach" noResource="true"/>
           </Properties>
         </Component>
@@ -100,6 +101,7 @@
             </Property>
             <Property name="font" type="java.awt.Font" resourceKey="btnStart.font"/>
             <Property name="text" type="java.lang.String" resourceKey="btnStart.text"/>
+            <Property name="toolTipText" type="java.lang.String" resourceKey="btnStart.toolTipText"/>
             <Property name="name" type="java.lang.String" value="btnStart" noResource="true"/>
           </Properties>
         </Component>

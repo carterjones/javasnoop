@@ -72,6 +72,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import javax.imageio.ImageIO;
@@ -81,8 +82,11 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.JRootPane;
 import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
@@ -91,6 +95,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.jdesktop.application.Action;
 
 /**
  *
@@ -101,10 +106,10 @@ public class JavaSnoopView extends javax.swing.JFrame {
     private static String faqUrl = "http://www.aspectsecurity.com/tools/javasnoop/javasnoop_faq.html";
     private static String homeUrl = "http://www.aspectsecurity.com/tools/javasnoop/";
     private static final String nl = System.getProperty("line.separator");
-    
+
     private static File lastConfigurationDirectory;
     private static File lastConfigurationFile;
-    
+
     private SnoopSession currentSession;
     private StyledDocument console;
 
@@ -120,80 +125,99 @@ public class JavaSnoopView extends javax.swing.JFrame {
     public JavaSnoopView(InstrumentationManager  manager) {
 
         this.manager = manager;
-        initializeSession();
-
-		beMacFriendly();
-
-        updateTitle();
-
-        chkShowMethodCode.setSelected( JavaSnoop.getBooleanProperty(JavaSnoop.USE_JAD,false) );
-
-        //setResizable(false);
-
-        String icon = "/META-INF/about.png";
+        AgentLogger.debug("Loading JavaSnoopView GUI components");
 
         try {
-           setIconImage(ImageIO.read(this.getClass().getResourceAsStream(icon)));
-        } catch(Exception e) { // used to be IOException
-            // couldn't load snoopy icon. oh well. rip schulz
-        }
 
-        mnuAgentLogLevels = new ArrayList<JCheckBoxMenuItem>();
-        mnuAgentLogLevels.add(mnuAgentLogOff);
-        mnuAgentLogLevels.add(mnuAgentLogFatal);
-        mnuAgentLogLevels.add(mnuAgentLogError);
-        mnuAgentLogLevels.add(mnuAgentLogInfo);
-        mnuAgentLogLevels.add(mnuAgentLogWarn);
-        mnuAgentLogLevels.add(mnuAgentLogDebug);
-        mnuAgentLogLevels.add(mnuAgentLogTrace);
+            initializeSession();
 
-        // create the "Delete condition" popup menu for the Conditions table
-        JMenuItem deleteCondition = new JMenuItem("Delete condition");
-        deleteCondition.addActionListener( new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                FunctionHook hook = getCurrentHook();
-                if ( hook == null ) {
-                    return;
+            AgentLogger.debug("Done loading components. Finalizing UI...");
+
+            beMacFriendly();
+
+            AgentLogger.trace("Updating title");
+
+            /*
+             * The updateTitle() function blocks until
+             * the JVM figures out the process ID. So
+             * we have to wait for it asynchronously
+             * so we can finish loading the UI.
+             */
+           SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    UIUtil.pause(2000);
+                    updateTitle();
                 }
-                if (tblConditions.getSelectedRow() != -1) {
-                    ConditionTableModel model = (ConditionTableModel)tblConditions.getModel();
-                    Condition c = model.getConditionAt(tblConditions.getSelectedRow());
-                    hook.removeCondition(c);
-                    tblConditions.repaint();
-                    tblConditions.updateUI();
-                }
+            });
+            
+            chkShowMethodCode.setSelected( JavaSnoop.getBooleanProperty(JavaSnoop.USE_JAD,false) );
+
+            String icon = "/META-INF/about.png";
+
+            try {
+               setIconImage(ImageIO.read(this.getClass().getResourceAsStream(icon)));
+            } catch(Exception e) { // couldn't load icon. not a big deal.
             }
-        });
 
-        popupMenu = new JPopupMenu();
-        popupMenu.add(deleteCondition);
+            mnuAgentLogLevels = new ArrayList<JCheckBoxMenuItem>();
+            mnuAgentLogLevels.add(mnuAgentLogOff);
+            mnuAgentLogLevels.add(mnuAgentLogFatal);
+            mnuAgentLogLevels.add(mnuAgentLogError);
+            mnuAgentLogLevels.add(mnuAgentLogInfo);
+            mnuAgentLogLevels.add(mnuAgentLogWarn);
+            mnuAgentLogLevels.add(mnuAgentLogDebug);
+            mnuAgentLogLevels.add(mnuAgentLogTrace);
 
-        PopupListener popupListener = new PopupListener();
-        tblConditions.addMouseListener( popupListener );
+            // create the "Delete condition" popup menu for the Conditions table
+            JMenuItem deleteCondition = new JMenuItem("Delete condition");
+            deleteCondition.addActionListener( new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    FunctionHook hook = getCurrentHook();
+                    if ( hook == null ) {
+                        return;
+                    }
+                    if (tblConditions.getSelectedRow() != -1) {
+                        ConditionTableModel model = (ConditionTableModel)tblConditions.getModel();
+                        Condition c = model.getConditionAt(tblConditions.getSelectedRow());
+                        hook.removeCondition(c);
+                        tblConditions.repaint();
+                        tblConditions.updateUI();
+                    }
+                }
+            });
+
+            popupMenu = new JPopupMenu();
+            popupMenu.add(deleteCondition);
+
+            PopupListener popupListener = new PopupListener();
+            tblConditions.addMouseListener( popupListener );
+
+        } catch (Throwable t) {
+            AgentLogger.debug("Error initializing JavaSnoopView UI", t);
+            throw new RuntimeException(t);
+        }
     }
 
-	private void beMacFriendly() {
-		if (isMac())
-		{
-			System.setProperty("apple.laf.useScreenMenuBar", "true");
-			System.setProperty("com.apple.mrj.application.apple.menu.about.name", "JavaSnoop");
-			try
-			{
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-		}
+    private void beMacFriendly() {
+        AgentLogger.debug("Inside beMacFriendly");
+        if (isMac()) {
+            AgentLogger.debug("I am a Mac, altering LAF");
+            System.setProperty("apple.laf.useScreenMenuBar", "true");
+            System.setProperty("com.apple.mrj.application.apple.menu.about.name", "JavaSnoop");
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception e) {
+                AgentLogger.error(e);
+            }
+        }
+        AgentLogger.debug("End beMacFriendly");
+    }
 
-	}
-
-	private boolean isMac()
-	{
-    	return System.getProperty("os.name").toLowerCase().indexOf("mac") != -1;
-	}
+    private boolean isMac()
+    {
+        return System.getProperty("os.name").toLowerCase().indexOf("mac") != -1;
+    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -244,14 +268,15 @@ public class JavaSnoopView extends javax.swing.JFrame {
         jSeparator3 = new javax.swing.JSeparator();
         javax.swing.JMenuItem mnuExit = new javax.swing.JMenuItem();
         mnuExitAndKill = new javax.swing.JMenuItem();
-        classesMenu = new javax.swing.JMenu();
+        jvmMenu = new javax.swing.JMenu();
         mnuGetProcessInfo = new javax.swing.JMenuItem();
+        mnuDumpThreads = new javax.swing.JMenuItem();
+        mnuOpenScriptingConsole = new javax.swing.JMenuItem();
+        mnuStartCanaryMode = new javax.swing.JMenuItem();
+        classesMenu = new javax.swing.JMenu();
         mnuBrowseRemoteClasses = new javax.swing.JMenuItem();
         mnuForceLoadClasses = new javax.swing.JMenuItem();
-        mnuStartCanaryMode = new javax.swing.JMenuItem();
         mnuDecompileClass = new javax.swing.JMenuItem();
-        scriptingMenu = new javax.swing.JMenu();
-        mnuOpenScriptingConsole = new javax.swing.JMenuItem();
         settingsMenu = new javax.swing.JMenu();
         mnuAgentLogSetting = new javax.swing.JMenu();
         mnuAgentLogTrace = new javax.swing.JCheckBoxMenuItem();
@@ -344,6 +369,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getActionMap(JavaSnoopView.class, this);
         btnBrowseForOutputFile.setAction(actionMap.get("browseToOutputFile")); // NOI18N
         btnBrowseForOutputFile.setText(resourceMap.getString("btnBrowseForOutputFile.text")); // NOI18N
+        btnBrowseForOutputFile.setToolTipText(resourceMap.getString("btnBrowseForOutputFile.toolTipText")); // NOI18N
         btnBrowseForOutputFile.setFocusable(false);
         btnBrowseForOutputFile.setName("btnBrowseForOutputFile"); // NOI18N
 
@@ -356,6 +382,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
         });
 
         btnEditScript.setText(resourceMap.getString("btnEditScript.text")); // NOI18N
+        btnEditScript.setToolTipText(resourceMap.getString("btnEditScript.toolTipText")); // NOI18N
         btnEditScript.setFocusable(false);
         btnEditScript.setName("btnEditScript"); // NOI18N
         btnEditScript.addActionListener(new java.awt.event.ActionListener() {
@@ -545,6 +572,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
         );
 
         btnAddHook.setText(resourceMap.getString("btnAddHook.text")); // NOI18N
+        btnAddHook.setToolTipText(resourceMap.getString("btnAddHook.toolTipText")); // NOI18N
         btnAddHook.setActionCommand(resourceMap.getString("btnAddHook.actionCommand")); // NOI18N
         btnAddHook.setFocusable(false);
         btnAddHook.setName("btnAddHook"); // NOI18N
@@ -556,6 +584,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
 
         btnDeleteHook.setAction(actionMap.get("deleteHook")); // NOI18N
         btnDeleteHook.setText(resourceMap.getString("btnDeleteHook.text")); // NOI18N
+        btnDeleteHook.setToolTipText(resourceMap.getString("btnDeleteHook.toolTipText")); // NOI18N
         btnDeleteHook.setActionCommand(resourceMap.getString("btnDeleteHook.actionCommand")); // NOI18N
         btnDeleteHook.setFocusable(false);
         btnDeleteHook.setName("btnDeleteHook"); // NOI18N
@@ -629,6 +658,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
         fileMenu.setName("fileMenu"); // NOI18N
 
         mnuNewSession.setText(resourceMap.getString("mnuNewSession.text")); // NOI18N
+        mnuNewSession.setToolTipText(resourceMap.getString("mnuNewSession.toolTipText")); // NOI18N
         mnuNewSession.setName("mnuNewSession"); // NOI18N
         mnuNewSession.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -640,8 +670,8 @@ public class JavaSnoopView extends javax.swing.JFrame {
         jSeparator2.setName("jSeparator2"); // NOI18N
         fileMenu.add(jSeparator2);
 
-        mnuLoadSession.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.CTRL_MASK));
         mnuLoadSession.setText(resourceMap.getString("mnuLoadSession.text")); // NOI18N
+        mnuLoadSession.setToolTipText(resourceMap.getString("mnuLoadSession.toolTipText")); // NOI18N
         mnuLoadSession.setName("mnuLoadSession"); // NOI18N
         mnuLoadSession.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -650,7 +680,6 @@ public class JavaSnoopView extends javax.swing.JFrame {
         });
         fileMenu.add(mnuLoadSession);
 
-        mnuSaveSession.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
         mnuSaveSession.setText(resourceMap.getString("mnuSaveSession.text")); // NOI18N
         mnuSaveSession.setEnabled(false);
         mnuSaveSession.setName("mnuSaveSession"); // NOI18N
@@ -662,6 +691,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
         fileMenu.add(mnuSaveSession);
 
         mnuSaveSessionAs.setText(resourceMap.getString("mnuSaveSessionAs.text")); // NOI18N
+        mnuSaveSessionAs.setToolTipText(resourceMap.getString("mnuSaveSessionAs.toolTipText")); // NOI18N
         mnuSaveSessionAs.setName("mnuSaveSessionAs"); // NOI18N
         mnuSaveSessionAs.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -674,6 +704,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
         fileMenu.add(jSeparator3);
 
         mnuExit.setText(resourceMap.getString("mnuExit.text")); // NOI18N
+        mnuExit.setToolTipText(resourceMap.getString("mnuExit.toolTipText")); // NOI18N
         mnuExit.setName("mnuExit"); // NOI18N
         mnuExit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -683,6 +714,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
         fileMenu.add(mnuExit);
 
         mnuExitAndKill.setText(resourceMap.getString("mnuExitAndKill.text")); // NOI18N
+        mnuExitAndKill.setToolTipText(resourceMap.getString("mnuExitAndKill.toolTipText")); // NOI18N
         mnuExitAndKill.setName("mnuExitAndKill"); // NOI18N
         mnuExitAndKill.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -693,8 +725,8 @@ public class JavaSnoopView extends javax.swing.JFrame {
 
         menuBar.add(fileMenu);
 
-        classesMenu.setText(resourceMap.getString("classesMenu.text")); // NOI18N
-        classesMenu.setName("classesMenu"); // NOI18N
+        jvmMenu.setText(resourceMap.getString("jvmMenu.text")); // NOI18N
+        jvmMenu.setName("jvmMenu"); // NOI18N
 
         mnuGetProcessInfo.setAction(actionMap.get("getProcessInfo")); // NOI18N
         mnuGetProcessInfo.setText(resourceMap.getString("mnuGetProcessInfo.text")); // NOI18N
@@ -705,7 +737,40 @@ public class JavaSnoopView extends javax.swing.JFrame {
                 mnuGetProcessInfoActionPerformed(evt);
             }
         });
-        classesMenu.add(mnuGetProcessInfo);
+        jvmMenu.add(mnuGetProcessInfo);
+
+        mnuDumpThreads.setAction(actionMap.get("dumpThreads")); // NOI18N
+        mnuDumpThreads.setText(resourceMap.getString("mnuDumpThreads.text")); // NOI18N
+        mnuDumpThreads.setToolTipText(resourceMap.getString("mnuDumpThreads.toolTipText")); // NOI18N
+        mnuDumpThreads.setName("mnuDumpThreads"); // NOI18N
+        jvmMenu.add(mnuDumpThreads);
+
+        mnuOpenScriptingConsole.setAction(actionMap.get("openScriptingConsole")); // NOI18N
+        mnuOpenScriptingConsole.setText(resourceMap.getString("mnuOpenScriptingConsole.text")); // NOI18N
+        mnuOpenScriptingConsole.setToolTipText(resourceMap.getString("mnuOpenScriptingConsole.toolTipText")); // NOI18N
+        mnuOpenScriptingConsole.setName("mnuOpenScriptingConsole"); // NOI18N
+        mnuOpenScriptingConsole.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mnuOpenScriptingConsoleActionPerformed(evt);
+            }
+        });
+        jvmMenu.add(mnuOpenScriptingConsole);
+
+        mnuStartCanaryMode.setAction(actionMap.get("enterCanaryMode")); // NOI18N
+        mnuStartCanaryMode.setText(resourceMap.getString("mnuStartCanaryMode.text")); // NOI18N
+        mnuStartCanaryMode.setToolTipText(resourceMap.getString("mnuStartCanaryMode.toolTipText")); // NOI18N
+        mnuStartCanaryMode.setName("mnuStartCanaryMode"); // NOI18N
+        mnuStartCanaryMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mnuStartCanaryModeActionPerformed(evt);
+            }
+        });
+        jvmMenu.add(mnuStartCanaryMode);
+
+        menuBar.add(jvmMenu);
+
+        classesMenu.setText(resourceMap.getString("classesMenu.text")); // NOI18N
+        classesMenu.setName("classesMenu"); // NOI18N
 
         mnuBrowseRemoteClasses.setAction(actionMap.get("browseRemoteClasses")); // NOI18N
         mnuBrowseRemoteClasses.setText(resourceMap.getString("mnuBrowseRemoteClasses.text")); // NOI18N
@@ -729,17 +794,6 @@ public class JavaSnoopView extends javax.swing.JFrame {
         });
         classesMenu.add(mnuForceLoadClasses);
 
-        mnuStartCanaryMode.setAction(actionMap.get("enterCanaryMode")); // NOI18N
-        mnuStartCanaryMode.setText(resourceMap.getString("mnuStartCanaryMode.text")); // NOI18N
-        mnuStartCanaryMode.setToolTipText(resourceMap.getString("mnuStartCanaryMode.toolTipText")); // NOI18N
-        mnuStartCanaryMode.setName("mnuStartCanaryMode"); // NOI18N
-        mnuStartCanaryMode.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                mnuStartCanaryModeActionPerformed(evt);
-            }
-        });
-        classesMenu.add(mnuStartCanaryMode);
-
         mnuDecompileClass.setAction(actionMap.get("decompileClass")); // NOI18N
         mnuDecompileClass.setText(resourceMap.getString("mnuDecompileClass.text")); // NOI18N
         mnuDecompileClass.setToolTipText(resourceMap.getString("mnuDecompileClass.toolTipText")); // NOI18N
@@ -753,25 +807,11 @@ public class JavaSnoopView extends javax.swing.JFrame {
 
         menuBar.add(classesMenu);
 
-        scriptingMenu.setText(resourceMap.getString("scriptingMenu.text")); // NOI18N
-        scriptingMenu.setName("scriptingMenu"); // NOI18N
-
-        mnuOpenScriptingConsole.setAction(actionMap.get("openScriptingConsole")); // NOI18N
-        mnuOpenScriptingConsole.setText(resourceMap.getString("mnuOpenScriptingConsole.text")); // NOI18N
-        mnuOpenScriptingConsole.setName("mnuOpenScriptingConsole"); // NOI18N
-        mnuOpenScriptingConsole.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                mnuOpenScriptingConsoleActionPerformed(evt);
-            }
-        });
-        scriptingMenu.add(mnuOpenScriptingConsole);
-
-        menuBar.add(scriptingMenu);
-
         settingsMenu.setText(resourceMap.getString("settingsMenu.text")); // NOI18N
         settingsMenu.setName("settingsMenu"); // NOI18N
 
         mnuAgentLogSetting.setText(resourceMap.getString("mnuAgentLogSetting.text")); // NOI18N
+        mnuAgentLogSetting.setToolTipText(resourceMap.getString("mnuAgentLogSetting.toolTipText")); // NOI18N
         mnuAgentLogSetting.setName("mnuAgentLogSetting"); // NOI18N
 
         mnuAgentLogTrace.setText(resourceMap.getString("mnuAgentLogTrace.text")); // NOI18N
@@ -1450,6 +1490,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JPopupMenu.Separator jSeparator5;
+    private javax.swing.JMenu jvmMenu;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JCheckBoxMenuItem mnuAgentLogDebug;
     private javax.swing.JCheckBoxMenuItem mnuAgentLogError;
@@ -1461,6 +1502,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
     private javax.swing.JCheckBoxMenuItem mnuAgentLogWarn;
     private javax.swing.JMenuItem mnuBrowseRemoteClasses;
     private javax.swing.JMenuItem mnuDecompileClass;
+    private javax.swing.JMenuItem mnuDumpThreads;
     private javax.swing.JMenuItem mnuExitAndKill;
     private javax.swing.JMenuItem mnuForceLoadClasses;
     private javax.swing.JMenuItem mnuGetProcessInfo;
@@ -1480,7 +1522,6 @@ public class JavaSnoopView extends javax.swing.JFrame {
     private javax.swing.JRadioButton rdoAlwaysHook;
     private javax.swing.JRadioButton rdoDontHookIf;
     private javax.swing.JRadioButton rdoHookIf;
-    private javax.swing.JMenu scriptingMenu;
     private javax.swing.JMenu settingsMenu;
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
@@ -1505,7 +1546,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
          * Decide whether or not to show the code.
          */
         showCodeIfNeeded(hook.getClazz());
-        
+
         PauseView view = new PauseView(this, true, className, hook.getMethodName());
         view.setVisible(true);
 
@@ -1677,12 +1718,12 @@ public class JavaSnoopView extends javax.swing.JFrame {
         showCodeIfNeeded(hook.getClazz());
 
         String action = "Parameter";
-        
+
         StringBuilder sb = new StringBuilder();
         sb.append(getTimeStamp());
         sb.append(action);
         sb.append(" tampering request from: " + className + "." + hook.getMethodName() + "(" + join(types) + ")" + nl);
-        
+
         showSnoopMessage(sb.toString());
 
         List<Parameter> params = new ArrayList<Parameter>();
@@ -1734,7 +1775,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
     }
 
     public void showSnoopMessage(String s) {
-        
+
         SimpleAttributeSet attributes = new SimpleAttributeSet();
         attributes.addAttribute(StyleConstants.CharacterConstants.Bold, Boolean.FALSE);
         attributes.addAttribute(StyleConstants.CharacterConstants.Italic, Boolean.FALSE);
@@ -1832,7 +1873,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
 
     }
 
-    public void initializeSession() {
+    public final void initializeSession() {
 
         currentSession = new SnoopSession();
 
@@ -1842,10 +1883,10 @@ public class JavaSnoopView extends javax.swing.JFrame {
             initComponents();
             firstTimeLoading = false;
         }
-        
+
         ((RSyntaxTextArea)txtCode).setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
         ((RSyntaxTextArea)txtCode).setFont(new Font("Courier",Font.PLAIN,12));
-        
+
         tblFunctionsHooked.setModel(new FunctionsHookedTableModel(null));
 
         FunctionHookTableSelectionListener listener =
@@ -1891,11 +1932,11 @@ public class JavaSnoopView extends javax.swing.JFrame {
     public void newSession() {
         initializeSession();
     }
-    
+
     public void sendAgentNewRules() {
 
         try {
-            
+
             startProgressBar();
 
             statusMessageLabel.setText("Setting hooks...");
@@ -1903,7 +1944,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
             SessionManager.recycleHooks(currentSession);
 
             statusMessageLabel.setText("Finished setting hooks at " + getHumanTime() );
-            
+
         } catch (Exception ex) {
             UIUtil.showErrorMessage(this, "Failure establishing hooks: " + ex.getMessage());
             ex.printStackTrace();
@@ -1923,17 +1964,17 @@ public class JavaSnoopView extends javax.swing.JFrame {
     }
 
     public void enterCanaryMode() {
-        
+
         canaryView = new StartCanaryModeView(this, true);
-        
+
         canaryView.setVisible(true);
-        
+
         UIUtil.waitForInput(getCanaryView());
 
         try {
-            
+
             canaryView = null;
-            
+
             statusMessageLabel.setText("Setting hooks...");
 
             SessionManager.recycleHooks(currentSession);
@@ -1968,7 +2009,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
         if (useJad) {
             byte[] bytes = IOUtil.getClassBytes(clazz);
             try {
-                
+
                 String javaCode = JadUtil.getDecompiledJava(clazz.getName(),bytes);
                 fillInCode(javaCode);
 
@@ -1987,7 +2028,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
         StringReader sr = new StringReader(st);
         BufferedReader br = new BufferedReader(sr);
         StringBuilder sb = new StringBuilder();
-        
+
         try {
             while(num>0) {
                 br.readLine();
@@ -2002,7 +2043,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
 
         return sb.toString();
     }
-    
+
     class PopupListener extends MouseAdapter {
         @Override
         public void mousePressed(MouseEvent e) {
@@ -2034,7 +2075,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
     }
 
     public void changeJadPath() {
-        
+
         String oldPath = JavaSnoop.getProperty(JavaSnoop.JAD_PATH);
 
         if ( oldPath == null ) {
@@ -2057,7 +2098,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
         }
 
         try {
-            
+
             List<Class> classes = manager.getLoadedClasses();
 
             ChooseClassView view = new ChooseClassView(this, classes);
@@ -2110,7 +2151,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
     }
 
     public void forceLoadClasses() {
-        
+
         ForceLoadClassesView view = new ForceLoadClassesView(this,true);
         view.setVisible(true);
 
@@ -2119,7 +2160,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
         if ( ! view.userCanceled() ) {
 
             List<String> classesToLoad = view.getClassesToLoad();
-            
+
             statusMessageLabel.setText("Asking process to load classes...");
             List<String> failedClasses = forceLoadClasses(classesToLoad);
             statusMessageLabel.setText("Done");
@@ -2152,7 +2193,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
 
         List<String> failedClasses = new ArrayList<String>();
         List<ClassLoader> classloaders = manager.getClassLoaders();
-        
+
         for(String cls : classesToLoad) {
             boolean loaded = false;
             try {
@@ -2186,7 +2227,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
                 AgentLogger.debug("Successfully loaded " + cls);
             }
         }
-        
+
         return failedClasses;
     }
 
@@ -2250,7 +2291,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
 
             chkTamperReturnValue.setSelected(hook.shouldTamperReturnValue());
 
-            if ( hook.getReturnType().getName().equals("void") ) {
+            if ( hook.getReturnType().getName().equals("void") || hook.getMethodName().startsWith("<") ) {
                 chkTamperReturnValue.setEnabled(false);
             }
 
@@ -2335,4 +2376,25 @@ public class JavaSnoopView extends javax.swing.JFrame {
          }
          setTitle(sb.toString());
      }
+
+    @Action
+    public void dumpThreads() {
+        Map<Thread,StackTraceElement[]> threadStacks = Thread.getAllStackTraces();
+        StringBuilder sb = new StringBuilder();
+        for(Thread t : threadStacks.keySet()) {
+            StackTraceElement[] stack = threadStacks.get(t);
+            sb.append("Thread: ");
+            sb.append(t.getName());
+            sb.append(" (id=");
+            sb.append(t.getId());
+            sb.append(")");
+            sb.append(nl);
+            for(StackTraceElement frame : stack) {
+                sb.append("  ");
+                sb.append(frame);
+                sb.append(nl);
+            }
+        }
+        showSnoopMessage(sb.toString());
+    }
 }

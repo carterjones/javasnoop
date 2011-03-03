@@ -19,13 +19,28 @@
 
 package com.aspect.snoop.ui.choose.process;
 
-class JarScanningException extends Exception {
+import java.io.File;
+import javassist.ClassPath;
 
-    public JarScanningException(String message) {
-        super(message);
+public class ClasspathEntry {
+
+    private final String file;
+    private final ClassPath cp;
+
+    ClasspathEntry(String file, ClassPath cp) {
+        this.file = file;
+        this.cp = cp;
     }
 
-    public JarScanningException(Throwable ex) {
-        super(ex.toString());
+    public String getStringEntry() {
+        return file;
+    }
+
+    public ClassPath getEntry() {
+        return cp;
+    }
+
+    public boolean isJar() {
+        return ! new File(file).isDirectory();
     }
 }
