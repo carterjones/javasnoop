@@ -40,12 +40,13 @@ import org.jdesktop.application.Action;
 public class NewProcessInfoView extends javax.swing.JDialog {
 
     private static final Logger logger = Logger.getLogger(NewProcessInfoView.class);
+    private static final String userDir = System.getProperty("user.dir");
 
     public static boolean quitResolving;
 
     ClasspathTreeModel classpath;
     ClassPool cp = new ClassPool();
-    String userDir = System.getProperty("user.dir");
+    
     SimpleFileFilter fileFilter = new SimpleFileFilter("jar", "JAR Java Archives");
 
     File lastSelectedDir;
@@ -410,101 +411,59 @@ public class NewProcessInfoView extends javax.swing.JDialog {
     @Action
     public void addClasspathEntry() {
 
-        if (System.getProperty("os.name").toLowerCase().indexOf("mac") != -1) {
-            FileDialog fileDialog = new FileDialog((java.awt.Frame) getParent(), "Select root folders or JAR files", FileDialog.LOAD);
-            if ( lastSelectedDir != null )
-                fileDialog.setDirectory(lastSelectedDir.getAbsolutePath());
-            else
-                fileDialog.setDirectory(userDir);
+        JFileChooser fc = new JFileChooser();
 
-            // FIXME: Native FileDialog does not support multi-select, but JFileChooser is so 1980's
-            fileDialog.setVisible(true);
-            if (fileDialog.getFile() != null) {
-                File selectedFile = new File(fileDialog.getFile());
+        if ( lastSelectedDir != null )
+            fc.setCurrentDirectory(lastSelectedDir);
+        else
+            fc.setCurrentDirectory(new File(userDir));
 
-                // Append the selected paths to our list of source roots
-                try {
-                    ClassPath entry = new SmartURLClassPath(selectedFile.toURL());
-                    cp.appendClassPath(entry);
-                    classpath.addEntry(new ClasspathEntry( selectedFile.getAbsolutePath(),entry));
+        fc.setApproveButtonText("Select");
+        fc.setDialogTitle("Select root folders or JAR files");
+        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        fc.setFileFilter(fileFilter);
+        fc.setMultiSelectionEnabled(true);
+        int rc = fc.showOpenDialog(getParent());
+        if (rc != JFileChooser.APPROVE_OPTION)
+            return;
 
-                    if ( selectedFile.isDirectory() ) {
-                        lastSelectedDir = selectedFile;
-                    } else {
-                        lastSelectedDir = selectedFile.getParentFile();
-                    }
-                } catch (MalformedURLException ex) {
-                    UIUtil.showErrorMessage(this, "Failed to add classpath entry: " + cp);
-                    logger.error("Error adding to classpath: " + cp, ex);
-                }
+        File[] selectedFiles = fc.getSelectedFiles();
 
-                JavaSnoop.setProperty(JavaSnoop.LAST_SELECTED_DIR, lastSelectedDir.getAbsolutePath());
-                JavaSnoop.saveProperties();
+        // Append the selected paths to our list of source roots
+        for (File selectedFile : selectedFiles) {
+
+            try {
+                ClassPath entry = new SmartURLClassPath(selectedFile.toURL());
+                cp.appendClassPath(entry);
+                classpath.addEntry(new ClasspathEntry(selectedFile.getAbsolutePath(),entry));
+            } catch (MalformedURLException ex) {
+                UIUtil.showErrorMessage(this, "Failed to add classpath entry: " + cp);
+                logger.error("Error adding to classpath: " + cp, ex);
             }
+        }
+
+        if ( selectedFiles[0].isDirectory() ) {
+            lastSelectedDir = selectedFiles[0];
         } else {
-            JFileChooser fc = new JFileChooser();
-
-            if ( lastSelectedDir != null )
-                fc.setCurrentDirectory(lastSelectedDir);
-            else
-                fc.setCurrentDirectory(new File(userDir));
-
-            fc.setApproveButtonText("Select");
-            fc.setDialogTitle("Select root folders or JAR files");
-            fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-            fc.setFileFilter(fileFilter);
-            fc.setMultiSelectionEnabled(true);
-            int rc = fc.showOpenDialog(getParent());
-            if (rc == JFileChooser.APPROVE_OPTION) {
-                StringBuilder root = new StringBuilder();
-                File[] selectedFiles = fc.getSelectedFiles();
-                for (int i = 0; i < selectedFiles.length - 1; i++) {
-                    root.append(selectedFiles[i].getAbsoluteFile());
-                    root.append(';');
-                }
-                root.append(selectedFiles[selectedFiles.length - 1].getAbsoluteFile());
-
-                // Append the selected paths to our list of source roots
-                for (File selectedFile : selectedFiles) {
-
-                    try {
-                        ClassPath entry = new SmartURLClassPath(selectedFile.toURL());
-                        cp.appendClassPath(entry);
-                        classpath.addEntry(new ClasspathEntry(selectedFile.getAbsolutePath(),entry));
-                    } catch (MalformedURLException ex) {
-                        UIUtil.showErrorMessage(this, "Failed to add classpath entry: " + cp);
-                        logger.error("Error adding to classpath: " + cp, ex);
-                    }
-                }
-
-                if ( selectedFiles[0].isDirectory() ) {
-                    lastSelectedDir = selectedFiles[0];
-                } else {
-                    lastSelectedDir = selectedFiles[0].getParentFile();
-                }
-
-                JavaSnoop.setProperty(JavaSnoop.LAST_SELECTED_DIR, lastSelectedDir.getAbsolutePath());
-                JavaSnoop.saveProperties();
-
-                classpath.reload();
-            }
+            lastSelectedDir = selectedFiles[0].getParentFile();
         }
 
-        if (classpath.getSize() != 0) {
-            classpath.reload();
+        JavaSnoop.setProperty(JavaSnoop.LAST_SELECTED_DIR, lastSelectedDir.getAbsolutePath());
+        JavaSnoop.saveProperties();
 
-            treeClasspath.setModel(null);
-            treeClasspath.setModel(classpath);
+        classpath.reload();
 
-            List<String> classes = classpath.getClassesSeen();
+        treeClasspath.setModel(null);
+        treeClasspath.setModel(classpath);
 
-            ClassesTreeModel classModel = new ClassesTreeModel(new DefaultMutableTreeNode(null));
-            classModel.setClasses(classes);
-            classModel.reload();
+        List<String> classes = classpath.getClassesSeen();
 
-            treeClasses.setModel(null);
-            treeClasses.setModel(classModel);
-        }
+        ClassesTreeModel classModel = new ClassesTreeModel(new DefaultMutableTreeNode(null));
+        classModel.setClasses(classes);
+        classModel.reload();
+
+        treeClasses.setModel(null);
+        treeClasses.setModel(classModel);
     }
 
     @Action
@@ -559,7 +518,7 @@ public class NewProcessInfoView extends javax.swing.JDialog {
             try {
                 pool.appendClassPath(entry.getStringEntry());
             } catch(Exception e) {
-                e.printStackTrace();
+                logger.error(e);
             }
         }
 

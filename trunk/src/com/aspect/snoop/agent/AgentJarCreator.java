@@ -43,7 +43,7 @@ public class AgentJarCreator {
 
     private static String nl = System.getProperty("line.separator");
 
-    private static final String[] jarsToNotBootClasspath = {
+    public static final String[] jarsToNotBootClasspath = {
       "bsh-2.0b4.jar",
       "jython.jar",
       "appframework-1.0.3.jar",

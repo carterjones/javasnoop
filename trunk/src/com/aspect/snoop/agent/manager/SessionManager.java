@@ -21,6 +21,7 @@ package com.aspect.snoop.agent.manager;
 
 import com.aspect.snoop.FunctionHook;
 import com.aspect.snoop.SnoopSession;
+import com.aspect.snoop.agent.AgentLogger;
 import com.aspect.snoop.agent.SnoopAgent;
 import com.aspect.snoop.util.ReflectionUtil;
 import java.lang.reflect.Method;
@@ -41,7 +42,7 @@ public class SessionManager {
      * This function is the entry point into the instrumentation of the
      * running program. It turns on the rules we instrument.
      */
-    private static void uninstallHooks(SnoopSession snoopSession) throws InstrumentationException {
+    public static void uninstallHooks(SnoopSession snoopSession) throws InstrumentationException {
 
         if ( snoopSession == null ) {
             return;
@@ -53,9 +54,9 @@ public class SessionManager {
 
             Class clazz = hook.getClazz();
 
-            if ( ! manager.hasClassBeenModified(clazz) ) {
+            /*if ( ! manager.hasClassBeenModified(clazz) ) {
                 continue;
-            }
+            }*/
 
             if ( ReflectionUtil.isInterfaceOrAbstract(clazz) || hook.isAppliedToSubtypes() ) {
 
@@ -72,14 +73,16 @@ public class SessionManager {
             try {
                 if ( manager.hasClassBeenModified(clazz) ) {
                     manager.deinstrument(clazz);
+                } else {
+                    AgentLogger.debug("Not de-instrumenting " + clazz.getName() + " because it has no history");
                 }
             } catch(InstrumentationException e) {
-                e.printStackTrace();
+                AgentLogger.error("Problem de-instrumenting class", e);
             }
         }
     }
 
-    private static void installHooks(SnoopSession snoopSession) throws InstrumentationException {
+    public static void installHooks(SnoopSession snoopSession) throws InstrumentationException {
 
         HashMap<Class, ClassChanges> classChanges = new HashMap<Class,ClassChanges>();
 

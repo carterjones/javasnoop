@@ -33,7 +33,7 @@ public class CanaryResultTableModel extends DefaultTableModel {
 
     Class[] columnTypes = {
       String.class,
-      JButton.class
+      String.class
     };
 
     List<Chirp> chirps;
@@ -61,6 +61,10 @@ public class CanaryResultTableModel extends DefaultTableModel {
         return columnTypes.length;
     }
     
+    public Chirp getChirpAt(int row) {
+        return chirps.get(row);
+    }
+
     @Override
     public Object getValueAt(int row, int column) {
 
@@ -69,6 +73,8 @@ public class CanaryResultTableModel extends DefaultTableModel {
             return chirp.getMethod().toString();
         }
 
+        return "Add Hook";
+        /*
         JButton btnAddHook = new JButton("Add hook");
         btnAddHook.setSize(40, 25);
         final FunctionHook hook = new FunctionHook(chirp.getMethod());
@@ -76,11 +82,12 @@ public class CanaryResultTableModel extends DefaultTableModel {
         btnAddHook.addActionListener( new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 SnoopAgent.getMainView().addHook(hook);
-                JOptionPane.showMessageDialog(JavaSnoop.getApplication().getMainView().getFrame(), "Function hook added to " + hook.getClazz().getName() + "." + hook.getMethodName() + "()");
+                JOptionPane.showMessageDialog(SwingUtilities.windowForComponent(this, "Function hook added to " + hook.getClazz().getName() + "." + hook.getMethodName() + "()");
             }
         });
 
         return btnAddHook;
+         */
     }
 
     @Override
@@ -93,4 +100,8 @@ public class CanaryResultTableModel extends DefaultTableModel {
         return columnTypes[column];
     }
 
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        return column != 0;
+    }
 }

@@ -663,10 +663,10 @@ is divided into following sections:
     </target>
     <target depends="init,compile,-pre-jar,-do-jar-with-manifest,-do-jar-without-manifest,-do-jar-with-mainclass,-do-jar-with-libraries-and-splashscreen,-do-jar-with-libraries,-post-jar" description="Build JAR." name="jar"/>
     <!--
-                =================
-                EXECUTION SECTION
-                =================
-            -->
+        =================
+        EXECUTION SECTION
+        =================
+    -->
     <target depends="init,compile" description="Run a main class." name="run">
         <j2seproject1:java>
             <customize>

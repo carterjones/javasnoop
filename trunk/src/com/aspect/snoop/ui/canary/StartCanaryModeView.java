@@ -18,6 +18,7 @@
  */
 package com.aspect.snoop.ui.canary;
 
+import com.aspect.snoop.FunctionHook;
 import com.aspect.snoop.MethodWrapper;
 import com.aspect.snoop.agent.AgentCommunicationException;
 import com.aspect.snoop.agent.AgentLogger;
@@ -29,6 +30,9 @@ import com.aspect.snoop.util.CanaryUtil;
 import com.aspect.snoop.util.ClasspathUtil;
 import com.aspect.snoop.util.StringUtil;
 import com.aspect.snoop.util.UIUtil;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
@@ -37,29 +41,47 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
+import javax.swing.table.DefaultTableModel;
 import org.jdesktop.application.Action;
 
 public class StartCanaryModeView extends javax.swing.JDialog {
 
-    CanaryResultTableModel model;
+    final DefaultTableModel model;
     SwingWorker canaryWorker = null;
 
-    public StartCanaryModeView(java.awt.Frame parent, boolean modal) {
+    public StartCanaryModeView(final java.awt.Frame parent, boolean modal) {
 
         super(parent, modal);
 
         initComponents();
 
-        this.model = new CanaryResultTableModel();
+        this.model = new DefaultTableModel(new Object[]{"Method",""},0);
 
-        ButtonTableCellRenderer renderer = new ButtonTableCellRenderer();
-        tblCanaries.setDefaultEditor(JButton.class, renderer);
-        tblCanaries.setDefaultRenderer(JButton.class, renderer);
         tblCanaries.setRowHeight(25);
         tblCanaries.setModel(model);
+        
+        /*
+         * The action to be performed when the user hits one
+         * of the "Add Hook" buttons.
+         */
+        javax.swing.Action addHook = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                int i = Integer.valueOf(e.getActionCommand()).intValue();
+                Chirp c = chirps.get(i);
+                FunctionHook hook = new FunctionHook(c.getMethod());
+                SnoopAgent.getMainView().addHook(hook);
+                JOptionPane.showMessageDialog(parent, "Function hook added to " + hook.getClazz().getName() + "." + hook.getMethodName() + "()");
+            }
+        };
+
+        new ButtonColumn(tblCanaries, addHook, 1);
 
         tblCanaries.getColumnModel().getColumn(0).setPreferredWidth(450);
     }
@@ -84,6 +106,11 @@ public class StartCanaryModeView extends javax.swing.JDialog {
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getResourceMap(StartCanaryModeView.class);
         setTitle(resourceMap.getString("Form.title")); // NOI18N
         setName("Form"); // NOI18N
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                viewShown(evt);
+            }
+        });
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getActionMap(StartCanaryModeView.class, this);
         btnStartCanaryMode.setAction(actionMap.get("beginCanaryMode")); // NOI18N
@@ -106,6 +133,7 @@ public class StartCanaryModeView extends javax.swing.JDialog {
         btnStopCanaryMode.setFont(resourceMap.getFont("btnStopCanaryMode.font")); // NOI18N
         btnStopCanaryMode.setText(resourceMap.getString("btnStopCanaryMode.text")); // NOI18N
         btnStopCanaryMode.setToolTipText(resourceMap.getString("btnStopCanaryMode.toolTipText")); // NOI18N
+        btnStopCanaryMode.setEnabled(false);
         btnStopCanaryMode.setName("btnStopCanaryMode"); // NOI18N
 
         jScrollPane1.setName("jScrollPane1"); // NOI18N
@@ -193,6 +221,10 @@ public class StartCanaryModeView extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void viewShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_viewShown
+        repaint();
+    }//GEN-LAST:event_viewShown
+
     @Action
     public void beginCanaryMode() throws AgentCommunicationException {
 
@@ -238,20 +270,47 @@ public class StartCanaryModeView extends javax.swing.JDialog {
                 throw new InstrumentationException("Can't apply canary to unknown type: " + type);
             }
 
+            final javax.swing.JDialog parent = this;
+
             canaryWorker = new SwingWorker() {
 
                 int clsCount = 0;
                 int mtdCount = 0;
                 String finalMsg = null;
+                String nl = System.getProperty("line.separator");
 
                 @Override
                 protected void done() {
                     prgCanary.setString(finalMsg);
                     prgCanary.setEnabled(false);
+                    try {
+                        final String methodList = (String) get();
+                        prgCanary.addMouseListener(new MouseListener() {
+                            public void mouseClicked(MouseEvent e) {
+                                if ( e.getClickCount() != 2 )
+                                    return;
+                                
+                                ShowMethodsView view = new ShowMethodsView(parent, true, methodList);
+                                view.setVisible(true);
+                            }
+                            public void mousePressed(MouseEvent e) { }
+                            public void mouseReleased(MouseEvent e) { }
+                            public void mouseEntered(MouseEvent e) { }
+                            public void mouseExited(MouseEvent e) { }
+
+                        });
+
+                    } catch (InterruptedException ex) {
+                        AgentLogger.error(ex);
+                    } catch (ExecutionException ex) {
+                        AgentLogger.error(ex);
+                    }
                 }
 
                 @Override
                 protected Object doInBackground() throws Exception {
+
+                    StringBuilder sb = new StringBuilder();
 
                     prgCanary.setString("Starting canary mode...");
                     prgCanary.setStringPainted(true);
@@ -302,7 +361,7 @@ public class StartCanaryModeView extends javax.swing.JDialog {
                         try {
                             methods = c.getDeclaredMethods();
                         } catch (Throwable t) {
-                            t.printStackTrace();
+                            AgentLogger.warn("Problem analyzing method for canary purposes",t);
                             continue;
                         }
 
@@ -357,6 +416,8 @@ public class StartCanaryModeView extends javax.swing.JDialog {
                                     change.setNewStartSrc(CanaryUtil.getChirp(canaryType, clsName, wrapper.getName(), wrapper.getReturnType().getName()));
 
                                     AgentLogger.debug("Applying canary to " + wrapper.getDescription());
+                                    sb.append(wrapper.getDescription());
+                                    sb.append(nl);
                                     classChanges.add(change);
                                     mtdCount++;
                                 }
@@ -376,7 +437,7 @@ public class StartCanaryModeView extends javax.swing.JDialog {
                     finalMsg = "Successfully canaried " + clsCount + " classes and " + mtdCount + " methods.";
                     AgentLogger.info(finalMsg);
 
-                    return null;
+                    return sb.toString();
                 }
             };
 
@@ -390,7 +451,7 @@ public class StartCanaryModeView extends javax.swing.JDialog {
 
         } catch (InstrumentationException ex) {
             UIUtil.showErrorMessage(this, StringUtil.exception2string(ex));
-            ex.printStackTrace();
+            AgentLogger.error(ex);
         }
     }
 
@@ -416,7 +477,7 @@ public class StartCanaryModeView extends javax.swing.JDialog {
             CanaryUtil.currentCanary = null;
         } catch (InstrumentationException ex) {
             UIUtil.showErrorMessage(this, StringUtil.exception2string(ex));
-            ex.printStackTrace();
+            AgentLogger.error(ex);
         }
 
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -435,8 +496,12 @@ public class StartCanaryModeView extends javax.swing.JDialog {
     private javax.swing.JTextField txtPackage;
     // End of variables declaration//GEN-END:variables
 
+    private List<Chirp> chirps = new ArrayList<Chirp>();
+
     public void addChirp(Class c, AccessibleObject method) {
-        model.addChirp(new Chirp(c, method));
+
+        chirps.add(new Chirp(c, method));
+        model.addRow(new Object[]{method.toString(),"Add Hook"});
         model.fireTableDataChanged();
     }
 }

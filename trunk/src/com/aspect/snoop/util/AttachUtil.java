@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 import org.apache.log4j.Logger;
 
 /**
@@ -142,7 +143,20 @@ public class AttachUtil {
         }
         logger.debug(sb.toString());
         
-        Runtime.getRuntime().exec(commandArgs, null, new File(workingDir));
+        final String fWorkingDir = workingDir;
+        final String[] fCommandArgs = commandArgs;
+
+        new Thread("Executing ") {
+            @Override
+            public void run() {
+                try {
+                    Process p = Runtime.getRuntime().exec(fCommandArgs, null, new File(fWorkingDir));
+                    JadUtil.doWaitFor(p);
+                } catch (IOException ex) { 
+                    logger.error(ex);
+                }
+            }
+        }.start();
     }
     
     private static String[] parseArguments(String args) {

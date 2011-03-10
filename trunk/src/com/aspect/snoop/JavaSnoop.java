@@ -37,9 +37,11 @@ public class JavaSnoop extends SingleFrameApplication {
     public static final String USE_JAD = "use_jad";
     public static final String JAD_PATH = "jad_path";
     public static final String LOAD_WAIT = "load_wait";
+    public static final String LAST_DUMPED_DIR = "last_dumped_dir";
 
     private static Properties props;
     private static String propFile;
+
 
     private StartupView mainForm;
 

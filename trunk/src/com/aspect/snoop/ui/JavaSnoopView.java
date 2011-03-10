@@ -46,13 +46,18 @@ import com.aspect.snoop.util.JadUtil;
 import com.aspect.snoop.util.SessionPersistenceUtil;
 import com.aspect.snoop.util.UIUtil;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.FileDialog;
 import java.awt.Font;
+import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.awt.event.WindowStateListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -70,7 +75,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -82,11 +86,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.JRootPane;
 import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
@@ -135,22 +137,6 @@ public class JavaSnoopView extends javax.swing.JFrame {
 
             beMacFriendly();
 
-            AgentLogger.trace("Updating title");
-
-            /*
-             * The updateTitle() function blocks until
-             * the JVM figures out the process ID. So
-             * we have to wait for it asynchronously
-             * so we can finish loading the UI.
-             */
-           SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    UIUtil.pause(2000);
-                    updateTitle();
-                }
-            });
-            
             chkShowMethodCode.setSelected( JavaSnoop.getBooleanProperty(JavaSnoop.USE_JAD,false) );
 
             String icon = "/META-INF/about.png";
@@ -200,9 +186,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
     }
 
     private void beMacFriendly() {
-        AgentLogger.debug("Inside beMacFriendly");
         if (isMac()) {
-            AgentLogger.debug("I am a Mac, altering LAF");
             System.setProperty("apple.laf.useScreenMenuBar", "true");
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", "JavaSnoop");
             try {
@@ -211,7 +195,6 @@ public class JavaSnoopView extends javax.swing.JFrame {
                 AgentLogger.error(e);
             }
         }
-        AgentLogger.debug("End beMacFriendly");
     }
 
     private boolean isMac()
@@ -273,6 +256,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
         mnuDumpThreads = new javax.swing.JMenuItem();
         mnuOpenScriptingConsole = new javax.swing.JMenuItem();
         mnuStartCanaryMode = new javax.swing.JMenuItem();
+        mnuDumpAllSourceCode = new javax.swing.JMenuItem();
         classesMenu = new javax.swing.JMenu();
         mnuBrowseRemoteClasses = new javax.swing.JMenuItem();
         mnuForceLoadClasses = new javax.swing.JMenuItem();
@@ -299,6 +283,11 @@ public class JavaSnoopView extends javax.swing.JFrame {
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(com.aspect.snoop.JavaSnoop.class).getContext().getResourceMap(JavaSnoopView.class);
         setTitle(resourceMap.getString("Form.title")); // NOI18N
         setName("Form"); // NOI18N
+        addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                handleFocusGained(evt);
+            }
+        });
 
         jScrollPane1.setName("jScrollPane1"); // NOI18N
 
@@ -767,6 +756,12 @@ public class JavaSnoopView extends javax.swing.JFrame {
         });
         jvmMenu.add(mnuStartCanaryMode);
 
+        mnuDumpAllSourceCode.setAction(actionMap.get("dumpSourceCode")); // NOI18N
+        mnuDumpAllSourceCode.setText(resourceMap.getString("mnuDumpAllSourceCode.text")); // NOI18N
+        mnuDumpAllSourceCode.setToolTipText(resourceMap.getString("mnuDumpAllSourceCode.toolTipText")); // NOI18N
+        mnuDumpAllSourceCode.setName("mnuDumpAllSourceCode"); // NOI18N
+        jvmMenu.add(mnuDumpAllSourceCode);
+
         menuBar.add(jvmMenu);
 
         classesMenu.setText(resourceMap.getString("classesMenu.text")); // NOI18N
@@ -1211,13 +1206,30 @@ public class JavaSnoopView extends javax.swing.JFrame {
         if (hook != null) {
             int rc = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this hook?");
             if (rc == JOptionPane.YES_OPTION) {
-                FunctionsHookedTableModel model = (FunctionsHookedTableModel) tblFunctionsHooked.getModel();
+               
+                try {
 
-                model.removeHook(hook);
-                updateSessionUI(false);
+                    startProgressBar();
+
+                    statusMessageLabel.setText("Setting hooks...");
+
+                    SessionManager.uninstallHooks(currentSession);
+                    currentSession.getFunctionHooks().remove(hook);
+                    SessionManager.installHooks(currentSession);
+
+                    FunctionsHookedTableModel model = (FunctionsHookedTableModel) tblFunctionsHooked.getModel();
+                    model.removeHook(hook);
+                    updateSessionUI(false);
+
+                    statusMessageLabel.setText("Finished setting hooks at " + getHumanTime() );
+
+                } catch (Exception ex) {
+                    UIUtil.showErrorMessage(this, "Failure establishing hooks: " + ex.getMessage());
+                    AgentLogger.error("Failure establishing hooks", ex);
+                } finally {
+                    stopProgressBar();
+                }
             }
-
-            sendAgentNewRules();
         }
     }//GEN-LAST:event_btnDeleteHookActionPerformed
 
@@ -1457,6 +1469,10 @@ public class JavaSnoopView extends javax.swing.JFrame {
         changeLogLevel(evt.getActionCommand());
     }//GEN-LAST:event_mnuAgentLogOffActionPerformed
 
+    private void handleFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_handleFocusGained
+        updateTitle();
+    }//GEN-LAST:event_handleFocusGained
+
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -1502,6 +1518,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
     private javax.swing.JCheckBoxMenuItem mnuAgentLogWarn;
     private javax.swing.JMenuItem mnuBrowseRemoteClasses;
     private javax.swing.JMenuItem mnuDecompileClass;
+    private javax.swing.JMenuItem mnuDumpAllSourceCode;
     private javax.swing.JMenuItem mnuDumpThreads;
     private javax.swing.JMenuItem mnuExitAndKill;
     private javax.swing.JMenuItem mnuForceLoadClasses;
@@ -1947,7 +1964,7 @@ public class JavaSnoopView extends javax.swing.JFrame {
 
         } catch (Exception ex) {
             UIUtil.showErrorMessage(this, "Failure establishing hooks: " + ex.getMessage());
-            ex.printStackTrace();
+            AgentLogger.error("Failure establishing hooks", ex);
         } finally {
             stopProgressBar();
         }
@@ -1965,26 +1982,54 @@ public class JavaSnoopView extends javax.swing.JFrame {
 
     public void enterCanaryMode() {
 
-        canaryView = new StartCanaryModeView(this, true);
+        canaryView = new StartCanaryModeView(this, false);
+        final SnoopSession session = currentSession;
+        final javax.swing.JFrame frame = this;
+
+        disableAllComponentsForCanaryMode();
+        
+        canaryView.addWindowListener(new WindowListener() {
+
+            private void enableAllComponentsForCanaryMode() {
+                //FIXME: Save the "enabled" state in a <Component,Boolean>
+                //       HashMap and disable all fields. Right now, all we
+                //       do is disable. When we enable, we enable things that
+                //       were not previously enabled.
+                recursiveSetEnabled(frame, true);
+            }
+
+            public void windowClosed(WindowEvent e) {
+                try {
+                    statusMessageLabel.setText("Resetting hooks...");
+                    SessionManager.recycleHooks(session);
+                    statusMessageLabel.setText("Finished resetting hooks at " + getHumanTime() );
+                } catch (Exception ex) {
+                    UIUtil.showErrorMessage(frame, "Failure resetting hooks: " + ex.getMessage());
+                    AgentLogger.error("Failure resetting hooks", ex);
+                } finally {
+                    enableAllComponentsForCanaryMode();
+                }
+            }
+
+            public void windowOpened(WindowEvent e) { }
+            public void windowClosing(WindowEvent e) { }
+            public void windowIconified(WindowEvent e) { }
+            public void windowDeiconified(WindowEvent e) { }
+            public void windowActivated(WindowEvent e) { }
+            public void windowDeactivated(WindowEvent e) { }
+        });
 
         canaryView.setVisible(true);
+        this.setEnabled(true);
+    }
 
-        UIUtil.waitForInput(getCanaryView());
-
-        try {
-
-            canaryView = null;
-
-            statusMessageLabel.setText("Setting hooks...");
-
-            SessionManager.recycleHooks(currentSession);
-
-            statusMessageLabel.setText("Finished setting hooks at " + getHumanTime() );
-
-        } catch (Exception ex) {
-            UIUtil.showErrorMessage(this, "Failure setting hooks: " + ex.getMessage());
+    private void recursiveSetEnabled(Component c, boolean b) {
+        if ( c instanceof java.awt.Container ) {
+            for (Component child : ((java.awt.Container)c).getComponents()) {
+                recursiveSetEnabled(child, b);
+            }
         }
-
+        c.setEnabled(b);
     }
 
     public StartCanaryModeView getCanaryView() {
@@ -2042,6 +2087,10 @@ public class JavaSnoopView extends javax.swing.JFrame {
         } catch(IOException ioe){}
 
         return sb.toString();
+    }
+
+    private void disableAllComponentsForCanaryMode() {
+        recursiveSetEnabled(this, false);
     }
 
     class PopupListener extends MouseAdapter {
@@ -2397,4 +2446,36 @@ public class JavaSnoopView extends javax.swing.JFrame {
         }
         showSnoopMessage(sb.toString());
     }
+
+    @Action
+    public void dumpSourceCode() {
+
+        String startingDir = lastDumpDirectory != null ? lastDumpDirectory : System.getProperty("user.dir");
+        File dir = UIUtil.getFileSelection(this,true,startingDir);
+
+        if ( dir == null ) // user cancelled
+            return;
+
+        if ( JadUtil.getJadLocation() == null ) {
+            UIUtil.showErrorMessage(this, "Can't dump source without Jad location set. Go to Settings->Manage Jad->Set jad path.");
+            return;
+        }
+
+        manager.updateClassPool();
+
+        AgentLogger.debug("Looking up source code for the following URLs:");
+        for(java.net.URL u : manager.getCodeSourceURLs()) {
+            AgentLogger.debug(u.toString());
+        }
+
+        DumpSourceCodeView view = new DumpSourceCodeView(this,true, manager, dir);
+        view.startDump();
+        view.setVisible(true);
+
+        UIUtil.waitForInput(view);
+
+    }
+
+    private String lastDumpDirectory = JavaSnoop.getProperty(JavaSnoop.LAST_DUMPED_DIR);
+
 }

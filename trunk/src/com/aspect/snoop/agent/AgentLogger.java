@@ -19,6 +19,10 @@
 
 package com.aspect.snoop.agent;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -37,8 +41,12 @@ public class AgentLogger {
     private static final Map<Integer,String> levelMap = new HashMap<Integer,String>();
     private static final Map<String,Integer> nameMap = new HashMap<String,Integer>();
 
+    private static String logFile = System.getProperty("user.home") + "/snoop.log";
+
     private static final String prefix = "[JSNOOP ";
     private static final String suffix = "] ";
+    private static final String nl = System.getProperty("line.separator");
+
     static {
         levelMap.put(TRACE, "TRACE");
         levelMap.put(DEBUG, "DEBUG");
@@ -68,71 +76,98 @@ public class AgentLogger {
     }
 
     public static void trace(String s) {
-        if ( level <= TRACE ) System.out.println(getPrefix() + s);
+        if ( level <= TRACE ) _log(getPrefix() + s);
     }
 
 
     public static void debug(String s, Throwable t) {
         if ( level <= DEBUG ) {
-            System.out.println(getPrefix() + s);
-            t.printStackTrace();
+            _log(getPrefix() + s);
+            _log(t);
         }
     }
 
     public static void debug(String s) {
-        if ( level <= DEBUG ) System.out.println(getPrefix() + s);
+        if ( level <= DEBUG )
+            _log(getPrefix() + s);
     }
 
     public static void info(String s) {
-        if ( level <= INFO ) System.out.println(getPrefix() + s);
+        if ( level <= INFO ) _log(getPrefix() + s);
     }
 
     public static void warn(String s) {
-        if ( level <= WARN ) System.out.println(getPrefix() + s);
+        if ( level <= WARN ) _log(getPrefix() + s);
+    }
+
+    public static void warn(String s, Throwable t) {
+        if ( level <= WARN ) {
+            _log(getPrefix() + s);
+            _log(t);
+        }
     }
 
     public static void error(Throwable t) {
         if ( level <= ERROR ) {
-            System.out.println(getPrefix() + t.getMessage());
-            t.printStackTrace();
+            _log(getPrefix() + t.getMessage());
+            _log(t);
         }
     }
 
     public static void error(String s) {
-        if ( level <= ERROR ) System.out.println(getPrefix() + s);
+        if ( level <= ERROR ) _log(getPrefix() + s);
     }
 
     public static void error(String s, Throwable t) {
         if ( level <= ERROR ) {
-            System.out.println(getPrefix() + s);
-            t.printStackTrace();
+            _log(getPrefix() + s);
+            _log(t);
         }
     }
 
     public static void fatal(String s) {
-        if ( level <= FATAL ) System.out.println(getPrefix() + s);
+        if ( level <= FATAL ) _log(getPrefix() + s);
     }
 
     public static void fatal(Throwable t) {
         if ( level <= FATAL ) {
-            System.out.println(getPrefix() + t.getMessage());
-            t.printStackTrace();
+            _log(getPrefix() + t.getMessage());
+            _log(t);
         }
     }
 
     public static void fatal(String s, Throwable t) {
         if ( level <= FATAL ) {
-            System.out.println(getPrefix() + s);
-            t.printStackTrace();
+            _log(getPrefix() + s);
+            _log(t);
         }
     }
 
     private static String getPrefix() {
-        return prefix + getTime() + suffix;
+        return prefix + getTime() + " " + levelName(level) + suffix;
     }
 
     private static String getTime() {
         return new SimpleDateFormat().format(new Date());
     }
 
+    private static void _log(String s) {
+        FileOutputStream fos;
+        try {
+            fos = new FileOutputStream(logFile,true);
+            fos.write(s.getBytes());
+            fos.write(nl.getBytes());
+            fos.close();
+        } catch (IOException e) {
+            _log(s);
+        }
+    }
+
+    private static void _log(Throwable t) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        t.printStackTrace(pw);
+        pw.flush();
+        _log(sw.toString());
+    }
 }
