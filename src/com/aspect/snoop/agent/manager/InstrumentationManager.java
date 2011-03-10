@@ -83,6 +83,14 @@ public class InstrumentationManager {
         updateClassPool();
     }
 
+    public List<URL> getCodeSourceURLs() {
+        List<URL> urls = new ArrayList<URL>();
+        for(URL u : urlSources.keySet()) {
+            urls.add(u);
+        }
+        return urls;
+    }
+
     public final void updateClassPool() {
 
         ClassPool classPool = ClassPool.getDefault();
@@ -151,6 +159,7 @@ public class InstrumentationManager {
 
             ClassDefinition definition = new ClassDefinition(clazz, history.getOriginalClass());
             inst.redefineClasses(definition);
+            AgentLogger.debug("Just de-instrumented " + clazz.getName());
             
         } catch (ClassNotFoundException cnfe) {
             throw new InstrumentationException(cnfe);

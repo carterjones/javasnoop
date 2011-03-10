@@ -179,7 +179,7 @@ public class JadUtil {
     * Method to perform a "wait" for a process and return its exit value.
     * This is a workaround for <CODE>process.waitFor()</CODE> never returning.
     */
-   private static int doWaitFor(Process p) {
+   public static int doWaitFor(Process p) {
 
       int exitValue = -1;  // returned to caller when p is finished
 

@@ -20,6 +20,7 @@
 package com.aspect.snoop.ui.hook;
 
 import com.aspect.snoop.FunctionHook;
+import com.aspect.snoop.agent.SnoopAgent;
 import com.aspect.snoop.util.ReflectionUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -136,11 +137,10 @@ public class FunctionsHookedTableModel extends AbstractTableModel {
         
         if ( columnIndex == 0 ) {
             hook.setEnabled(((Boolean)aValue).booleanValue());
-            //JavaSnoop.getMainForm().sendAgentNewRules();
-
         } else if ( columnIndex == 2 ) {
             hook.setApplyToSubtypes(((Boolean)aValue).booleanValue());
         }
+        SnoopAgent.getMainView().sendAgentNewRules();
     }
 
     public void disableAll() {

@@ -9,6 +9,9 @@
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
   </SyntheticProperties>
+  <Events>
+    <EventHandler event="componentShown" listener="java.awt.event.ComponentListener" parameters="java.awt.event.ComponentEvent" handler="viewShown"/>
+  </Events>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="2"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="true"/>
@@ -135,6 +138,7 @@
         <Property name="font" type="java.awt.Font" resourceKey="btnStopCanaryMode.font"/>
         <Property name="text" type="java.lang.String" resourceKey="btnStopCanaryMode.text"/>
         <Property name="toolTipText" type="java.lang.String" resourceKey="btnStopCanaryMode.toolTipText"/>
+        <Property name="enabled" type="boolean" value="false"/>
         <Property name="name" type="java.lang.String" value="btnStopCanaryMode" noResource="true"/>
       </Properties>
     </Component>
