@@ -25,6 +25,7 @@ import com.aspect.snoop.util.SimpleFileFilter;
 import com.aspect.snoop.util.UIUtil;
 import java.awt.FileDialog;
 import java.io.File;
+import java.io.FileFilter;
 import java.net.MalformedURLException;
 import java.util.List;
 import javassist.ClassPath;
@@ -432,13 +433,32 @@ public class NewProcessInfoView extends javax.swing.JDialog {
         // Append the selected paths to our list of source roots
         for (File selectedFile : selectedFiles) {
 
-            try {
-                ClassPath entry = new SmartURLClassPath(selectedFile.toURL());
-                cp.appendClassPath(entry);
-                classpath.addEntry(new ClasspathEntry(selectedFile.getAbsolutePath(),entry));
-            } catch (MalformedURLException ex) {
-                UIUtil.showErrorMessage(this, "Failed to add classpath entry: " + cp);
-                logger.error("Error adding to classpath: " + cp, ex);
+            if ( selectedFile.isFile()) {
+                try {
+                    ClassPath entry = new SmartURLClassPath(selectedFile.toURL());
+                    cp.appendClassPath(entry);
+                    classpath.addEntry(new ClasspathEntry(selectedFile.getAbsolutePath(),entry));
+                } catch (MalformedURLException ex) {
+                    UIUtil.showErrorMessage(this, "Failed to add classpath entry: " + cp);
+                    logger.error("Error adding to classpath: " + cp, ex);
+                }
+            } else if ( selectedFile.isDirectory() ) {
+                FileFilter jarFilter = new FileFilter() {
+                    public boolean accept(File f) {
+                        return f.isFile() && f.getName().endsWith(".jar");
+                    }
+
+                };
+                for(File file : selectedFile.listFiles(jarFilter)) {
+                    try {
+                        ClassPath entry = new SmartURLClassPath(file.toURL());
+                        cp.appendClassPath(entry);
+                        classpath.addEntry(new ClasspathEntry(file.getAbsolutePath(),entry));
+                    } catch (MalformedURLException ex) {
+                        UIUtil.showErrorMessage(this, "Failed to add classpath entry: " + cp);
+                        logger.error("Error adding to classpath: " + cp, ex);
+                    }
+                }
             }
         }
 
