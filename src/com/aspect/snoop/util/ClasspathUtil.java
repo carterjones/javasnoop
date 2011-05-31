@@ -408,6 +408,8 @@ public class ClasspathUtil {
             "sun.",
             "sunw.",
             "netscape.",
+            "apple.",
+            "com.apple.",
             "com.sun."
         };
         
