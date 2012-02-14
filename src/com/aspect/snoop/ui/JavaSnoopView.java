@@ -1695,10 +1695,10 @@ public class JavaSnoopView extends javax.swing.JFrame {
 
         List<Parameter> params = new ArrayList<Parameter>();
 
-        for (int i = 0; i < parameters.length; i++) {
-            params.add(new Parameter(i, parameters[i], types[i]));
-        }
-
+        //for (int i = 0; i < parameters.length; i++) {
+          //  params.add(new Parameter(i, parameters[i], types[i]));
+        //}
+        params.add(new Parameter(0, retVal, retValType));
         ParameterTamperingView view = new ParameterTamperingView(
                 this,
                 true,
